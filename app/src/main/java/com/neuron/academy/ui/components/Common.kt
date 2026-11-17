@@ -30,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -194,6 +195,23 @@ fun LoadingBlock(text: String = "Нейрон думает…", skin: String = "
         NeuronMascot(skin, 36.dp, MascotMood.THINKING)
         Spacer(Modifier.width(10.dp))
         Text(text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
+/** Ответ, который ИИ печатает прямо сейчас (формулы оформятся, когда ответ будет готов). */
+@Composable
+fun StreamingText(text: String) {
+    val shown = remember(text) {
+        text.replace("\\(", "").replace("\\)", "").replace("\\[", "").replace("\\]", "").replace("**", "")
+    }
+    Column(Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            NeuronMascot("skin_classic", 28.dp, MascotMood.THINKING)
+            Spacer(Modifier.width(8.dp))
+            Text("Нейрон печатает…", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+        }
+        Spacer(Modifier.height(6.dp))
+        Text("$shown ▍", style = MaterialTheme.typography.bodyMedium)
     }
 }
 

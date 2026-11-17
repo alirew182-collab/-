@@ -158,7 +158,7 @@ private fun InstallAiCard(onOpen: () -> Unit) {
             style = MaterialTheme.typography.titleMedium,
         )
         Spacer(Modifier.height(4.dp))
-        Text("Один раз скачать 1,6 ГБ — и чат, «Объясни иначе» и генерация задач заработают.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text("Один раз скачать ${c.localLlm.recommended.sizeLabel} — и чат, «Объясни иначе» и генерация задач заработают.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 

@@ -27,6 +27,8 @@ class AiBlock {
     var text by mutableStateOf<String?>(null)
     var error by mutableStateOf<String?>(null)
     var noKeys by mutableStateOf(false)
+    /** Текст, который встроенный ИИ печатает прямо сейчас. */
+    var partial by mutableStateOf<String?>(null)
 }
 
 class PracticeItem(val task: Practice, val aiGenerated: Boolean = false) {
@@ -61,6 +63,11 @@ class TopicViewModel(private val c: AppContainer, topicId: String) : ViewModel()
     val multiAi = AiBlock()
     /** ИИ-разборы «другими способами» для примеров и задач (ключ — текст условия). */
     val altBlocks = mutableMapOf<String, AiBlock>()
+
+    init {
+        // встроенный ИИ заранее загружается в память — первый ответ придёт быстрее
+        if (c.router.usesBuiltin) c.localLlm.warmUp()
+    }
 
     fun altBlock(key: String): AiBlock = altBlocks.getOrPut(key) { AiBlock() }
 
@@ -109,16 +116,17 @@ class TopicViewModel(private val c: AppContainer, topicId: String) : ViewModel()
 
     private fun run(block: AiBlock, action: suspend () -> String) {
         if (block.loading) return
-        block.loading = true; block.error = null; block.noKeys = false
+        block.loading = true; block.error = null; block.noKeys = false; block.partial = null
         viewModelScope.launch {
             try {
-                block.text = action()
+                block.text = kotlinx.coroutines.withContext(com.neuron.academy.ai.AiStream { p -> viewModelScope.launch { if (block.loading) block.partial = p } }) { action() }
             } catch (e: com.neuron.academy.ai.NoKeysException) {
                 block.noKeys = true; block.error = e.userMessage()
             } catch (e: Exception) {
                 block.error = e.userMessage()
             } finally {
                 block.loading = false
+                block.partial = null
             }
         }
     }

@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -8,14 +10,14 @@ plugins {
 
 android {
     namespace = "com.neuron.academy"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.neuron.academy"
         minSdk = 26
         targetSdk = 34
-        versionCode = 7
-        versionName = "2.3"
+        versionCode = 8
+        versionName = "2.4"
         // Встроенная модель работает на 64-битных устройствах
         ndk { abiFilters += listOf("arm64-v8a", "x86_64") }
     }
@@ -33,9 +35,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
     buildFeatures {
         compose = true
         buildConfig = true
@@ -46,7 +45,22 @@ android {
     }
     packaging {
         resources.excludes += setOf("/META-INF/{AL2.0,LGPL2.1}", "/META-INF/INDEX.LIST", "/META-INF/io.netty.versions.properties")
+        jniLibs.pickFirsts += "**/liblitertlm_jni.so"
+        // нативные библиотеки модели не сжимаем: быстрее загрузка
+        jniLibs.useLegacyPackaging = false
     }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
+        // LiteRT-LM собран более новым Kotlin — читаем его метаданные
+        freeCompilerArgs.add("-Xskip-metadata-version-check")
+    }
+}
+
+configurations.all {
+    resolutionStrategy.force("org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.0")
 }
 
 ksp {
@@ -73,9 +87,10 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.8.4")
 
     // Room
-    implementation("androidx.room:room-runtime:2.6.1")
-    implementation("androidx.room:room-ktx:2.6.1")
-    ksp("androidx.room:room-compiler:2.6.1")
+    implementation("androidx.room:room-runtime:2.7.2")
+    implementation("androidx.room:room-ktx:2.7.2")
+    ksp("androidx.room:room-compiler:2.7.2")
+    ksp("org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.0")
 
     // Сеть: Ktor + kotlinx.serialization
     implementation("io.ktor:ktor-client-core:2.3.12")
@@ -86,8 +101,8 @@ dependencies {
     // Шифрование ключей
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
 
-    // Встроенный ИИ: языковая модель прямо на телефоне
-    implementation("com.google.mediapipe:tasks-genai:0.10.24")
+    // Встроенный ИИ: LiteRT-LM (Google) — модели Gemma 4 / Qwen 3.5 прямо на телефоне, ускорение на GPU
+    implementation("com.google.ai.edge.litertlm:litertlm-android:0.18.1")
 
     // Виджеты рабочего стола
     implementation("androidx.glance:glance-appwidget:1.1.1")

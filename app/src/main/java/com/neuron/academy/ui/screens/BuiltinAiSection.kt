@@ -43,6 +43,8 @@ fun BuiltinAiSection() {
     val active by llm.active.collectAsState()
     val mobile by c.settings.allowMobileDownload.collectAsState()
     val ram = remember { llm.deviceRamGb() }
+    val useGpu by llm.useGpu.collectAsState()
+    val engineState by llm.engineState.collectAsState()
     var confirmDelete by remember { mutableStateOf<LocalModel?>(null) }
 
     Column {
@@ -58,21 +60,32 @@ fun BuiltinAiSection() {
         Spacer(Modifier.height(8.dp))
         Text(
             "Модель работает прямо на телефоне: не нужны ключи и интернет, переписка никуда не отправляется. " +
-                "Скачивается один раз. Ответ занимает от нескольких секунд до минуты — зависит от телефона.",
+                "Скачивается один раз. Ответ появляется сразу и печатается на глазах, а на телефонах с хорошей " +
+                "видеокартой модель работает в несколько раз быстрее.",
             style = MaterialTheme.typography.bodySmall,
         )
         Spacer(Modifier.height(4.dp))
-        Text("Память телефона: %.1f ГБ ОЗУ".format(ram), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(
+            "Память телефона: %.1f ГБ ОЗУ · рекомендуем: %s".format(ram, llm.recommended.title.substringBefore(" (")),
+            style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        val engineText = when (val e = engineState) {
+            is com.neuron.academy.ai.local.EngineState.Loading -> "Загружаю модель в память…"
+            is com.neuron.academy.ai.local.EngineState.Loaded -> if (e.onGpu) "Работает на видеокарте ⚡" else "Работает на процессоре"
+            else -> null
+        }
+        if (engineText != null) Text(engineText, style = MaterialTheme.typography.labelMedium, color = GameColors.Success)
     }
 
     Column(Modifier.padding(top = 10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         LocalModel.entries.forEach { m ->
             val st = statuses[m] ?: ModelStatus.NotDownloaded
             val isActive = m == active
-            val weak = ram + 0.5 < m.minRamGb
+            val weak = ram + 0.8 < m.minRamGb
             Panel {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
+                        if (m == llm.recommended) Text("★ Лучший выбор для твоего телефона", style = MaterialTheme.typography.labelMedium, color = GameColors.Gold)
                         Text(m.title, style = MaterialTheme.typography.titleMedium)
                         Text("${m.sizeLabel} · от ${m.minRamGb} ГБ ОЗУ", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
@@ -80,7 +93,7 @@ fun BuiltinAiSection() {
                 }
                 Spacer(Modifier.height(4.dp))
                 Text(m.description, style = MaterialTheme.typography.bodySmall)
-                if (weak) Text("Для этого телефона может быть тяжеловата — лучше выбрать Лайт.", style = MaterialTheme.typography.bodySmall, color = GameColors.Fire)
+                if (weak) Text("Для этого телефона может быть тяжеловата — лучше выбрать ${llm.recommended.title.substringBefore(" (")}.", style = MaterialTheme.typography.bodySmall, color = GameColors.Fire)
                 Spacer(Modifier.height(10.dp))
                 when (st) {
                     is ModelStatus.NotDownloaded, is ModelStatus.Failed -> {
@@ -105,6 +118,13 @@ fun BuiltinAiSection() {
                     }
                 }
             }
+        }
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text("Ускорение на видеокарте", style = MaterialTheme.typography.bodyMedium)
+                Text("Выключи, если ответы зависают или приложение закрывается", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Switch(useGpu, { llm.setUseGpu(it) })
         }
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text("Разрешить скачивание по мобильной сети", modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)

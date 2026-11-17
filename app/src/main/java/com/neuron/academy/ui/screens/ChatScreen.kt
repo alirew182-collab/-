@@ -58,6 +58,7 @@ import com.neuron.academy.ui.components.LoadingBlock
 import com.neuron.academy.ui.components.MathText
 import com.neuron.academy.ui.components.NeuronAvatar
 import com.neuron.academy.ui.components.NeuronBubble
+import com.neuron.academy.ui.components.StreamingText
 import com.neuron.academy.ui.containerViewModel
 import com.neuron.academy.ui.userMessage
 import kotlinx.coroutines.flow.SharingStarted
@@ -71,7 +72,12 @@ class ChatViewModel(private val c: AppContainer, topicId: String?) : ViewModel()
     val messages: StateFlow<List<ChatMessageEntity>> = c.chatDao.observeThread(thread).stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     val player: StateFlow<PlayerEntity> = c.game.player.stateIn(viewModelScope, SharingStarted.Eagerly, PlayerEntity())
     var loading by mutableStateOf(false)
+    var streaming by mutableStateOf<String?>(null)
     var input by mutableStateOf("")
+
+    init {
+        if (c.router.usesBuiltin) c.localLlm.warmUp()
+    }
     val hasKeys get() = c.router.isAvailable()
 
     fun send(text: String = input) {
@@ -95,12 +101,15 @@ class ChatViewModel(private val c: AppContainer, topicId: String?) : ViewModel()
                     if (lastMsg != null && lastMsg.role == m.role) history[history.lastIndex] = AiMessage(m.role, lastMsg.content + "\n\n" + m.content)
                     else history += m
                 }
-                val r = c.tutor.chat(ls.currentGrade, ls.completedTopics.map { it.title }, history, topic)
+                val r = kotlinx.coroutines.withContext(com.neuron.academy.ai.AiStream { p -> viewModelScope.launch { if (loading) streaming = p } }) {
+                    c.tutor.chat(ls.currentGrade, ls.completedTopics.map { it.title }, history, topic)
+                }
                 c.chatDao.insert(ChatMessageEntity(thread = thread, role = "assistant", content = r.text + "\n\n_" + r.keyName + "_"))
             } catch (e: Exception) {
                 c.chatDao.insert(ChatMessageEntity(thread = thread, role = "error", content = e.userMessage()))
             } finally {
                 loading = false
+                streaming = null
             }
         }
     }
@@ -186,7 +195,10 @@ fun ChatScreen(nav: NavHostController, topicId: String?) {
             }
             items(messages, key = { it.id }) { m -> MessageBubble(m) }
             item {
-                if (vm.loading) LoadingBlock()
+                if (vm.loading) {
+                    val p = vm.streaming
+                    if (p.isNullOrBlank()) LoadingBlock() else StreamingText(p)
+                }
                 val last = messages.lastOrNull()
                 if (!vm.loading && last?.role == "assistant") {
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {

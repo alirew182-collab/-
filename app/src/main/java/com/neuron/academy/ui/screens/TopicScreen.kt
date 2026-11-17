@@ -71,6 +71,7 @@ import com.neuron.academy.ui.components.InfoCard
 import com.neuron.academy.ui.components.LoadingBlock
 import com.neuron.academy.ui.components.MathText
 import com.neuron.academy.ui.components.NeuronBubble
+import com.neuron.academy.ui.components.StreamingText
 import com.neuron.academy.ui.containerViewModel
 import com.neuron.academy.ui.theme.GameColors
 import com.neuron.gamification.NeuronLines
@@ -416,7 +417,10 @@ fun AiSection(block: com.neuron.academy.ui.screens.AiBlock, nav: NavHostControll
 
 @Composable
 fun AiResult(block: com.neuron.academy.ui.screens.AiBlock, nav: NavHostController) {
-    if (block.loading) LoadingBlock()
+    if (block.loading) {
+        val p = block.partial
+        if (p.isNullOrBlank()) LoadingBlock() else StreamingText(p)
+    }
     block.error?.let { ErrorBlock(it, if (block.noKeys) ({ nav.navigate(Routes.KEYS) }) else null) }
     block.text?.let { t ->
         if (!block.loading) {

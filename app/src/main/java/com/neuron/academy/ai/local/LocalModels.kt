@@ -1,38 +1,9 @@
 package com.neuron.academy.ai.local
 
-import com.neuron.academy.ai.AiMessage
-import com.neuron.academy.ai.AiRequest
-
-/** Шаблон диалога, который понимает конкретная модель. */
-enum class ChatTemplate {
-    CHATML, // Qwen
-    PHI;    // Phi-4
-
-    fun format(request: AiRequest, maxHistory: Int = 6): String {
-        val history = request.messages.takeLast(maxHistory)
-        return when (this) {
-            CHATML -> buildString {
-                append("<|im_start|>system\n").append(request.system).append("<|im_end|>\n")
-                history.forEach { m ->
-                    append("<|im_start|>").append(if (m.role == AiMessage.Role.USER) "user" else "assistant").append('\n')
-                    append(m.content).append("<|im_end|>\n")
-                }
-                append("<|im_start|>assistant\n")
-            }
-            PHI -> buildString {
-                append("<|system|>").append(request.system).append("<|end|>")
-                history.forEach { m ->
-                    append(if (m.role == AiMessage.Role.USER) "<|user|>" else "<|assistant|>").append(m.content).append("<|end|>")
-                }
-                append("<|assistant|>")
-            }
-        }
-    }
-}
-
 /**
- * Модели, которые работают прямо на телефоне (MediaPipe LLM Inference, формат .task).
- * Источник — открытые репозитории litert-community на Hugging Face (лицензии Apache 2.0 / MIT).
+ * Модели, которые работают прямо на телефоне через LiteRT-LM (формат .litertlm).
+ * Источник — открытые репозитории litert-community на Hugging Face; ссылки закреплены за
+ * конкретной версией файла, чтобы размер и содержимое не менялись.
  */
 enum class LocalModel(
     val id: String,
@@ -41,29 +12,49 @@ enum class LocalModel(
     val url: String,
     val fileName: String,
     val sizeBytes: Long,
+    /** С какого объёма ОЗУ модель работает комфортно. */
     val minRamGb: Int,
-    val template: ChatTemplate,
+    /** Пробовать ускорение на видеокарте. */
+    val gpu: Boolean,
+    /** Модель с рекуррентным состоянием: на каждый запрос нужен новый движок (особенность рантайма). */
+    val freshEngine: Boolean,
+    val contextTokens: Int,
 ) {
-    QWEN_1_5B(
-        "qwen2.5-1.5b",
-        "Нейрон Лайт (Qwen 2.5 · 1.5B)",
-        "Быстрая модель, хорошо понимает русский. Подходит большинству телефонов.",
-        "https://huggingface.co/litert-community/Qwen2.5-1.5B-Instruct/resolve/main/Qwen2.5-1.5B-Instruct_multi-prefill-seq_q8_ekv4096.task",
-        "qwen2.5-1.5b-q8-ekv4096.task",
-        1_598_556_720L, 4, ChatTemplate.CHATML,
+    MINI(
+        "qwen3.5-0.8b",
+        "Нейрон Мини (Qwen 3.5 · 0.8B)",
+        "Для любых телефонов, даже недорогих: весит меньше гигабайта, хорошо понимает русский.",
+        "https://huggingface.co/litert-community/Qwen3.5-0.8B/resolve/8eb8a8428f9caaf0965260b97d919437bc9466e6/Qwen3.5-0.8B_int8.litertlm",
+        "qwen3.5-0.8b-int8.litertlm",
+        964_657_152L, 3, gpu = false, freshEngine = true, contextTokens = 4096,
     ),
-    PHI4_MINI(
-        "phi-4-mini",
-        "Нейрон Про (Phi-4 mini · 3.8B)",
-        "Умнее в математике и логике, но медленнее. Нужен мощный телефон (8 ГБ ОЗУ).",
-        "https://huggingface.co/litert-community/Phi-4-mini-instruct/resolve/main/Phi-4-mini-instruct_multi-prefill-seq_q8_ekv4096.task",
-        "phi-4-mini-q8-ekv4096.task",
-        3_910_050_199L, 8, ChatTemplate.PHI,
+    GEMMA_E2B(
+        "gemma4-e2b",
+        "Нейрон (Gemma 4 · E2B)",
+        "Новая модель Google для телефонов: заметно умнее в математике и объяснениях, отвечает быстро благодаря видеокарте.",
+        "https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/2d74ac41a33d7da82f39f7d5720a04c68514a103/gemma-4-E2B-it.litertlm",
+        "gemma-4-e2b-it.litertlm",
+        2_588_147_712L, 6, gpu = true, freshEngine = false, contextTokens = 8192,
+    ),
+    GEMMA_E4B(
+        "gemma4-e4b",
+        "Нейрон Про (Gemma 4 · E4B)",
+        "Самая умная встроенная модель: сложные задачи, подробные решения. Для мощных телефонов.",
+        "https://huggingface.co/litert-community/gemma-4-E4B-it-litert-lm/resolve/f254b5ba6e36f7d89cc7892e268e9877bc20f0a0/gemma-4-E4B-it.litertlm",
+        "gemma-4-e4b-it.litertlm",
+        3_659_530_240L, 8, gpu = true, freshEngine = false, contextTokens = 8192,
     );
 
     val sizeLabel: String get() = "%.1f ГБ".format(sizeBytes / 1_000_000_000.0)
 
     companion object {
         fun byId(id: String?) = entries.firstOrNull { it.id == id }
+
+        /** Лучшая модель, которая потянет телефон с таким объёмом ОЗУ (система показывает чуть меньше номинала). */
+        fun recommended(ramGb: Double): LocalModel = when {
+            ramGb + 0.8 >= GEMMA_E4B.minRamGb + 3 -> GEMMA_E4B // 12 ГБ и больше
+            ramGb + 0.8 >= GEMMA_E2B.minRamGb -> GEMMA_E2B
+            else -> MINI
+        }
     }
 }

@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">Нейрон: Академия</string>
+    <string name="widget_progress_name">Прогресс</string>
+    <string name="widget_progress_desc">Уровень, серия, кристаллы и следующая тема</string>
+    <string name="widget_daily_name">Задача дня</string>
+    <string name="widget_daily_desc">Интересная задача на сегодня</string>
+    <string name="widget_streak_name">Серия дней</string>
+    <string name="widget_streak_desc">Сколько дней подряд ты занимаешься</string>
+    <string name="widget_quick_name">Быстрый старт</string>
+    <string name="widget_quick_desc">Продолжить тему, блиц или чат с Нейроном</string>
 </resources>

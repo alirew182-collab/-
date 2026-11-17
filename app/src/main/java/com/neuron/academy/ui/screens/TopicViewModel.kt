@@ -137,7 +137,7 @@ class TopicViewModel(private val c: AppContainer, topicId: String) : ViewModel()
                 c.feedback.correct()
                 c.game.onPracticeSolved(t, t.subject, usedHint = item.showHint, hard = item.task.hard)
             }
-            (if (r.correct) "✅ Верно!\n\n" else "🤔 Есть неточности.\n\n") + r.feedback
+            (if (r.correct) "Верно!\n\n" else "Есть неточности.\n\n") + r.feedback
         }
     }
 

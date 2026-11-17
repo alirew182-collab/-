@@ -126,14 +126,14 @@ fun KeysScreen(nav: NavHostController) {
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbar) },
-        topBar = { TopAppBar(title = { Text("🔑 API-ключи") }, navigationIcon = { IconButton(onClick = { nav.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Назад") } }) },
+        topBar = { TopAppBar(title = { Text("API-ключи") }, navigationIcon = { IconButton(onClick = { nav.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Назад") } }) },
         floatingActionButton = {
             ExtendedFloatingActionButton(onClick = { nav.navigate(Routes.keyEdit("new")) }, icon = { Icon(Icons.Filled.Add, null) }, text = { Text("Добавить ключ") })
         },
     ) { pad ->
         LazyColumn(Modifier.fillMaxSize().padding(pad), contentPadding = PaddingValues(16.dp, 16.dp, 16.dp, 96.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             item {
-                InfoCard("Режим выбора ключа", "🔀") {
+                InfoCard("Режим выбора ключа") {
                     KeySelectionMode.entries.forEach { m ->
                         Row(Modifier.fillMaxWidth().selectable(mode == m) { c.settings.setKeyMode(m) }.padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                             RadioButton(mode == m, { c.settings.setKeyMode(m) })
@@ -144,7 +144,7 @@ fun KeysScreen(nav: NavHostController) {
                 }
             }
             if (mode == KeySelectionMode.MANUAL) item {
-                InfoCard("Ключ для каждой функции", "🧩") {
+                InfoCard("Ключ для каждой функции") {
                     AiFeature.entries.forEach { f ->
                         FeatureKeyRow(f, keys, featureMap[f]) { c.settings.setFeatureKey(f, it) }
                     }
@@ -152,19 +152,19 @@ fun KeysScreen(nav: NavHostController) {
             }
             item {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick = { backupAction = BackupAction.EXPORT; password = "" }, enabled = keys.isNotEmpty(), modifier = Modifier.weight(1f)) { Text("📤 Экспорт") }
-                    OutlinedButton(onClick = { backupAction = BackupAction.IMPORT; password = "" }, modifier = Modifier.weight(1f)) { Text("📥 Импорт") }
+                    OutlinedButton(onClick = { backupAction = BackupAction.EXPORT; password = "" }, enabled = keys.isNotEmpty(), modifier = Modifier.weight(1f)) { Text("Экспорт") }
+                    OutlinedButton(onClick = { backupAction = BackupAction.IMPORT; password = "" }, modifier = Modifier.weight(1f)) { Text("Импорт") }
                 }
             }
             if (keys.isEmpty()) item {
-                EmptyHint("🔑", "Пока нет ключей. Добавь ключ Claude, OpenAI, Gemini, OpenRouter, DeepSeek или свой OpenAI-совместимый сервер — и Нейрон оживёт!")
+                EmptyHint("Пока нет ключей. Добавь ключ Claude, OpenAI, Gemini, OpenRouter, DeepSeek или свой OpenAI-совместимый сервер — и Нейрон оживёт!")
             }
             items(keys.sortedByDescending { it.priority }, key = { it.id }) { k ->
                 KeyCard(
                     k, stats.firstOrNull { it.keyId == k.id }, testStatus[k.id],
                     onToggle = { c.keyStore.setEnabled(k.id, it) },
                     onTest = {
-                        testStatus[k.id] = "⏳ Проверяю…"
+                        testStatus[k.id] = "Проверяю…"
                         scope.launch {
                             val r = c.router.testKey(k)
                             testStatus[k.id] = r.getOrElse { it.message ?: "Ошибка" }
@@ -251,7 +251,7 @@ private fun KeyCard(
             Spacer(Modifier.height(6.dp))
             val s = stat ?: KeyStatEntity(k.id)
             Text(
-                "📊 Запросов: ${s.requests} · ошибок: ${s.errors}" +
+                "Запросов: ${s.requests} · ошибок: ${s.errors}" +
                     (if (s.lastUsed > 0) " · последний: ${dateFmt.format(Date(s.lastUsed))}" else "") +
                     (if (s.lastLatencyMs > 0) " · ${s.lastLatencyMs} мс" else ""),
                 style = MaterialTheme.typography.bodySmall,
@@ -259,7 +259,7 @@ private fun KeyCard(
             if (s.lastSuccess == false && s.lastError != null) Text("Последняя ошибка: ${s.lastError}", style = MaterialTheme.typography.bodySmall, color = GameColors.Error, maxLines = 2)
             status?.let { Text(it, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 4.dp)) }
             Row {
-                TextButton(onClick = onTest) { Text("🧪 Проверить ключ") }
+                TextButton(onClick = onTest) { Text("Проверить ключ") }
                 TextButton(onClick = onEdit) { Text("Изменить") }
                 TextButton(onClick = onDelete) { Text("Удалить", color = GameColors.Error) }
             }
@@ -291,7 +291,7 @@ fun KeyEditScreen(nav: NavHostController, keyId: String) {
         provider = provider, model = model.trim(), baseUrl = baseUrl.trim(), apiKey = apiKey.trim(),
         enabled = enabled, priority = priority.toIntOrNull() ?: 0,
     )
-    val valid = model.isNotBlank() && (apiKey.isNotBlank() || provider == AiProviderType.CUSTOM) && (provider != AiProviderType.CUSTOM || baseUrl.isNotBlank())
+    val valid = model.isNotBlank() && (apiKey.isNotBlank() || !provider.keyRequired) && (!provider.baseUrlRequired || baseUrl.isNotBlank())
 
     Scaffold(topBar = {
         TopAppBar(title = { Text(if (existing == null) "Новый ключ" else "Изменить ключ") }, navigationIcon = { IconButton(onClick = { nav.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Назад") } })
@@ -305,10 +305,12 @@ fun KeyEditScreen(nav: NavHostController, keyId: String) {
                         DropdownMenuItem(text = { Text(p.title) }, onClick = {
                             provider = p; providerMenu = false
                             model = p.models.firstOrNull() ?: ""
+                            if (p.baseUrlRequired && p.defaultBaseUrl.isNotBlank()) baseUrl = p.defaultBaseUrl
                         })
                     }
                 }
             }
+            if (provider.hint.isNotBlank()) Text(provider.hint, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Box {
                 OutlinedTextField(
                     model, { model = it }, label = { Text("Модель (выбери или впиши вручную)") }, singleLine = true, modifier = Modifier.fillMaxWidth(),
@@ -320,13 +322,13 @@ fun KeyEditScreen(nav: NavHostController, keyId: String) {
             }
             OutlinedTextField(
                 baseUrl, { baseUrl = it },
-                label = { Text(if (provider == AiProviderType.CUSTOM) "Base URL (обязательно)" else "Base URL (необязательно)") },
+                label = { Text(if (provider.baseUrlRequired) "Base URL (обязательно)" else "Base URL (необязательно)") },
                 placeholder = { Text(provider.defaultBaseUrl.ifBlank { "https://my-server.com/v1" }) },
                 singleLine = true, modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
             )
             OutlinedTextField(
-                apiKey, { apiKey = it }, label = { Text("API-ключ") }, singleLine = true, modifier = Modifier.fillMaxWidth(),
+                apiKey, { apiKey = it }, label = { Text(if (provider.keyRequired) "API-ключ" else "API-ключ (необязательно)") }, singleLine = true, modifier = Modifier.fillMaxWidth(),
                 visualTransformation = if (showKey) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = { IconButton(onClick = { showKey = !showKey }) { Icon(if (showKey) Icons.Filled.VisibilityOff else Icons.Filled.Visibility, null) } },
             )
@@ -337,12 +339,12 @@ fun KeyEditScreen(nav: NavHostController, keyId: String) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("Ключ включён", modifier = Modifier.weight(1f)); Switch(enabled, { enabled = it })
             }
-            Text("🔒 Ключ сохраняется только на этом устройстве в зашифрованном виде.", style = MaterialTheme.typography.bodySmall)
+            Text("Ключ сохраняется только на этом устройстве в зашифрованном виде.", style = MaterialTheme.typography.bodySmall)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(enabled = valid, onClick = {
-                    testResult = "⏳ Проверяю…"
+                    testResult = "Проверяю…"
                     scope.launch { testResult = c.router.testKey(build()).fold({ it }, { it.message ?: "Ошибка" }) }
-                }, modifier = Modifier.weight(1f)) { Text("🧪 Проверить") }
+                }, modifier = Modifier.weight(1f)) { Text("Проверить") }
                 Button(enabled = valid, onClick = { c.keyStore.upsert(build()); nav.popBackStack() }, modifier = Modifier.weight(1f)) { Text("Сохранить") }
             }
             testResult?.let { Text(it) }

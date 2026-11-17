@@ -95,7 +95,7 @@ private fun DrawScope.axes(cx: Float, cy: Float, scale: Float, color: Color) {
 // ========================= ПАРАБОЛА =========================
 
 @Composable
-fun ParabolaScreen(nav: NavHostController) = SimScaffold(nav, "📈 Парабола y = ax² + bx + c") {
+fun ParabolaScreen(nav: NavHostController) = SimScaffold(nav, "Парабола y = ax² + bx + c") {
     var a by remember { mutableFloatStateOf(1f) }
     var b by remember { mutableFloatStateOf(0f) }
     var cc by remember { mutableFloatStateOf(-2f) }
@@ -142,7 +142,7 @@ fun ParabolaScreen(nav: NavHostController) = SimScaffold(nav, "📈 Парабо
     SliderRow("b", b, -6f..6f) { b = it }
     SliderRow("c", cc, -6f..6f) { cc = it }
     Spacer(Modifier.height(8.dp))
-    InfoCard("Что видно на графике", "🔍") {
+    InfoCard("Что видно на графике") {
         Text("• Ветви направлены ${if (aa > 0) "вверх (a > 0)" else "вниз (a < 0)"}")
         Text("• Вершина 🟠: (${fmt(x0)}; ${fmt(y0)})")
         Text("• Дискриминант D = ${fmt(d)}")
@@ -163,11 +163,11 @@ private fun SliderRow(label: String, value: Float, range: ClosedFloatingPointRan
 // ========================= БРОСОК ПОД УГЛОМ =========================
 
 @Composable
-fun ProjectileScreen(nav: NavHostController) = SimScaffold(nav, "🏀 Бросок под углом") {
+fun ProjectileScreen(nav: NavHostController) = SimScaffold(nav, "Бросок под углом") {
     var angle by remember { mutableFloatStateOf(45f) }
     var v0 by remember { mutableFloatStateOf(15f) }
     var gIndex by remember { mutableIntStateOf(0) }
-    val planets = listOf("🌍 Земля" to 9.8f, "🌙 Луна" to 1.6f, "🔴 Марс" to 3.7f, "🪐 Юпитер" to 24.8f)
+    val planets = listOf("Земля" to 9.8f, "Луна" to 1.6f, "Марс" to 3.7f, "Юпитер" to 24.8f)
     val g = planets[gIndex].second
     val t = remember { Animatable(0f) }
     val scope = rememberCoroutineScope()
@@ -228,9 +228,9 @@ fun ProjectileScreen(nav: NavHostController) = SimScaffold(nav, "🏀 Бросо
             if (trails.size >= 3) trails.removeAt(0)
             trails.add(pts)
         }
-    }, modifier = Modifier.fillMaxWidth()) { Text("🚀 Бросить!") }
+    }, modifier = Modifier.fillMaxWidth()) { Text("Бросить!") }
     Spacer(Modifier.height(8.dp))
-    InfoCard("Расчёт", "🧮") {
+    InfoCard("Расчёт") {
         MathText("\\(L = \\frac{v_0^2 \\sin 2\\alpha}{g}\\) = **${fmt(range)} м**\n\\(H = \\frac{v_0^2 \\sin^2\\alpha}{2g}\\) = **${fmt(hMax)} м**\n\\(t = \\frac{2 v_0 \\sin\\alpha}{g}\\) = **${fmt(flight)} с**")
         Text("Подсказка: максимальная дальность — при угле 45°. На Луне тот же бросок улетит в 6 раз дальше!", style = MaterialTheme.typography.bodySmall)
     }
@@ -242,7 +242,7 @@ private data class Bubble(val x: Float, val speed: Float, val size: Float, val p
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun ChemMixScreen(nav: NavHostController) = SimScaffold(nav, "⚗️ Смешивание веществ") {
+fun ChemMixScreen(nav: NavHostController) = SimScaffold(nav, "Смешивание веществ") {
     var a by remember { mutableStateOf<String?>(null) }
     var b by remember { mutableStateOf<String?>(null) }
     var mixedKey by remember { mutableStateOf<Pair<String, String>?>(null) }
@@ -292,7 +292,7 @@ fun ChemMixScreen(nav: NavHostController) = SimScaffold(nav, "⚗️ Смеши�
             if (x != null && y != null) scope.launch { mixedKey = x to y; progress.snapTo(0f); progress.animateTo(1f, tween(1200)) }
         },
         enabled = a != null && b != null, modifier = Modifier.fillMaxWidth(),
-    ) { Text("🧪 Смешать!") }
+    ) { Text("Смешать!") }
     Spacer(Modifier.height(10.dp))
 
     val glass = MaterialTheme.colorScheme.onSurface
@@ -331,19 +331,17 @@ fun ChemMixScreen(nav: NavHostController) = SimScaffold(nav, "⚗️ Смеши�
     Spacer(Modifier.height(10.dp))
     if (mixedKey != null) {
         if (reaction != null) {
-            InfoCard(reaction.effect.title, when (reaction.effect) {
-                ReactionEffect.GAS -> "💨"; ReactionEffect.PRECIPITATE -> "🌨️"; ReactionEffect.COLOR -> "🎨"; ReactionEffect.HEAT -> "🔥"; ReactionEffect.METAL -> "🪙"; else -> "🧪"
-            }) {
+            InfoCard(reaction.effect.title) {
                 Text(reaction.equation, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(6.dp))
                 Text(reaction.comment)
             }
         } else {
-            InfoCard("Реакция не идёт", "🤷") {
+            InfoCard("Реакция не идёт") {
                 Text("Видимых изменений нет: не образуется ни осадка, ни газа, ни воды. Попробуй другую пару! Подсказка: щёлочь + соль меди, кислота + сода, нитрат серебра + хлорид…")
             }
         }
     }
     Spacer(Modifier.height(8.dp))
-    Text("⚠️ Это виртуальная лаборатория. Настоящие опыты — только с учителем и в защитных очках!", style = MaterialTheme.typography.bodySmall)
+    Text("Это виртуальная лаборатория. Настоящие опыты — только с учителем и в защитных очках!", style = MaterialTheme.typography.bodySmall)
 }

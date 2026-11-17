@@ -190,8 +190,8 @@ fun ChatScreen(nav: NavHostController, topicId: String?) {
                 val last = messages.lastOrNull()
                 if (!vm.loading && last?.role == "assistant") {
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        ExplainStyle.entries.forEach { s -> AssistChip(onClick = { vm.explainOtherwise(s) }, label = { Text("${s.emoji} ${s.title}") }) }
-                        AssistChip(onClick = { vm.whyNeeded() }, label = { Text("🌍 Зачем это в жизни?") })
+                        ExplainStyle.entries.forEach { s -> AssistChip(onClick = { vm.explainOtherwise(s) }, label = { Text(s.title) }) }
+                        AssistChip(onClick = { vm.whyNeeded() }, label = { Text("Зачем это в жизни?") })
                     }
                 }
                 if (!vm.loading && last?.role == "error") {
@@ -220,7 +220,7 @@ private fun MessageBubble(m: ChatMessageEntity) {
         ) {
             Column(Modifier.padding(12.dp)) {
                 if (mine) Text(m.content, color = MaterialTheme.colorScheme.onPrimary)
-                else if (m.role == "error") Text("⚠️ " + m.content, color = MaterialTheme.colorScheme.onErrorContainer, style = MaterialTheme.typography.bodySmall)
+                else if (m.role == "error") Text("" + m.content, color = MaterialTheme.colorScheme.onErrorContainer, style = MaterialTheme.typography.bodySmall)
                 else {
                     val parts = m.content.split("\n\n_")
                     MathText(parts.first(), style = MaterialTheme.typography.bodyMedium)

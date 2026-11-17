@@ -1,5 +1,12 @@
 package com.neuron.academy.ui.screens
 
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.rounded.RadioButtonUnchecked
+import androidx.compose.material.icons.rounded.Redeem
+import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.LocalFireDepartment
+import androidx.compose.material.icons.Icons
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -108,7 +115,7 @@ class DailyViewModel(private val c: AppContainer) : ViewModel() {
 
     fun buyFreeze() = viewModelScope.launch {
         message = when (c.game.buy(ShopCatalog.STREAK_FREEZE)) {
-            GameRepository.PurchaseResult.Ok -> "🧊 Заморозка куплена!"
+            GameRepository.PurchaseResult.Ok -> "Заморозка куплена!"
             GameRepository.PurchaseResult.NotEnough -> "Не хватает кристаллов 💎"
             else -> null
         }
@@ -128,11 +135,11 @@ fun DailyScreen(nav: NavHostController) {
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        item { Text("Ежедневное", style = MaterialTheme.typography.headlineSmall) }
+        item { com.neuron.academy.ui.components.ScreenTitle("Сегодня", "Серия, задания и задача дня") }
         item {
             Card(shape = RoundedCornerShape(22.dp), colors = CardDefaults.cardColors(containerColor = GameColors.Fire.copy(alpha = 0.15f))) {
                 Row(Modifier.padding(18.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text("🔥", fontSize = 52.sp)
+                    Icon(Icons.Rounded.LocalFireDepartment, null, tint = GameColors.Fire, modifier = Modifier.size(52.dp))
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
                         Text("${player.streak} дн. подряд", style = MaterialTheme.typography.headlineSmall)
@@ -152,7 +159,7 @@ fun DailyScreen(nav: NavHostController) {
             Card(shape = RoundedCornerShape(18.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)) {
                 Column(Modifier.padding(14.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(if (q.claimed) "✅" else if (q.done) "🎁" else "🎯", fontSize = 24.sp)
+                        Icon(if (q.claimed) Icons.Rounded.CheckCircle else if (q.done) Icons.Rounded.Redeem else Icons.Rounded.RadioButtonUnchecked, null, tint = if (q.claimed) GameColors.Success else if (q.done) GameColors.Gold else MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(Modifier.width(10.dp))
                         Column(Modifier.weight(1f)) {
                             Text(q.def.title, style = MaterialTheme.typography.titleMedium)
@@ -167,17 +174,17 @@ fun DailyScreen(nav: NavHostController) {
             }
         }
         item {
-            InfoCard("Задача дня  (+${XpRules.DAILY_PROBLEM} XP)", "🧩", color = GameColors.Gold) {
+            InfoCard("Задача дня  (+${XpRules.DAILY_PROBLEM} XP)", color = GameColors.Gold) {
                 val p = problem
                 when {
                     p == null -> LoadingBlock("Нейрон выбирает задачу…")
                     else -> {
-                        Text(Subject.byKey(p.subject).let { "${it.emoji} ${it.title}" }, style = MaterialTheme.typography.labelLarge)
+                        com.neuron.academy.ui.components.Eyebrow(Subject.byKey(p.subject).title)
                         Spacer(Modifier.height(4.dp))
                         MathText(p.problem)
                         Spacer(Modifier.height(8.dp))
                         if (p.solved) {
-                            Text("✅ Решено! Возвращайся завтра за новой задачей.", color = GameColors.Success, fontWeight = FontWeight.Bold)
+                            Text("Решено! Возвращайся завтра за новой задачей.", color = GameColors.Success, fontWeight = FontWeight.Bold)
                         } else {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 OutlinedTextField(vm.answer, { vm.answer = it; vm.wrong = false }, label = { Text("Ответ") }, singleLine = true, modifier = Modifier.weight(1f))
@@ -187,8 +194,8 @@ fun DailyScreen(nav: NavHostController) {
                             if (vm.wrong) Text("Пока не то. Подсказка поможет! 💡", color = GameColors.Error)
                         }
                         Row {
-                            TextButton(onClick = { vm.showHint = !vm.showHint }) { Text("💡 Подсказка") }
-                            TextButton(onClick = { vm.showSolution = !vm.showSolution }) { Text("📖 Решение") }
+                            TextButton(onClick = { vm.showHint = !vm.showHint }) { Text("Подсказка") }
+                            TextButton(onClick = { vm.showSolution = !vm.showSolution }) { Text("Решение") }
                         }
                         if (vm.showHint) MathText(p.hint, style = MaterialTheme.typography.bodyMedium)
                         if (vm.showSolution) MathText(p.solution + "\n\nОтвет: **${p.answer}**", style = MaterialTheme.typography.bodyMedium)

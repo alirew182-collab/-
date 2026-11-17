@@ -1,5 +1,7 @@
 package com.neuron.academy.ui.screens
 
+import androidx.compose.material.icons.rounded.FavoriteBorder
+import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -172,7 +174,7 @@ fun ExamScreen(nav: NavHostController, subject: Subject, grade: Int) {
     ) { pad ->
         Box(Modifier.fillMaxSize().padding(pad)) {
             LazyColumn(
-                Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color(0xFF311B92).copy(alpha = 0.35f), MaterialTheme.colorScheme.background))),
+                Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
@@ -209,9 +211,9 @@ fun ExamScreen(nav: NavHostController, subject: Subject, grade: Int) {
                                 textAlign = TextAlign.Center,
                             )
                             Spacer(Modifier.height(16.dp))
-                            Button(onClick = vm::startClassic, modifier = Modifier.fillMaxWidth().height(52.dp)) { Text("⚔️ В бой! (вопросы из курса)") }
+                            Button(onClick = vm::startClassic, modifier = Modifier.fillMaxWidth().height(52.dp)) { Text("В бой! (вопросы из курса)") }
                             Spacer(Modifier.height(8.dp))
-                            OutlinedButton(onClick = vm::startAi, enabled = !vm.aiGen.loading, modifier = Modifier.fillMaxWidth()) { Text("🤖 Экзамен, составленный ИИ") }
+                            OutlinedButton(onClick = vm::startAi, enabled = !vm.aiGen.loading, modifier = Modifier.fillMaxWidth()) { Text("Экзамен, составленный ИИ") }
                             if (vm.aiGen.loading) LoadingBlock("Босс готовит каверзные вопросы…")
                             vm.aiGen.error?.let { ErrorBlock(it, if (vm.aiGen.noKeys) ({ nav.navigate(Routes.KEYS) }) else null) }
                         }
@@ -220,7 +222,7 @@ fun ExamScreen(nav: NavHostController, subject: Subject, grade: Int) {
                         item {
                             Row(Modifier.fillMaxWidth().graphicsLayer { translationX = playerShake.value }, verticalAlignment = Alignment.CenterVertically) {
                                 Text("Ты: ", style = MaterialTheme.typography.titleMedium)
-                                repeat(vm.maxHearts) { i -> Text(if (i < vm.hearts) "❤️" else "🖤", fontSize = 22.sp) }
+                                repeat(vm.maxHearts) { i -> Icon(if (i < vm.hearts) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder, null, tint = GameColors.Error) }
                                 Spacer(Modifier.weight(1f))
                                 Text("Вопрос ${vm.index + 1}/${vm.questions.size}", style = MaterialTheme.typography.labelLarge)
                             }
@@ -229,13 +231,13 @@ fun ExamScreen(nav: NavHostController, subject: Subject, grade: Int) {
                             QuestionCard(vm.questions[vm.index], vm.selected, emptySet(), vm::answer)
                         }
                         item {
-                            Button(onClick = vm::next, enabled = vm.selected != null, modifier = Modifier.fillMaxWidth()) { Text("Дальше ➜") }
+                            Button(onClick = vm::next, enabled = vm.selected != null, modifier = Modifier.fillMaxWidth()) { Text("Дальше") }
                         }
                     }
                     BattlePhase.WON, BattlePhase.LOST -> item {
                         val won = vm.phase == BattlePhase.WON
                         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-                            Text(if (won) "🏆 Победа!" else "😵 Поражение", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Black)
+                            Text(if (won) "Победа!" else "Поражение", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Black)
                             Text("Правильных ответов: ${vm.correct}")
                             Spacer(Modifier.height(8.dp))
                             Text(

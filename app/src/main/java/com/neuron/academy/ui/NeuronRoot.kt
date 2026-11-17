@@ -8,11 +8,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Chat
-import androidx.compose.material.icons.filled.EmojiEvents
-import androidx.compose.material.icons.filled.Map
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.SportsEsports
+import androidx.compose.material.icons.rounded.Explore
+import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.SmartToy
+import androidx.compose.material.icons.rounded.SportsEsports
+import androidx.compose.material.icons.rounded.TaskAlt
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -25,6 +26,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -84,15 +86,15 @@ object Routes {
 private data class Tab(val route: String, val title: String, val icon: ImageVector)
 
 private val tabs = listOf(
-    Tab(Routes.HOME, "Карта", Icons.Filled.Map),
-    Tab(Routes.DAILY, "Задания", Icons.Filled.EmojiEvents),
-    Tab(Routes.CHAT, "Нейрон", Icons.Filled.Chat),
-    Tab(Routes.GAMES, "Игры", Icons.Filled.SportsEsports),
-    Tab(Routes.PROFILE, "Профиль", Icons.Filled.Person),
+    Tab(Routes.HOME, "Карта", Icons.Rounded.Explore),
+    Tab(Routes.DAILY, "Сегодня", Icons.Rounded.TaskAlt),
+    Tab(Routes.CHAT, "Нейрон", Icons.Rounded.SmartToy),
+    Tab(Routes.GAMES, "Игры", Icons.Rounded.SportsEsports),
+    Tab(Routes.PROFILE, "Профиль", Icons.Rounded.Person),
 )
 
 @Composable
-fun NeuronRoot(c: AppContainer) {
+fun NeuronRoot(c: AppContainer, deepLink: String? = null, onDeepLinkHandled: () -> Unit = {}) {
     val themeMode by c.settings.themeMode.collectAsState()
     val player by c.game.player.collectAsState(initial = PlayerEntity())
     val onboardingDone by c.settings.onboardingDone.collectAsState()
@@ -108,18 +110,37 @@ fun NeuronRoot(c: AppContainer) {
             if (onboardingDone) c.game.dailyCheckIn()
         }
 
+        // Переход из виджета рабочего стола
+        LaunchedEffect(deepLink, onboardingDone) {
+            val link = deepLink ?: return@LaunchedEffect
+            if (!onboardingDone) return@LaunchedEffect
+            when (link) {
+                Routes.HOME, Routes.DAILY, Routes.CHAT, Routes.GAMES, Routes.PROFILE -> nav.navigateTab(link)
+                else -> runCatching { nav.navigate(link) }
+            }
+            onDeepLinkHandled()
+        }
+
         Box(Modifier.fillMaxSize()) {
             Scaffold(
                 containerColor = MaterialTheme.colorScheme.background,
                 bottomBar = {
-                    if (showBar) {
-                        NavigationBar {
+                    if (showBar) androidx.compose.foundation.layout.Column {
+                        androidx.compose.material3.HorizontalDivider(color = MaterialTheme.colorScheme.outline)
+                        NavigationBar(containerColor = MaterialTheme.colorScheme.background, tonalElevation = 0.dp) {
                             tabs.forEach { tab ->
                                 NavigationBarItem(
                                     selected = route == tab.route,
                                     onClick = { nav.navigateTab(tab.route) },
                                     icon = { Icon(tab.icon, tab.title) },
-                                    label = { Text(tab.title) },
+                                    label = { Text(tab.title, style = MaterialTheme.typography.labelMedium) },
+                                    colors = NavigationBarItemDefaults.colors(
+                                        indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                                        selectedIconColor = MaterialTheme.colorScheme.primary,
+                                        selectedTextColor = MaterialTheme.colorScheme.onSurface,
+                                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    ),
                                 )
                             }
                         }

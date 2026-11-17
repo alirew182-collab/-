@@ -19,6 +19,13 @@ jobs:
           distribution: temurin
           java-version: 17
       - uses: gradle/actions/setup-gradle@v4
+      - name: Сертификаты Минцифры для GigaChat (необязательно)
+        continue-on-error: true
+        run: |
+          mkdir -p app/src/main/assets/certs
+          curl -fsSL --max-time 30 -o app/src/main/assets/certs/russian_trusted_root_ca.crt https://gu-st.ru/content/lending/russian_trusted_root_ca_pem.crt || rm -f app/src/main/assets/certs/russian_trusted_root_ca.crt
+          curl -fsSL --max-time 30 -o app/src/main/assets/certs/russian_trusted_sub_ca.crt https://gu-st.ru/content/lending/russian_trusted_sub_ca_pem.crt || rm -f app/src/main/assets/certs/russian_trusted_sub_ca.crt
+          ls -la app/src/main/assets/certs
       - name: Build release APK
         run: |
           chmod +x gradlew

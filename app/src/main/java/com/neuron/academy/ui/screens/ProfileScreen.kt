@@ -1,5 +1,10 @@
 package com.neuron.academy.ui.screens
 
+import com.neuron.academy.ui.theme.accent
+import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.rounded.Storefront
+import androidx.compose.material.icons.rounded.EmojiEvents
+import androidx.compose.material.icons.Icons
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -85,12 +90,12 @@ fun insights(results: List<TestResultEntity>, now: Long = System.currentTimeMill
         if (thisWeek.isNotEmpty() && lastWeek.isNotEmpty()) {
             val diff = ((acc(thisWeek) - acc(lastWeek)) * 100).roundToInt()
             when {
-                diff > 0 -> out += "📈 Ты стал лучше в $name на $diff% за неделю!"
-                diff < 0 -> out += "🔁 В $name точность снизилась на ${-diff}% — повтори теорию, и всё вернётся."
-                else -> out += "➖ В $name стабильно: ${(acc(thisWeek) * 100).roundToInt()}% верных ответов."
+                diff > 0 -> out += "Ты стал лучше в $name на $diff% за неделю!"
+                diff < 0 -> out += "В $name точность снизилась на ${-diff}% — повтори теорию, и всё вернётся."
+                else -> out += "В $name стабильно: ${(acc(thisWeek) * 100).roundToInt()}% верных ответов."
             }
         } else if (thisWeek.isNotEmpty()) {
-            out += "✨ На этой неделе в $name: ${(acc(thisWeek) * 100).roundToInt()}% верных ответов."
+            out += "На этой неделе в $name: ${(acc(thisWeek) * 100).roundToInt()}% верных ответов."
         }
     }
     if (out.isEmpty()) out += "Пройди пару тестов — и я покажу, как ты растёшь 📊"
@@ -107,36 +112,36 @@ fun ProfileScreen(nav: NavHostController) {
     var period by remember { mutableIntStateOf(7) }
 
     LazyColumn(Modifier.fillMaxSize().statusBarsPadding(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        item { Text("Профиль и прогресс", style = MaterialTheme.typography.headlineSmall) }
+        item { com.neuron.academy.ui.components.ScreenTitle("Профиль", "Прогресс, графики и статистика") }
         item { PlayerStatsBar(player) }
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                ProfileLink("🏅", "Награды", Modifier.weight(1f)) { nav.navigate(Routes.COLLECTION) }
-                ProfileLink("🛍️", "Магазин", Modifier.weight(1f)) { nav.navigate(Routes.SHOP) }
-                ProfileLink("⚙️", "Настройки", Modifier.weight(1f)) { nav.navigate(Routes.SETTINGS) }
+                ProfileLink(Icons.Rounded.EmojiEvents, "Награды", Modifier.weight(1f)) { nav.navigate(Routes.COLLECTION) }
+                ProfileLink(Icons.Rounded.Storefront, "Магазин", Modifier.weight(1f)) { nav.navigate(Routes.SHOP) }
+                ProfileLink(Icons.Rounded.Settings, "Настройки", Modifier.weight(1f)) { nav.navigate(Routes.SETTINGS) }
             }
         }
         item { OverallProgress(ls) }
         item {
-            InfoCard("Прогресс по предметам", "📚") {
+            InfoCard("Прогресс по предметам") {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                     Subject.entries.forEach { s ->
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             val f = ls.subjectFraction(s)
-                            ProgressRing(f, Color(s.color), 72.dp) { Text("${(f * 100).roundToInt()}%", fontWeight = FontWeight.Bold) }
-                            Text("${s.emoji} ${s.title}", style = MaterialTheme.typography.labelMedium)
+                            ProgressRing(f, s.accent, 72.dp) { Text("${(f * 100).roundToInt()}%", fontWeight = FontWeight.Bold) }
+                            Text(s.title, style = MaterialTheme.typography.labelMedium)
                         }
                     }
                 }
             }
         }
         item {
-            InfoCard("Серия дней", "🔥", color = GameColors.Fire) {
+            InfoCard("Серия дней", color = GameColors.Fire) {
                 Text("Сейчас: ${player.streak} дн. · Рекорд: ${player.bestStreak} дн. · Заморозок: ${player.freezes}")
             }
         }
         item {
-            InfoCard("Опыт по дням", "📊", color = GameColors.Xp) {
+            InfoCard("Опыт по дням", color = GameColors.Xp) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     FilterChip(period == 7, { period = 7 }, label = { Text("Неделя") })
                     FilterChip(period == 30, { period = 30 }, label = { Text("Месяц") })
@@ -149,26 +154,26 @@ fun ProfileScreen(nav: NavHostController) {
             }
         }
         item {
-            InfoCard("Точность ответов", "🎯", color = GameColors.Success) {
+            InfoCard("Точность ответов", color = GameColors.Success) {
                 val days = (0 until period).map { vm.today - period + 1 + it }
                 Subject.entries.forEach { s ->
                     val series = days.map { d ->
                         val dayRes = results.filter { it.subject == s.key && it.total > 0 && epochDay(it.timestamp) == d }
                         if (dayRes.isEmpty()) null else dayRes.sumOf { it.correct }.toFloat() / dayRes.sumOf { it.total }
                     }
-                    Text("${s.emoji} ${s.title}", style = MaterialTheme.typography.labelLarge)
-                    LineChart(series, Color(s.color))
+                    Text(s.title, style = MaterialTheme.typography.labelLarge)
+                    LineChart(series, s.accent)
                     Spacer(Modifier.height(6.dp))
                 }
             }
         }
         item {
-            InfoCard("Персональные итоги", "🧠") {
+            InfoCard("Персональные итоги") {
                 insights(results).forEach { Text(it, modifier = Modifier.padding(vertical = 2.dp)) }
             }
         }
         item {
-            InfoCard("Статистика", "📋") {
+            InfoCard("Статистика") {
                 val tests = results.count { it.kind == "TOPIC" }
                 StatLine("Пройдено тем", "${ls.completedTopicIds.size}")
                 StatLine("Тестов сдано", "$tests")
@@ -200,10 +205,10 @@ private fun StatLine(label: String, value: String) {
 }
 
 @Composable
-private fun ProfileLink(emoji: String, title: String, modifier: Modifier, onClick: () -> Unit) {
+private fun ProfileLink(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, modifier: Modifier, onClick: () -> Unit) {
     Card(onClick = onClick, modifier = modifier, shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)) {
         Column(Modifier.fillMaxWidth().padding(vertical = 12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(emoji, fontSize = 24.sp)
+            androidx.compose.material3.Icon(icon, null, tint = MaterialTheme.colorScheme.primary)
             Text(title, style = MaterialTheme.typography.labelLarge)
         }
     }

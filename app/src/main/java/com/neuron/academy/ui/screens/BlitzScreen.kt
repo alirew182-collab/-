@@ -1,5 +1,7 @@
 package com.neuron.academy.ui.screens
 
+import com.neuron.academy.ui.components.MascotMood
+import com.neuron.academy.ui.components.NeuronMascot
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -99,26 +101,26 @@ fun BlitzScreen(nav: NavHostController) {
     val vm = containerViewModel { BlitzViewModel(it) }
     val player by vm.player.collectAsState()
     Scaffold(topBar = {
-        TopAppBar(title = { Text("⚡ Блиц") }, navigationIcon = { IconButton(onClick = { nav.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Назад") } })
+        TopAppBar(title = { Text("Блиц") }, navigationIcon = { IconButton(onClick = { nav.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Назад") } })
     }) { pad ->
         Column(Modifier.fillMaxSize().padding(pad).padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             if (!vm.running && !vm.finished) {
-                Text("⏱️", fontSize = 64.sp)
+                NeuronMascot(player.skin, 96.dp)
                 Text("60 секунд. Максимум задач. Поехали?", style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)
                 Text("Рекорд: ${player.blitzBest}", color = GameColors.Gold)
                 Spacer(Modifier.height(16.dp))
                 Text("Предмет:")
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    FilterChip(vm.subject == null, { vm.subject = null }, label = { Text("🎲 Микс") })
-                    Subject.entries.forEach { s -> FilterChip(vm.subject == s, { vm.subject = s }, label = { Text(s.emoji) }) }
+                    FilterChip(vm.subject == null, { vm.subject = null }, label = { Text("Микс") })
+                    Subject.entries.forEach { s -> FilterChip(vm.subject == s, { vm.subject = s }, label = { Text(s.title) }) }
                 }
                 Spacer(Modifier.height(24.dp))
                 Button(onClick = vm::start, modifier = Modifier.fillMaxWidth().height(56.dp)) { Text("Старт!", fontSize = 20.sp) }
             } else if (vm.running) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Text("⏱️ ${vm.timeLeft} с", style = MaterialTheme.typography.titleLarge, color = if (vm.timeLeft <= 10) GameColors.Error else MaterialTheme.colorScheme.onSurface)
+                    Text("${vm.timeLeft} с", style = MaterialTheme.typography.titleLarge, color = if (vm.timeLeft <= 10) GameColors.Error else MaterialTheme.colorScheme.onSurface)
                     Spacer(Modifier.weight(1f))
-                    Text("✅ ${vm.score}   ❌ ${vm.mistakes}", style = MaterialTheme.typography.titleLarge)
+                    Text("${vm.score}   ❌ ${vm.mistakes}", style = MaterialTheme.typography.titleLarge)
                 }
                 LinearProgressIndicator(progress = { vm.timeLeft / 60f }, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp))
                 Spacer(Modifier.height(24.dp))
@@ -126,7 +128,7 @@ fun BlitzScreen(nav: NavHostController) {
                 if (t != null) {
                     AnimatedContent(t, label = "task") { task ->
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(task.subject.emoji + " " + task.subject.title, style = MaterialTheme.typography.labelLarge)
+                            Text(task.subject.title.uppercase(), style = MaterialTheme.typography.labelLarge)
                             Spacer(Modifier.height(8.dp))
                             Text(task.text, style = MaterialTheme.typography.headlineSmall, textAlign = TextAlign.Center)
                             Spacer(Modifier.height(24.dp))
@@ -146,9 +148,9 @@ fun BlitzScreen(nav: NavHostController) {
                         }
                     }
                 }
-                vm.flash?.let { Text(if (it) "✅ +1" else "❌", color = if (it) GameColors.Success else GameColors.Error, fontSize = 22.sp, modifier = Modifier.padding(top = 12.dp)) }
+                vm.flash?.let { Text(if (it) "+1" else "❌", color = if (it) GameColors.Success else GameColors.Error, fontSize = 22.sp, modifier = Modifier.padding(top = 12.dp)) }
             } else {
-                Text(if (vm.newRecord) "🏆" else "🎯", fontSize = 72.sp)
+                NeuronMascot(player.skin, 96.dp, if (vm.newRecord) MascotMood.HAPPY else MascotMood.NORMAL)
                 Text("Время вышло!", style = MaterialTheme.typography.headlineMedium)
                 Text("Решено: ${vm.score} · Ошибок: ${vm.mistakes}", style = MaterialTheme.typography.titleMedium)
                 if (vm.newRecord) Text("Новый рекорд!", color = GameColors.Gold, style = MaterialTheme.typography.titleLarge)

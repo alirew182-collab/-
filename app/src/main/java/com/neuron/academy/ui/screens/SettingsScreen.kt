@@ -86,34 +86,34 @@ fun SettingsScreen(nav: NavHostController) {
     }) { pad ->
         LazyColumn(Modifier.fillMaxSize().padding(pad), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
             item {
-                InfoCard("ИИ-репетитор и API-ключи", "🔑") {
+                InfoCard("ИИ-репетитор и API-ключи") {
                     Text("Ключей: ${keys.size} (активных: ${keys.count { it.enabled }}) · режим: ${keyMode.title}")
                     Text("Ключи хранятся зашифрованно (Android Keystore) и никуда, кроме выбранного провайдера, не отправляются.", style = MaterialTheme.typography.bodySmall)
                     OutlinedButton(onClick = { nav.navigate(Routes.KEYS) }, modifier = Modifier.padding(top = 8.dp)) { Text("Управление ключами") }
                 }
             }
             item {
-                InfoCard("Оформление", "🎨") {
+                InfoCard("Оформление") {
                     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         ThemeMode.entries.forEach { m -> FilterChip(themeMode == m, { s.setThemeMode(m) }, label = { Text(m.title) }) }
                     }
                     Text("Цветовая тема:", modifier = Modifier.padding(top = 8.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         ShopCatalog.items.filter { it.category == ShopCategory.THEME && it.id in player.owned }.forEach { t ->
-                            FilterChip(player.theme == t.id, { scope.launch { c.game.equip(t.id) } }, label = { Text(t.emoji) })
+                            FilterChip(player.theme == t.id, { scope.launch { c.game.equip(t.id) } }, label = { Text(t.title) })
                         }
                     }
                     TextButton(onClick = { nav.navigate(Routes.SHOP) }) { Text("Больше тем и скинов в магазине →") }
                 }
             }
             item {
-                InfoCard("Звук и вибрация", "🔊") {
+                InfoCard("Звук и вибрация") {
                     SwitchRow("Звуки", sound) { s.setSound(it) }
                     SwitchRow("Вибрация при ответах", vibration) { s.setVibration(it) }
                 }
             }
             item {
-                InfoCard("Напоминания", "🔔") {
+                InfoCard("Напоминания") {
                     SwitchRow("Ежедневное напоминание", notif) { on ->
                         if (on) {
                             if (Build.VERSION.SDK_INT >= 33) permission.launch(Manifest.permission.POST_NOTIFICATIONS)
@@ -128,18 +128,18 @@ fun SettingsScreen(nav: NavHostController) {
                 }
             }
             item {
-                InfoCard("Обучение", "🎓") {
+                InfoCard("Обучение") {
                     Text("Порог завершения класса: ${(threshold * 100).toInt()}% тем по каждому предмету + итоговые экзамены")
                     Slider(threshold, { s.setGradeThreshold((it * 20).toInt() / 20f) }, valueRange = 0.5f..1f, steps = 9)
                     Text("Тема засчитывается при результате теста от 70%.", style = MaterialTheme.typography.bodySmall)
-                    SwitchRow("👩‍🏫 Режим учителя (открыть всё)", teacher) { on ->
+                    SwitchRow("Режим учителя (открыть всё)", teacher) { on ->
                         if (on) pinDialog = true else s.setTeacherMode(false)
                     }
                     Text("Открывает все классы и темы для повторения. Защищён PIN-кодом.", style = MaterialTheme.typography.bodySmall)
                 }
             }
             item {
-                InfoCard("О приложении", "🤖") {
+                InfoCard("О приложении") {
                     Text("Нейрон: Академия 1.0 — алгебра, физика и химия 9–11 классов с ИИ-репетитором.")
                     Text("Формулы: KaTeX (офлайн). ИИ: Anthropic, OpenAI, Gemini, OpenRouter, DeepSeek и любые OpenAI-совместимые серверы.", style = MaterialTheme.typography.bodySmall)
                 }

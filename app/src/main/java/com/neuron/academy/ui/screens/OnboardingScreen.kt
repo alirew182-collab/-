@@ -47,7 +47,7 @@ private data class Page(val emoji: String, val title: String, val text: String)
 
 private val pages = listOf(
     Page("👋", "Привет! Я — Нейрон", "Робот-помощник и твой личный репетитор по алгебре, физике и химии. Мои микросхемы обожают объяснять сложное простыми словами!"),
-    Page("🗺️", "Три мира знаний", "🏙️ Город чисел — алгебра\n⚡ Лаборатория сил — физика\n⚗️ Алхимическая башня — химия\n\nКлассы 9 → 10 → 11 — это регионы, которые открываются по мере прохождения."),
+    Page("🗺️", "Три мира знаний", "Город чисел — алгебра\n⚡ Лаборатория сил — физика\n⚗️ Алхимическая башня — химия\n\nКлассы 9 → 10 → 11 — это регионы, которые открываются по мере прохождения."),
     Page("⚔️", "Боссы и награды", "В конце каждого класса тебя ждёт битва с боссом. Побеждай, собирай карточки учёных и элементов, копи кристаллы и XP, держи серию дней 🔥"),
     Page("🧠", "ИИ-репетитор", "Добавь API-ключ (Claude, GPT, Gemini и др.) в настройках — и я смогу объяснять «иначе», придумывать задачи и проверять решения. Без ключа теория, тесты и игры тоже работают!"),
 )
@@ -61,19 +61,15 @@ fun OnboardingScreen(onDone: () -> Unit) {
     val last = pages.size
 
     Box(
-        Modifier.fillMaxSize().background(
-            Brush.verticalGradient(listOf(MaterialTheme.colorScheme.primary.copy(alpha = 0.35f), MaterialTheme.colorScheme.background)),
-        ),
+        Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
     ) {
         Column(Modifier.fillMaxSize().safeDrawingPadding().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Spacer(Modifier.height(32.dp))
-            NeuronAvatar("skin_classic", 120.dp)
+            NeuronAvatar("skin_classic", 140.dp, mood = if (page == last) com.neuron.academy.ui.components.MascotMood.HAPPY else com.neuron.academy.ui.components.MascotMood.NORMAL)
             Spacer(Modifier.height(24.dp))
             AnimatedContent(page, transitionSpec = { (slideInHorizontally { it / 2 } + fadeIn()) togetherWith fadeOut() }, label = "page", modifier = Modifier.weight(1f)) { p ->
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     if (p < last) {
-                        Text(pages[p].emoji, fontSize = 40.sp)
-                        Spacer(Modifier.height(8.dp))
                         Text(pages[p].title, style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center)
                         Spacer(Modifier.height(12.dp))
                         Text(pages[p].text, style = MaterialTheme.typography.bodyLarge, textAlign = TextAlign.Center)

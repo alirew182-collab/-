@@ -1,5 +1,10 @@
 package com.neuron.academy.ui.screens
 
+import androidx.compose.foundation.background
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.rounded.AcUnit
+import androidx.compose.material.icons.rounded.Lightbulb
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -13,6 +18,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.rounded.Diamond
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -59,9 +65,9 @@ fun ShopScreen(nav: NavHostController) {
         snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
             TopAppBar(
-                title = { Text("🛍️ Магазин") },
+                title = { Text("Магазин") },
                 navigationIcon = { IconButton(onClick = { nav.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Назад") } },
-                actions = { StatChip("💎", player.crystals.toString(), GameColors.Crystal); Spacer(Modifier.width(12.dp)) },
+                actions = { StatChip(Icons.Rounded.Diamond, player.crystals.toString(), GameColors.Crystal); Spacer(Modifier.width(12.dp)) },
             )
         },
     ) { pad ->
@@ -74,7 +80,17 @@ fun ShopScreen(nav: NavHostController) {
                     val equipped = item.id == player.skin || item.id == player.theme
                     Card(shape = RoundedCornerShape(18.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)) {
                         Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Text(item.emoji, fontSize = 36.sp)
+                            when (item.category) {
+                                ShopCategory.SKIN -> com.neuron.academy.ui.components.NeuronMascot(item.id, 52.dp, animated = false)
+                                ShopCategory.THEME -> androidx.compose.foundation.layout.Box(
+                                    Modifier.size(48.dp).clip(androidx.compose.foundation.shape.RoundedCornerShape(14.dp))
+                                        .background(com.neuron.academy.ui.theme.appColorScheme(item.id, false).primary),
+                                )
+                                ShopCategory.CONSUMABLE -> com.neuron.academy.ui.components.IconBadge(
+                                    if (item.id == ShopCatalog.HINTS_PACK) Icons.Rounded.Lightbulb else Icons.Rounded.AcUnit,
+                                    if (item.id == ShopCatalog.HINTS_PACK) GameColors.Gold else GameColors.Crystal, 48.dp,
+                                )
+                            }
                             Spacer(Modifier.width(12.dp))
                             Column(Modifier.weight(1f)) {
                                 Text(item.title, style = MaterialTheme.typography.titleMedium)
@@ -93,7 +109,7 @@ fun ShopScreen(nav: NavHostController) {
                                         snackbar.showSnackbar(msg)
                                     }
                                 }) { Text(if (item.price == 0) "Бесплатно" else "${item.price} 💎") }
-                                equipped -> Text("✅ Надето", color = GameColors.Success)
+                                equipped -> Text("Надето", color = GameColors.Success)
                                 else -> OutlinedButton(onClick = { scope.launch { c.game.equip(item.id) } }) { Text("Надеть") }
                             }
                         }

@@ -1,0 +1,19 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp" android:height="48dp" android:viewportWidth="100" android:viewportHeight="100">
+    <!-- антенна -->
+    <path android:fillColor="#FF2A3E9E" android:pathData="M48,10h4v18h-4z"/>
+    <path android:fillColor="#FFF2B705" android:pathData="M50,8m-6,0a6,6 0,1 1,12 0a6,6 0,1 1,-12 0"/>
+    <!-- уши -->
+    <path android:fillColor="#FF2A3E9E" android:pathData="M5,48h10v20h-10z"/>
+    <path android:fillColor="#FF2A3E9E" android:pathData="M85,48h10v20h-10z"/>
+    <!-- голова -->
+    <path android:fillColor="#FF3550C8" android:pathData="M32,24h36a20,20 0,0 1,20 20v26a20,20 0,0 1,-20 20h-36a20,20 0,0 1,-20 -20v-26a20,20 0,0 1,20 -20z"/>
+    <!-- экран -->
+    <path android:fillColor="#FF15171C" android:pathData="M33,34h34a13,13 0,0 1,13 13v16a13,13 0,0 1,-13 13h-34a13,13 0,0 1,-13 -13v-16a13,13 0,0 1,13 -13z"/>
+    <!-- глаза -->
+    <path android:fillColor="#FF8CF0E0" android:pathData="M37,45h0a4.5,4.5 0,0 1,4.5 4.5v5a4.5,4.5 0,0 1,-9 0v-5a4.5,4.5 0,0 1,4.5 -4.5z"/>
+    <path android:fillColor="#FF8CF0E0" android:pathData="M63,45h0a4.5,4.5 0,0 1,4.5 4.5v5a4.5,4.5 0,0 1,-9 0v-5a4.5,4.5 0,0 1,4.5 -4.5z"/>
+    <!-- улыбка -->
+    <path android:strokeColor="#CC8CF0E0" android:strokeWidth="2.5" android:strokeLineCap="round" android:fillColor="#00000000"
+        android:pathData="M44,66Q50,70 56,66"/>
+</vector>

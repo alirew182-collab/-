@@ -72,16 +72,62 @@ private fun extractErrorMessage(body: String): String? = try {
     body.take(200).ifBlank { null }
 }
 
-class AiProviderFactory(private val client: HttpClient) {
+/**
+ * Выдаёт реализацию [AiProvider] по типу. [gigaClient] — отдельный HTTP-клиент
+ * с доверием к сертификату Минцифры (нужен для серверов Сбера).
+ */
+class AiProviderFactory(private val client: HttpClient, gigaClient: HttpClient = client) {
     private val anthropic = AnthropicProvider(client)
     private val gemini = GeminiProvider(client)
+    private val azure = AzureOpenAiProvider(client)
+    private val giga = GigaChatProvider(gigaClient)
     private val openAiLike = AiProviderType.entries
-        .filter { it != AiProviderType.ANTHROPIC && it != AiProviderType.GEMINI }
+        .filter { it.kind == com.neuron.academy.ai.ProviderKind.OPENAI_COMPATIBLE }
         .associateWith { OpenAiCompatibleProvider(client, it) }
 
-    fun get(type: AiProviderType): AiProvider = when (type) {
-        AiProviderType.ANTHROPIC -> anthropic
-        AiProviderType.GEMINI -> gemini
-        else -> openAiLike.getValue(type)
+    fun get(type: AiProviderType): AiProvider = when (type.kind) {
+        com.neuron.academy.ai.ProviderKind.ANTHROPIC -> anthropic
+        com.neuron.academy.ai.ProviderKind.GEMINI -> gemini
+        com.neuron.academy.ai.ProviderKind.AZURE_OPENAI -> azure
+        com.neuron.academy.ai.ProviderKind.GIGACHAT -> giga
+        com.neuron.academy.ai.ProviderKind.OPENAI_COMPATIBLE -> openAiLike.getValue(type)
     }
 }
+
+/** Общий разбор ответа в формате Chat Completions. */
+internal fun parseChatCompletion(json: kotlinx.serialization.json.JsonObject): String {
+    val message = json["choices"]?.let { it as? kotlinx.serialization.json.JsonArray }?.firstOrNull()
+        ?.let { it as? JsonObject }?.get("message") as? JsonObject
+    val content = message?.get("content")
+    val text = when (content) {
+        is kotlinx.serialization.json.JsonPrimitive -> content.content
+        is kotlinx.serialization.json.JsonArray -> content.joinToString("") { (it as? JsonObject)?.get("text")?.jsonPrimitive?.content.orEmpty() }
+        else -> null
+    }
+    if (text.isNullOrBlank()) throw AiException(AiErrorKind.PARSE, 200, "Пустой ответ модели")
+    return text
+}
+
+/** Тело запроса Chat Completions. */
+internal fun chatCompletionBody(model: String, request: AiRequest, useCompletionTokens: Boolean): String =
+    kotlinx.serialization.json.buildJsonObject {
+        put("model", kotlinx.serialization.json.JsonPrimitive(model))
+        if (useCompletionTokens) {
+            put("max_completion_tokens", kotlinx.serialization.json.JsonPrimitive(request.maxTokens * 3))
+        } else {
+            put("max_tokens", kotlinx.serialization.json.JsonPrimitive(request.maxTokens))
+            put("temperature", kotlinx.serialization.json.JsonPrimitive(request.temperature))
+        }
+        put("messages", kotlinx.serialization.json.buildJsonArray {
+            add(kotlinx.serialization.json.buildJsonObject {
+                put("role", kotlinx.serialization.json.JsonPrimitive("system"))
+                put("content", kotlinx.serialization.json.JsonPrimitive(request.system))
+            })
+            request.messages.forEach { m ->
+                add(kotlinx.serialization.json.buildJsonObject {
+                    put("role", kotlinx.serialization.json.JsonPrimitive(if (m.role == com.neuron.academy.ai.AiMessage.Role.USER) "user" else "assistant"))
+                    put("content", kotlinx.serialization.json.JsonPrimitive(m.content))
+                })
+            }
+        })
+    }.toString()

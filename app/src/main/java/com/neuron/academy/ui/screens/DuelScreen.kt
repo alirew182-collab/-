@@ -1,5 +1,6 @@
 package com.neuron.academy.ui.screens
 
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -167,12 +168,12 @@ fun DuelScreen(nav: NavHostController) {
     val vm = containerViewModel { DuelViewModel(it) }
     val player by vm.player.collectAsState()
     Scaffold(topBar = {
-        TopAppBar(title = { Text("🤺 Дуэль с ИИ") }, navigationIcon = { IconButton(onClick = { nav.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Назад") } })
+        TopAppBar(title = { Text("Дуэль с ИИ") }, navigationIcon = { IconButton(onClick = { nav.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Назад") } })
     }) { pad ->
         Column(Modifier.fillMaxSize().padding(pad).padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
-                    Text("🧑‍🎓", fontSize = 40.sp); Text(player.name.ifBlank { "Ты" }); Text("${vm.playerScore}", style = MaterialTheme.typography.headlineMedium)
+                    com.neuron.academy.ui.components.IconBadge(Icons.Rounded.Person, MaterialTheme.colorScheme.primary, 52.dp); Text(player.name.ifBlank { "Ты" }); Text("${vm.playerScore}", style = MaterialTheme.typography.headlineMedium)
                 }
                 Text("VS", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Black, color = GameColors.Error)
                 Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
@@ -189,7 +190,7 @@ fun DuelScreen(nav: NavHostController) {
                 }
                 vm.finished -> {
                     val won = vm.playerScore > vm.aiScore
-                    Text(if (won) "🏆 Ты победил!" else if (vm.playerScore == vm.aiScore) "🤝 Ничья!" else "🤖 Нейрон победил", style = MaterialTheme.typography.headlineMedium)
+                    Text(if (won) "Ты победил!" else if (vm.playerScore == vm.aiScore) "Ничья!" else "Нейрон победил", style = MaterialTheme.typography.headlineMedium)
                     Text("${vm.playerScore} : ${vm.aiScore}", style = MaterialTheme.typography.displaySmall)
                     Spacer(Modifier.height(20.dp))
                     Button(onClick = vm::start, modifier = Modifier.fillMaxWidth()) { Text("Реванш") }
@@ -215,7 +216,7 @@ fun DuelScreen(nav: NavHostController) {
                             colors = ButtonDefaults.buttonColors(containerColor = color, contentColor = MaterialTheme.colorScheme.onSecondaryContainer),
                         ) {
                             Text(opt, fontSize = 18.sp)
-                            if (vm.aiChoice == i) { Spacer(Modifier.width(8.dp)); Text("🤖") }
+                            if (vm.aiChoice == i) { Spacer(Modifier.width(8.dp)); Text("ИИ", style = MaterialTheme.typography.labelSmall) }
                         }
                     }
                     Spacer(Modifier.height(10.dp))

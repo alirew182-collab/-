@@ -1,5 +1,6 @@
 package com.neuron.academy.ui.screens
 
+import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -66,8 +67,8 @@ fun CollectionScreen(nav: NavHostController) {
         Column {
             TopAppBar(title = { Text("Достижения и коллекция") }, navigationIcon = { IconButton(onClick = { nav.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Назад") } })
             TabRow(tab) {
-                Tab(tab == 0, { tab = 0 }, text = { Text("🏅 Бейджи ${achievements.size}/${AchievementCatalog.all.size}") })
-                Tab(tab == 1, { tab = 1 }, text = { Text("🃏 Карточки ${cards.size}/${CardCatalog.all.size}") })
+                Tab(tab == 0, { tab = 0 }, text = { Text("Бейджи ${achievements.size}/${AchievementCatalog.all.size}") })
+                Tab(tab == 1, { tab = 1 }, text = { Text("Карточки ${cards.size}/${CardCatalog.all.size}") })
             }
         }
     }) { pad ->
@@ -83,7 +84,7 @@ fun CollectionScreen(nav: NavHostController) {
                     val has = a.id in achievements
                     Card(shape = RoundedCornerShape(18.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)) {
                         Column(Modifier.fillMaxWidth().padding(12.dp).alpha(if (has) 1f else 0.4f), horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(if (has) a.emoji else "🔒", fontSize = 36.sp)
+                            if (has) Text(a.emoji, fontSize = 36.sp) else androidx.compose.material3.Icon(Icons.Rounded.Lock, null, modifier = Modifier.padding(8.dp))
                             Text(a.title, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, style = MaterialTheme.typography.bodyMedium)
                             Text(a.description, textAlign = TextAlign.Center, style = MaterialTheme.typography.bodySmall)
                             Text("+${a.rewardCrystals} 💎", style = MaterialTheme.typography.labelSmall)
@@ -103,7 +104,7 @@ fun CollectionScreen(nav: NavHostController) {
                             colors = CardDefaults.cardColors(containerColor = if (owned != null) Color(card.rarity.color).copy(alpha = 0.2f) else MaterialTheme.colorScheme.surfaceVariant),
                         ) {
                             Column(Modifier.fillMaxWidth().padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(if (owned != null) card.emoji else "❓", fontSize = 32.sp)
+                                if (owned != null) Text(card.emoji, fontSize = 32.sp) else Text("?", style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.outline)
                                 Text(if (owned != null) card.title else "???", style = MaterialTheme.typography.labelMedium, textAlign = TextAlign.Center, maxLines = 2)
                                 if (owned != null) Text(card.rarity.title, color = Color(card.rarity.color), style = MaterialTheme.typography.labelSmall)
                             }

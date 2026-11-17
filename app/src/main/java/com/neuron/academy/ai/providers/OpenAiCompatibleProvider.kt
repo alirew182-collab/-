@@ -60,7 +60,13 @@ class OpenAiCompatibleProvider(
         }
         val json = safeCall {
             client.post(url) {
-                if (config.apiKey.isNotBlank()) header("Authorization", "Bearer ${config.apiKey}")
+                if (config.apiKey.isNotBlank()) {
+                    when (type) {
+                        // Yandex Cloud принимает API-ключ сервисного аккаунта со схемой Api-Key
+                        AiProviderType.YANDEX -> header("Authorization", if (config.apiKey.startsWith("t1.") || config.apiKey.startsWith("Bearer")) "Bearer ${config.apiKey.removePrefix("Bearer ")}" else "Api-Key ${config.apiKey}")
+                        else -> header("Authorization", "Bearer ${config.apiKey}")
+                    }
+                }
                 if (type == AiProviderType.OPENROUTER) {
                     header("HTTP-Referer", "https://neuron.academy.app")
                     header("X-Title", "Neuron Academy")

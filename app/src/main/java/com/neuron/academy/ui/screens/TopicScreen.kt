@@ -1,5 +1,8 @@
 package com.neuron.academy.ui.screens
 
+import com.neuron.academy.ui.theme.accent
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
@@ -72,18 +75,18 @@ import com.neuron.academy.ui.containerViewModel
 import com.neuron.academy.ui.theme.GameColors
 import com.neuron.gamification.NeuronLines
 
-private val tabTitles = listOf("📖 Теория", "🧪 Примеры", "✏️ Практика", "📝 Тест", "💡 Факт")
+private val tabTitles = listOf("Теория", "Примеры", "Практика", "Тест", "Факт")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopicScreen(nav: NavHostController, topicId: String) {
     val vm = containerViewModel(key = "topic_$topicId") { TopicViewModel(it, topicId) }
     val topic = vm.topic
-    if (topic == null) { EmptyHint("🤷", "Тема не найдена"); return }
+    if (topic == null) { EmptyHint("Тема не найдена"); return }
     val ls by vm.learning.collectAsState()
     val state = ls.topic(topicId)
     var tab by rememberSaveable { mutableIntStateOf(0) }
-    val color = Color(topic.subject.color)
+    val color = topic.subject.accent
     LaunchedEffect(Unit) { vm.onTheoryOpened() }
 
     Scaffold(
@@ -92,7 +95,7 @@ fun TopicScreen(nav: NavHostController, topicId: String) {
                 TopAppBar(
                     title = {
                         Column {
-                            Text("${topic.emoji} ${topic.title}", maxLines = 1)
+                            Text(topic.title, maxLines = 1, style = MaterialTheme.typography.titleLarge)
                             Text("${topic.subject.title} · ${topic.grade} класс" + if (state?.status == TopicStatus.COMPLETED) " · ✅ пройдена" else "", style = MaterialTheme.typography.bodySmall)
                         }
                     },
@@ -124,12 +127,12 @@ fun TopicScreen(nav: NavHostController, topicId: String) {
 private fun androidx.compose.foundation.lazy.LazyListScope.theoryTab(vm: TopicViewModel, nav: NavHostController, color: Color) {
     val topic = vm.topic!!
     if (vm.prereqs.isNotEmpty()) item {
-        InfoCard("Что вспомнить из прошлых тем", "🔁", color = color) {
+        InfoCard("Что вспомнить из прошлых тем", color = color) {
             vm.prereqs.forEach { p ->
-                Text("• ${p.emoji} ${p.title} (${p.grade} кл.)", modifier = Modifier.clickable { nav.navigate(Routes.topic(p.id)) }.padding(vertical = 3.dp), color = MaterialTheme.colorScheme.primary)
+                Text("• ${p.title} (${p.grade} кл.)", modifier = Modifier.clickable { nav.navigate(Routes.topic(p.id)) }.padding(vertical = 3.dp), color = MaterialTheme.colorScheme.primary)
             }
             Spacer(Modifier.height(8.dp))
-            AiSection(vm.prereq, nav, buttonText = "🤖 Нейрон, напомни главное", onClick = vm::askPrereq)
+            AiSection(vm.prereq, nav, buttonText = "Нейрон, напомни главное", onClick = vm::askPrereq)
         }
     }
     item {
@@ -138,24 +141,24 @@ private fun androidx.compose.foundation.lazy.LazyListScope.theoryTab(vm: TopicVi
         }
     }
     item {
-        InfoCard("Объясни иначе", "🔄", color = color) {
+        InfoCard("Объясни иначе", color = color) {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 ExplainStyle.entries.forEach { s ->
-                    AssistChip(onClick = { vm.explainAs(s) }, label = { Text("${s.emoji} ${s.title}") }, border = if (vm.explainStyle == s) BorderStroke(2.dp, color) else null)
+                    AssistChip(onClick = { vm.explainAs(s) }, label = { Text(s.title) }, border = if (vm.explainStyle == s) BorderStroke(2.dp, color) else null)
                 }
             }
             AiResult(vm.explain, nav)
         }
     }
     item {
-        InfoCard("Зачем это нужно в жизни?", "🌍", color = color) {
+        InfoCard("Зачем это нужно в жизни?", color = color) {
             Text(topic.realLife, style = MaterialTheme.typography.bodyMedium)
             Spacer(Modifier.height(8.dp))
-            AiSection(vm.why, nav, buttonText = "🤖 Расскажи подробнее", onClick = vm::askWhy)
+            AiSection(vm.why, nav, buttonText = "Расскажи подробнее", onClick = vm::askWhy)
         }
     }
     item {
-        FilledTonalButton(onClick = { nav.navigate(Routes.topicChat(topic.id)) }, modifier = Modifier.fillMaxWidth()) { Text("💬 Задать вопрос Нейрону по теме") }
+        FilledTonalButton(onClick = { nav.navigate(Routes.topicChat(topic.id)) }, modifier = Modifier.fillMaxWidth()) { Text("Задать вопрос Нейрону по теме") }
     }
 }
 
@@ -180,7 +183,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.examplesTab(vm: Topic
 
 private fun androidx.compose.foundation.lazy.LazyListScope.practiceTab(vm: TopicViewModel, nav: NavHostController) {
     item {
-        InfoCard("Задача от ИИ", "🎲") {
+        InfoCard("Задача от ИИ") {
             Text("Нейрон придумает задачу с сюжетом из игр, спорта или космоса.", style = MaterialTheme.typography.bodySmall)
             Spacer(Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -197,8 +200,8 @@ private fun androidx.compose.foundation.lazy.LazyListScope.practiceTab(vm: Topic
             Column(Modifier.padding(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("Задача ${i + 1}", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
-                    if (item.aiGenerated) Text("🤖 ИИ ", style = MaterialTheme.typography.labelSmall)
-                    if (item.task.hard) Text("🔥 Сложная", style = MaterialTheme.typography.labelSmall, color = GameColors.Fire)
+                    if (item.aiGenerated) Text("ИИ ", style = MaterialTheme.typography.labelSmall)
+                    if (item.task.hard) Text("Сложная", style = MaterialTheme.typography.labelSmall, color = GameColors.Fire)
                 }
                 Spacer(Modifier.height(6.dp))
                 MathText(item.task.problem)
@@ -214,13 +217,13 @@ private fun androidx.compose.foundation.lazy.LazyListScope.practiceTab(vm: Topic
                 }
                 item.result?.let { ok ->
                     Text(
-                        if (ok) "✅ ${NeuronLines.random(NeuronLines.correct)}" else "❌ ${NeuronLines.random(NeuronLines.wrong)}",
+                        if (ok) "${NeuronLines.random(NeuronLines.correct)}" else "${NeuronLines.random(NeuronLines.wrong)}",
                         color = if (ok) GameColors.Success else GameColors.Error, modifier = Modifier.padding(top = 6.dp),
                     )
                 }
                 Row {
-                    TextButton(onClick = { item.showHint = !item.showHint }) { Text("💡 Подсказка") }
-                    TextButton(onClick = { item.showSolution = !item.showSolution }) { Text("📖 Решение") }
+                    TextButton(onClick = { item.showHint = !item.showHint }) { Text("Подсказка") }
+                    TextButton(onClick = { item.showSolution = !item.showSolution }) { Text("Решение") }
                 }
                 AnimatedVisibility(item.showHint) { MathText("Подсказка: " + item.task.hint, style = MaterialTheme.typography.bodyMedium) }
                 AnimatedVisibility(item.showSolution) { MathText("Решение: ${item.task.solution}\n\nОтвет: **${item.task.answer}**", style = MaterialTheme.typography.bodyMedium) }
@@ -230,7 +233,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.practiceTab(vm: Topic
                     label = { Text("Или напиши решение целиком — ИИ проверит") },
                     modifier = Modifier.fillMaxWidth(), minLines = 2,
                 )
-                TextButton(onClick = { vm.checkFullSolution(item) }, enabled = item.fullSolution.isNotBlank() && !item.check.loading) { Text("🤖 Проверить решение с разбором") }
+                TextButton(onClick = { vm.checkFullSolution(item) }, enabled = item.fullSolution.isNotBlank() && !item.check.loading) { Text("Проверить решение с разбором") }
                 AiResult(item.check, nav)
             }
         }
@@ -239,10 +242,10 @@ private fun androidx.compose.foundation.lazy.LazyListScope.practiceTab(vm: Topic
 
 private fun androidx.compose.foundation.lazy.LazyListScope.testTab(vm: TopicViewModel, nav: NavHostController) {
     val topic = vm.topic!!
-    if (vm.questions.isEmpty()) { item { EmptyHint("📝", "Вопросов нет") }; return }
+    if (vm.questions.isEmpty()) { item { EmptyHint("Вопросов нет") }; return }
     item {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(if (vm.aiTestLabel) "🤖 Тест от ИИ" else "📝 Тест по теме", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+            Text(if (vm.aiTestLabel) "Тест от ИИ" else "Тест по теме", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
             Text("Нужно ≥ 70%", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
@@ -251,7 +254,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.testTab(vm: TopicView
             val total = vm.questions.size
             Card(shape = RoundedCornerShape(20.dp), colors = CardDefaults.cardColors(containerColor = (if (vm.passed) GameColors.Success else GameColors.Fire).copy(alpha = 0.15f))) {
                 Column(Modifier.padding(20.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(if (vm.passed) "🎉" else "💪", fontSize = 48.sp)
+                    com.neuron.academy.ui.components.NeuronMascot(LocalContainer.current.game.player.collectAsState(initial = null).value?.skin ?: "skin_classic", 80.dp, if (vm.passed) com.neuron.academy.ui.components.MascotMood.HAPPY else com.neuron.academy.ui.components.MascotMood.THINKING)
                     Text("${vm.correctCount} из $total", style = MaterialTheme.typography.headlineMedium)
                     Text("${vm.correctCount * 100 / total}%", style = MaterialTheme.typography.titleLarge)
                     Spacer(Modifier.height(6.dp))
@@ -259,7 +262,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.testTab(vm: TopicView
                     Spacer(Modifier.height(12.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         OutlinedButton(onClick = { vm.restartTest() }) { Text("Ещё раз") }
-                        Button(onClick = { vm.generateAiTest() }, enabled = !vm.testGen.loading) { Text("🤖 Новый тест") }
+                        Button(onClick = { vm.generateAiTest() }, enabled = !vm.testGen.loading) { Text("Новый тест") }
                     }
                 }
             }
@@ -283,14 +286,14 @@ private fun androidx.compose.foundation.lazy.LazyListScope.testTab(vm: TopicView
         val player = LocalContainer.current.game.player.collectAsState(initial = null).value
         Row(verticalAlignment = Alignment.CenterVertically) {
             OutlinedButton(onClick = vm::useFiftyFifty, enabled = vm.selected == null && vm.removedOptions.isEmpty() && (player?.hints ?: 0) > 0) {
-                Text("💡 50/50 (осталось ${player?.hints ?: 0})")
+                Text("50/50 (осталось ${player?.hints ?: 0})")
             }
             Spacer(Modifier.weight(1f))
             Button(onClick = vm::next, enabled = vm.selected != null) { Text(if (vm.qIndex < vm.questions.lastIndex) "Далее" else "Завершить") }
         }
     }
     item {
-        TextButton(onClick = { vm.generateAiTest() }, enabled = !vm.testGen.loading) { Text("🤖 Сгенерировать новый тест через ИИ") }
+        TextButton(onClick = { vm.generateAiTest() }, enabled = !vm.testGen.loading) { Text("Сгенерировать новый тест через ИИ") }
         if (vm.testGen.loading) LoadingBlock("Составляю тест…")
         vm.testGen.error?.let { ErrorBlock(it, if (vm.testGen.noKeys) ({ nav.navigate(Routes.KEYS) }) else null) }
     }
@@ -321,13 +324,13 @@ fun QuestionCard(question: com.neuron.academy.content.Question, selected: Int?, 
                     Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
                         Text("${'A' + i}", fontWeight = FontWeight.Bold, modifier = Modifier.width(24.dp))
                         MathText(opt, Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
-                        if (selected != null && i == question.correct) Text("✅")
-                        if (selected == i && i != question.correct) Text("❌")
+                        if (selected != null && i == question.correct) Icon(Icons.Rounded.Check, null, tint = GameColors.Success)
+                        if (selected == i && i != question.correct) Icon(Icons.Rounded.Close, null, tint = GameColors.Error)
                     }
                 }
             }
             if (selected != null && question.explanation.isNotBlank()) {
-                MathText("💬 " + question.explanation, style = MaterialTheme.typography.bodyMedium)
+                MathText("" + question.explanation, style = MaterialTheme.typography.bodyMedium)
             }
         }
     }
@@ -340,10 +343,10 @@ private fun androidx.compose.foundation.lazy.LazyListScope.factTab(vm: TopicView
         NeuronBubble("А вот интересный факт! 🤓", skin)
     }
     item {
-        InfoCard("Интересный факт", "💡", color = GameColors.Gold) { Text(topic.fact, style = MaterialTheme.typography.bodyLarge) }
+        InfoCard("Интересный факт", color = GameColors.Gold) { Text(topic.fact, style = MaterialTheme.typography.bodyLarge) }
     }
     item {
-        InfoCard("Ещё факт от ИИ", "🤖") { AiSection(vm.fact, nav, buttonText = "Удиви меня!", onClick = vm::askFact) }
+        InfoCard("Ещё факт от ИИ") { AiSection(vm.fact, nav, buttonText = "Удиви меня!", onClick = vm::askFact) }
     }
 }
 
@@ -353,7 +356,7 @@ fun AiSection(block: com.neuron.academy.ui.screens.AiBlock, nav: NavHostControll
         FilledTonalButton(onClick = onClick) { Text(buttonText) }
     }
     AiResult(block, nav)
-    if (block.text != null && !block.loading) TextButton(onClick = onClick) { Text("🔁 Ещё вариант") }
+    if (block.text != null && !block.loading) TextButton(onClick = onClick) { Text("Ещё вариант") }
 }
 
 @Composable

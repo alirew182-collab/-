@@ -1,0 +1,14 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- голова робота -->
+    <path android:fillColor="#FFFFFFFF" android:pathData="M34,40 h40 a8,8 0 0 1 8,8 v22 a8,8 0 0 1 -8,8 h-40 a8,8 0 0 1 -8,-8 v-22 a8,8 0 0 1 8,-8 z"/>
+    <!-- антенна -->
+    <path android:fillColor="#FFFFFFFF" android:pathData="M52,28 h4 v12 h-4 z"/>
+    <path android:fillColor="#FFFFD54F" android:pathData="M54,22 m-5,0 a5,5 0 1 0 10,0 a5,5 0 1 0 -10,0"/>
+    <!-- глаза -->
+    <path android:fillColor="#FF6C4DF6" android:pathData="M44,56 m-6,0 a6,6 0 1 0 12,0 a6,6 0 1 0 -12,0"/>
+    <path android:fillColor="#FF6C4DF6" android:pathData="M64,56 m-6,0 a6,6 0 1 0 12,0 a6,6 0 1 0 -12,0"/>
+    <!-- улыбка -->
+    <path android:fillColor="#FF26C6DA" android:pathData="M44,67 h20 a3,3 0 0 1 0,6 h-20 a3,3 0 0 1 0,-6 z"/>
+</vector>

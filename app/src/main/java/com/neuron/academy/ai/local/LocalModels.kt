@@ -58,7 +58,8 @@ enum class LocalModel(
         "Умнее в математике и логике, но медленнее. Нужен мощный телефон (8 ГБ ОЗУ).",
         "https://huggingface.co/litert-community/Phi-4-mini-instruct/resolve/main/Phi-4-mini-instruct_multi-prefill-seq_q8_ekv4096.task",
         "phi-4-mini-q8-ekv4096.task",
-        3_910_050_199L, 8, ChatTemplate.PHI;
+        3_910_050_199L, 8, ChatTemplate.PHI,
+    );
 
     val sizeLabel: String get() = "%.1f ГБ".format(sizeBytes / 1_000_000_000.0)
 

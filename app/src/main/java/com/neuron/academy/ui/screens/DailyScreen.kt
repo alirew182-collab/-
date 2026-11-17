@@ -84,7 +84,7 @@ class DailyViewModel(private val c: AppContainer) : ViewModel() {
             if (c.db.playerDao().dailyProblem(day) == null) {
                 val subject = Subject.entries[Math.floorMod(day, 3L).toInt()]
                 val entity = try {
-                    if (!c.router.hasKeys()) throw IllegalStateException()
+                    if (!c.router.isAvailable()) throw IllegalStateException()
                     val ls = c.progress.snapshot()
                     val g = c.tutor.dailyProblem(subject, ls.currentGrade, ls.completedTopics.map { it.title })
                     if (g.problem.isBlank() || g.answer.isBlank()) throw IllegalStateException()

@@ -1,5 +1,7 @@
 package com.neuron.academy.ai
 
+import com.neuron.academy.data.AiSource
+import com.neuron.academy.ai.local.OnDeviceLlm
 import com.neuron.academy.ai.providers.AiProviderFactory
 import com.neuron.academy.data.SettingsRepository
 import com.neuron.academy.data.db.KeyStatEntity
@@ -19,11 +21,24 @@ class AiRouter(
     private val statsDao: KeyStatsDao,
     private val settings: SettingsRepository,
     private val factory: AiProviderFactory,
+    private val local: OnDeviceLlm,
 ) {
     private val roundRobin = AtomicInteger(0)
     private val statsMutex = Mutex()
 
     fun hasKeys(): Boolean = keyStore.keys.value.any { it.enabled }
+
+    /** Есть ли вообще чем отвечать: встроенная модель или облачный ключ. */
+    fun isAvailable(): Boolean = local.isActiveReady || hasKeys()
+
+    val usesBuiltin: Boolean
+        get() = local.isActiveReady && (settings.aiSource.value == AiSource.BUILTIN || !hasKeys())
+
+    private suspend fun completeLocal(request: AiRequest): AiResult {
+        val started = System.currentTimeMillis()
+        val text = local.complete(request)
+        return AiResult(text, "Встроенный ИИ", local.active.value.title, System.currentTimeMillis() - started)
+    }
 
     /** Порядок ключей для конкретной функции. */
     fun orderedKeys(feature: AiFeature): List<ApiKeyConfig> {
@@ -44,6 +59,8 @@ class AiRouter(
     }
 
     suspend fun complete(feature: AiFeature, request: AiRequest): AiResult {
+        // 1) встроенный ИИ — по умолчанию
+        if (usesBuiltin) return completeLocal(request)
         val keys = orderedKeys(feature)
         if (keys.isEmpty()) throw NoKeysException()
         val errors = mutableListOf<Pair<String, AiException>>()
@@ -64,6 +81,8 @@ class AiRouter(
                 errors += key.name to ae
             }
         }
+        // 2) все облачные ключи упали — пробуем встроенную модель, если она скачана
+        if (local.isActiveReady) return completeLocal(request)
         throw AllKeysFailedException(errors)
     }
 

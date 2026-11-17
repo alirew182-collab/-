@@ -165,7 +165,7 @@ class AiException(
     override val message: String,
 ) : Exception(message)
 
-class NoKeysException : Exception("Не добавлено ни одного активного API-ключа. Открой Настройки → API-ключи.")
+class NoKeysException : Exception("Встроенный ИИ ещё не установлен. Открой «Настройки ИИ» и скачай модель — один раз, дальше работает без интернета.")
 
 class AllKeysFailedException(val errors: List<Pair<String, AiException>>) :
     Exception("Все ключи вернули ошибку:\n" + errors.joinToString("\n") { "• ${it.first}: ${it.second.kind.title} — ${it.second.message.take(120)}" })

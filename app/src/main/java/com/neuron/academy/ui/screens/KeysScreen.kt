@@ -1,5 +1,6 @@
 package com.neuron.academy.ui.screens
 
+import com.neuron.academy.data.AiSource
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -97,6 +98,8 @@ fun KeysScreen(nav: NavHostController) {
     val scope = rememberCoroutineScope()
     val snackbar = remember { SnackbarHostState() }
     val testStatus = remember { mutableStateMapOf<String, String>() }
+    val source by c.settings.aiSource.collectAsState()
+    var showCloud by remember { mutableStateOf(c.keyStore.keys.value.isNotEmpty() || c.settings.aiSource.value == AiSource.CLOUD) }
 
     var backupAction by remember { mutableStateOf<BackupAction?>(null) }
     var password by remember { mutableStateOf("") }
@@ -126,12 +129,33 @@ fun KeysScreen(nav: NavHostController) {
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbar) },
-        topBar = { TopAppBar(title = { Text("API-ключи") }, navigationIcon = { IconButton(onClick = { nav.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Назад") } }) },
+        topBar = { TopAppBar(title = { Text("Настройки ИИ") }, navigationIcon = { IconButton(onClick = { nav.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Назад") } }) },
         floatingActionButton = {
-            ExtendedFloatingActionButton(onClick = { nav.navigate(Routes.keyEdit("new")) }, icon = { Icon(Icons.Filled.Add, null) }, text = { Text("Добавить ключ") })
+            if (showCloud) ExtendedFloatingActionButton(onClick = { nav.navigate(Routes.keyEdit("new")) }, icon = { Icon(Icons.Filled.Add, null) }, text = { Text("Добавить ключ") })
         },
     ) { pad ->
         LazyColumn(Modifier.fillMaxSize().padding(pad), contentPadding = PaddingValues(16.dp, 16.dp, 16.dp, 96.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            item { BuiltinAiSection() }
+            item {
+                InfoCard("Чем отвечает Нейрон") {
+                    AiSource.entries.forEach { src ->
+                        Row(Modifier.fillMaxWidth().selectable(source == src) { c.settings.setAiSource(src) }.padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                            RadioButton(source == src, { c.settings.setAiSource(src) })
+                            Column { Text(src.title, fontWeight = FontWeight.SemiBold); Text(src.description, style = MaterialTheme.typography.bodySmall) }
+                        }
+                    }
+                    Text(
+                        "Если выбранный способ недоступен, Нейрон автоматически использует другой.",
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+            item {
+                TextButton(onClick = { showCloud = !showCloud }) {
+                    Text(if (showCloud) "Скрыть облачные ключи" else "Облачные API-ключи (необязательно) · ${keys.size}")
+                }
+            }
+            if (showCloud) {
             item {
                 InfoCard("Режим выбора ключа") {
                     KeySelectionMode.entries.forEach { m ->
@@ -173,6 +197,7 @@ fun KeysScreen(nav: NavHostController) {
                     onEdit = { nav.navigate(Routes.keyEdit(k.id)) },
                     onDelete = { deleteId = k.id },
                 )
+            }
             }
         }
     }

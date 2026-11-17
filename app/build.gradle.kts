@@ -14,8 +14,10 @@ android {
         applicationId = "com.neuron.academy"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 3
+        versionName = "1.2"
+        // Встроенная модель работает на 64-битных устройствах
+        ndk { abiFilters += listOf("arm64-v8a", "x86_64") }
     }
 
     buildTypes {
@@ -83,6 +85,9 @@ dependencies {
 
     // Шифрование ключей
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
+
+    // Встроенный ИИ: языковая модель прямо на телефоне
+    implementation("com.google.mediapipe:tasks-genai:0.10.24")
 
     // Виджеты рабочего стола
     implementation("androidx.glance:glance-appwidget:1.1.1")

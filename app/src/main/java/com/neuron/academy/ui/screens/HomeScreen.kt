@@ -116,6 +116,7 @@ fun HomeScreen(nav: NavHostController) {
             }
             item { PlayerStatsBar(player) }
             item { NeuronBubble(vm.greeting, player.skin) }
+            item { InstallAiCard { nav.navigate(Routes.KEYS) } }
             item { ContinueCard(ls) { nav.navigate(Routes.topic(it)) } }
             item {
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -139,6 +140,25 @@ fun HomeScreen(nav: NavHostController) {
             }
             item { Spacer(Modifier.height(8.dp)) }
         }
+    }
+}
+
+/** Подсказка установить встроенный ИИ, если ИИ пока недоступен. */
+@Composable
+private fun InstallAiCard(onOpen: () -> Unit) {
+    val c = com.neuron.academy.ui.LocalContainer.current
+    val statuses by c.localLlm.status.collectAsState()
+    val downloading = statuses.values.any { it is com.neuron.academy.ai.local.ModelStatus.Downloading }
+    if (c.router.isAvailable()) return
+    Panel(onClick = onOpen) {
+        Eyebrow(if (downloading) "Встроенный ИИ скачивается" else "Встроенный ИИ")
+        Spacer(Modifier.height(4.dp))
+        Text(
+            if (downloading) "Можно заниматься дальше — загрузка идёт в фоне" else "Установи Нейрона на телефон: без ключей и без интернета",
+            style = MaterialTheme.typography.titleMedium,
+        )
+        Spacer(Modifier.height(4.dp))
+        Text("Один раз скачать 1,6 ГБ — и чат, «Объясни иначе» и генерация задач заработают.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 

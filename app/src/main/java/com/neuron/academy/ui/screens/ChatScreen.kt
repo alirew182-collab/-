@@ -72,7 +72,7 @@ class ChatViewModel(private val c: AppContainer, topicId: String?) : ViewModel()
     val player: StateFlow<PlayerEntity> = c.game.player.stateIn(viewModelScope, SharingStarted.Eagerly, PlayerEntity())
     var loading by mutableStateOf(false)
     var input by mutableStateOf("")
-    val hasKeys get() = c.router.hasKeys()
+    val hasKeys get() = c.router.isAvailable()
 
     fun send(text: String = input) {
         val msg = text.trim()
@@ -177,7 +177,7 @@ fun ChatScreen(nav: NavHostController, topicId: String?) {
                 )
             }
             if (!vm.hasKeys) item {
-                ErrorBlock("Чтобы я мог отвечать, добавь API-ключ (Claude, OpenAI, Gemini, DeepSeek, OpenRouter или свой сервер).") { nav.navigate(Routes.KEYS) }
+                ErrorBlock("Чтобы я мог отвечать, установи встроенный ИИ: он скачивается один раз и потом работает без интернета и без ключей.") { nav.navigate(Routes.KEYS) }
             }
             if (messages.isEmpty()) item {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -195,7 +195,7 @@ fun ChatScreen(nav: NavHostController, topicId: String?) {
                     }
                 }
                 if (!vm.loading && last?.role == "error") {
-                    TextButton(onClick = { nav.navigate(Routes.KEYS) }) { Text("Проверить ключи") }
+                    TextButton(onClick = { nav.navigate(Routes.KEYS) }) { Text("Настройки ИИ") }
                 }
             }
         }

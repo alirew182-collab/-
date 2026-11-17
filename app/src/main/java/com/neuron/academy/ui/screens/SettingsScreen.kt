@@ -86,10 +86,10 @@ fun SettingsScreen(nav: NavHostController) {
     }) { pad ->
         LazyColumn(Modifier.fillMaxSize().padding(pad), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
             item {
-                InfoCard("ИИ-репетитор и API-ключи") {
-                    Text("Ключей: ${keys.size} (активных: ${keys.count { it.enabled }}) · режим: ${keyMode.title}")
-                    Text("Ключи хранятся зашифрованно (Android Keystore) и никуда, кроме выбранного провайдера, не отправляются.", style = MaterialTheme.typography.bodySmall)
-                    OutlinedButton(onClick = { nav.navigate(Routes.KEYS) }, modifier = Modifier.padding(top = 8.dp)) { Text("Управление ключами") }
+                InfoCard("ИИ-репетитор") {
+                    Text(if (c.localLlm.isActiveReady) "Встроенный ИИ установлен: ${c.localLlm.active.collectAsState().value.title}" else "Встроенный ИИ не установлен")
+                    Text("Облачных ключей: ${keys.size} (необязательно) · режим: ${keyMode.title}", style = MaterialTheme.typography.bodySmall)
+                    OutlinedButton(onClick = { nav.navigate(Routes.KEYS) }, modifier = Modifier.padding(top = 8.dp)) { Text("Настройки ИИ") }
                 }
             }
             item {

@@ -9,6 +9,12 @@ import kotlinx.coroutines.flow.asStateFlow
 
 enum class ThemeMode(val title: String) { SYSTEM("Как в системе"), LIGHT("Светлая"), DARK("Тёмная") }
 
+/** Откуда брать ИИ: встроенная модель на телефоне или облачные API-ключи. */
+enum class AiSource(val title: String, val description: String) {
+    BUILTIN("Встроенный ИИ", "Работает на телефоне, без ключей и интернета"),
+    CLOUD("Облачные ключи", "Свои API-ключи Claude, GPT, Gemini и др."),
+}
+
 /** Обычные (несекретные) настройки приложения. */
 class SettingsRepository(context: Context) {
     private val prefs = context.getSharedPreferences("neuron_settings", Context.MODE_PRIVATE)
@@ -48,6 +54,15 @@ class SettingsRepository(context: Context) {
 
     private val _featureKeyMap = state(loadFeatureMap())
     val featureKeyMap: StateFlow<Map<AiFeature, String>> = _featureKeyMap.asStateFlow()
+
+    private val _aiSource = state(runCatching { AiSource.valueOf(prefs.getString("ai_source", AiSource.BUILTIN.name)!!) }.getOrDefault(AiSource.BUILTIN))
+    val aiSource: StateFlow<AiSource> = _aiSource.asStateFlow()
+
+    private val _allowMobileDownload = state(prefs.getBoolean("allow_mobile_download", false))
+    val allowMobileDownload: StateFlow<Boolean> = _allowMobileDownload.asStateFlow()
+
+    fun setAiSource(v: AiSource) { prefs.edit().putString("ai_source", v.name).apply(); _aiSource.value = v }
+    fun setAllowMobileDownload(v: Boolean) { prefs.edit().putBoolean("allow_mobile_download", v).apply(); _allowMobileDownload.value = v }
 
     private val _onboardingDone = state(prefs.getBoolean("onboarding_done", false))
     val onboardingDone: StateFlow<Boolean> = _onboardingDone.asStateFlow()

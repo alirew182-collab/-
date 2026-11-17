@@ -194,7 +194,7 @@ fun LoadingBlock(text: String = "Нейрон думает…", skin: String = "
 fun ErrorBlock(message: String, onOpenSettings: (() -> Unit)? = null) {
     Panel(color = MaterialTheme.colorScheme.errorContainer, border = MaterialTheme.colorScheme.error.copy(alpha = 0.3f), padding = PaddingValues(12.dp)) {
         Text(message, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onErrorContainer)
-        if (onOpenSettings != null) TextButton(onClick = onOpenSettings, contentPadding = PaddingValues(0.dp)) { Text("Открыть настройки ключей") }
+        if (onOpenSettings != null) TextButton(onClick = onOpenSettings, contentPadding = PaddingValues(0.dp)) { Text("Настройки ИИ") }
     }
 }
 

@@ -1,5 +1,6 @@
 package com.neuron.academy
 
+import com.neuron.academy.ai.local.OnDeviceLlm
 import android.app.Application
 import android.content.Context
 import com.neuron.academy.ai.AiRouter
@@ -51,7 +52,8 @@ class AppContainer(context: Context) {
             engine { config { sslSocketFactory(factory, tm) } }
         }
     } ?: http
-    val router = AiRouter(keyStore, db.keyStatsDao(), settings, AiProviderFactory(http, gigaHttp))
+    val localLlm = OnDeviceLlm(context)
+    val router = AiRouter(keyStore, db.keyStatsDao(), settings, AiProviderFactory(http, gigaHttp), localLlm)
     val tutor = TutorAi(router)
     val progress = ProgressRepository(db.progressDao(), settings)
     val game = GameRepository(db.playerDao(), progress)

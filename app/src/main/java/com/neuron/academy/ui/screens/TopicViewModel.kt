@@ -43,7 +43,7 @@ class TopicViewModel(private val c: AppContainer, topicId: String) : ViewModel()
     val topic: Topic? = Curriculum.topic(topicId)
     val prereqs: List<Topic> = topic?.let { Curriculum.prerequisitesOf(it) } ?: emptyList()
     val learning: StateFlow<LearningState> = c.progress.learningState.stateIn(viewModelScope, SharingStarted.Eagerly, LearningState.EMPTY)
-    val hasKeys get() = c.router.hasKeys()
+    val hasKeys get() = c.router.isAvailable()
 
     val explain = AiBlock()
     var explainStyle by mutableStateOf<ExplainStyle?>(null)

@@ -54,6 +54,7 @@ import com.neuron.academy.ui.screens.OnboardingScreen
 import com.neuron.academy.ui.screens.ParabolaScreen
 import com.neuron.academy.ui.screens.ProfileScreen
 import com.neuron.academy.ui.screens.ProjectileScreen
+import com.neuron.academy.ui.screens.ReviewScreen
 import com.neuron.academy.ui.screens.SettingsScreen
 import com.neuron.academy.ui.screens.ShopScreen
 import com.neuron.academy.ui.screens.TopicScreen
@@ -78,7 +79,9 @@ object Routes {
     const val KEYS = "keys"
     fun world(s: Subject) = "world/${s.key}"
     fun topic(id: String) = "topic/$id"
-    fun exam(s: Subject, grade: Int) = "exam/${s.key}/$grade"
+    fun exam(s: Subject, grade: Int, stage: Int = 0) = "exam/${s.key}/$grade/$stage"
+    const val RAID = "raid"
+    const val REVIEW = "review"
     fun topicChat(id: String) = "chat_topic/$id"
     fun keyEdit(id: String) = "key_edit/$id"
 }
@@ -173,11 +176,13 @@ fun NeuronRoot(c: AppContainer, deepLink: String? = null, onDeepLinkHandled: () 
                         TopicScreen(nav, it.arguments?.getString("id") ?: "")
                     }
                     composable(
-                        "exam/{subject}/{grade}",
-                        listOf(navArgument("subject") { type = NavType.StringType }, navArgument("grade") { type = NavType.IntType }),
+                        "exam/{subject}/{grade}/{stage}",
+                        listOf(navArgument("subject") { type = NavType.StringType }, navArgument("grade") { type = NavType.IntType }, navArgument("stage") { type = NavType.IntType }),
                     ) {
-                        ExamScreen(nav, Subject.byKey(it.arguments?.getString("subject") ?: "algebra"), it.arguments?.getInt("grade") ?: 9)
+                        ExamScreen(nav, Subject.byKey(it.arguments?.getString("subject") ?: "algebra"), it.arguments?.getInt("grade") ?: 9, it.arguments?.getInt("stage") ?: 0)
                     }
+                    composable(Routes.RAID) { ExamScreen(nav, Subject.ALGEBRA, 0, 99, raid = true) }
+                    composable(Routes.REVIEW) { ReviewScreen(nav) }
                     composable("chat_topic/{id}", listOf(navArgument("id") { type = NavType.StringType })) {
                         ChatScreen(nav, topicId = it.arguments?.getString("id"))
                     }

@@ -75,7 +75,7 @@ import com.neuron.academy.ui.containerViewModel
 import com.neuron.academy.ui.theme.GameColors
 import com.neuron.gamification.NeuronLines
 
-private val tabTitles = listOf("Теория", "Примеры", "Практика", "Тест", "Факт")
+private val tabTitles = listOf("Теория", "Видео", "Примеры", "Практика", "Контрольная", "Факт")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -114,9 +114,10 @@ fun TopicScreen(nav: NavHostController, topicId: String) {
         ) {
             when (tab) {
                 0 -> theoryTab(vm, nav, color)
-                1 -> examplesTab(vm)
-                2 -> practiceTab(vm, nav)
-                3 -> testTab(vm, nav)
+                1 -> videoTab(vm)
+                2 -> examplesTab(vm)
+                3 -> practiceTab(vm, nav)
+                4 -> testTab(vm, nav)
                 else -> factTab(vm, nav)
             }
         }
@@ -157,6 +158,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.theoryTab(vm: TopicVi
             AiSection(vm.why, nav, buttonText = "Расскажи подробнее", onClick = vm::askWhy)
         }
     }
+    item { VideoLessonCard(topic) }
     item {
         FilledTonalButton(onClick = { nav.navigate(Routes.topicChat(topic.id)) }, modifier = Modifier.fillMaxWidth()) { Text("Задать вопрос Нейрону по теме") }
     }
@@ -240,21 +242,49 @@ private fun androidx.compose.foundation.lazy.LazyListScope.practiceTab(vm: Topic
     }
 }
 
-private fun androidx.compose.foundation.lazy.LazyListScope.testTab(vm: TopicViewModel, nav: NavHostController) {
+private fun androidx.compose.foundation.lazy.LazyListScope.videoTab(vm: TopicViewModel) {
     val topic = vm.topic!!
-    if (vm.questions.isEmpty()) { item { EmptyHint("Вопросов нет") }; return }
+    item { VideoLessonCard(topic) }
+}
+
+private fun androidx.compose.foundation.lazy.LazyListScope.testTab(vm: TopicViewModel, nav: NavHostController) {
+    if (vm.control.isEmpty()) { item { EmptyHint("Заданий нет") }; return }
     item {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(if (vm.aiTestLabel) "Тест от ИИ" else "Тест по теме", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
-            Text("Нужно ≥ 70%", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Column(Modifier.weight(1f)) {
+                com.neuron.academy.ui.components.Eyebrow(if (vm.aiTestLabel) "Контрольная от ИИ" else "Контрольная · средний уровень")
+                Text("${vm.control.size} заданий, нужно 70%", style = MaterialTheme.typography.titleMedium)
+            }
         }
+    }
+    if (!vm.started && !vm.finished) {
+        item {
+            com.neuron.academy.ui.components.Panel {
+                Text("В контрольной: вопросы по теме урока, задачи с открытым ответом и вопросы из прошлых тем.", style = MaterialTheme.typography.bodyMedium)
+                Spacer(Modifier.height(6.dp))
+                Text("Провал (меньше 70%) отнимает одно сердце.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Spacer(Modifier.height(10.dp))
+                Button(onClick = vm::startControl, modifier = Modifier.fillMaxWidth()) { Text("Начать контрольную") }
+                vm.heartsMessage?.let { Spacer(Modifier.height(8.dp)); ErrorBlock(it) }
+                TextButton(onClick = { nav.navigate(Routes.REVIEW) }) { Text("Повторение (+1 сердце)") }
+            }
+        }
+        item {
+            TextButton(onClick = { vm.generateAiTest() }, enabled = !vm.testGen.loading) { Text("Сгенерировать контрольную через ИИ") }
+            if (vm.testGen.loading) LoadingBlock("Составляю контрольную…")
+            vm.testGen.error?.let { ErrorBlock(it, if (vm.testGen.noKeys) ({ nav.navigate(Routes.KEYS) }) else null) }
+        }
+        return
     }
     if (vm.finished) {
         item {
-            val total = vm.questions.size
-            Card(shape = RoundedCornerShape(20.dp), colors = CardDefaults.cardColors(containerColor = (if (vm.passed) GameColors.Success else GameColors.Fire).copy(alpha = 0.15f))) {
-                Column(Modifier.padding(20.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                    com.neuron.academy.ui.components.NeuronMascot(LocalContainer.current.game.player.collectAsState(initial = null).value?.skin ?: "skin_classic", 80.dp, if (vm.passed) com.neuron.academy.ui.components.MascotMood.HAPPY else com.neuron.academy.ui.components.MascotMood.THINKING)
+            val total = vm.control.size
+            com.neuron.academy.ui.components.Panel(color = (if (vm.passed) GameColors.Success else GameColors.Fire).copy(alpha = 0.12f)) {
+                Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                    com.neuron.academy.ui.components.NeuronMascot(
+                        LocalContainer.current.game.player.collectAsState(initial = null).value?.skin ?: "skin_classic", 80.dp,
+                        if (vm.passed) com.neuron.academy.ui.components.MascotMood.HAPPY else com.neuron.academy.ui.components.MascotMood.THINKING,
+                    )
                     Text("${vm.correctCount} из $total", style = MaterialTheme.typography.headlineMedium)
                     Text("${vm.correctCount * 100 / total}%", style = MaterialTheme.typography.titleLarge)
                     Spacer(Modifier.height(6.dp))
@@ -262,40 +292,57 @@ private fun androidx.compose.foundation.lazy.LazyListScope.testTab(vm: TopicView
                     Spacer(Modifier.height(12.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         OutlinedButton(onClick = { vm.restartTest() }) { Text("Ещё раз") }
-                        Button(onClick = { vm.generateAiTest() }, enabled = !vm.testGen.loading) { Text("Новый тест") }
+                        Button(onClick = { vm.generateAiTest() }, enabled = !vm.testGen.loading) { Text("Новая от ИИ") }
                     }
                 }
             }
         }
-        if (vm.testGen.loading) item { LoadingBlock("Составляю тест…") }
+        if (vm.testGen.loading) item { LoadingBlock("Составляю контрольную…") }
         vm.testGen.error?.let { e -> item { ErrorBlock(e, if (vm.testGen.noKeys) ({ nav.navigate(Routes.KEYS) }) else null) } }
         return
     }
     item {
-        LinearProgressIndicator(progress = { (vm.qIndex + 1f) / vm.questions.size }, modifier = Modifier.fillMaxWidth())
-        Text("Вопрос ${vm.qIndex + 1} из ${vm.questions.size}", style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(top = 4.dp))
+        LinearProgressIndicator(progress = { (vm.qIndex + 1f) / vm.control.size }, modifier = Modifier.fillMaxWidth())
+        Text("Задание ${vm.qIndex + 1} из ${vm.control.size}", style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(top = 4.dp))
     }
     item {
-        val q = vm.questions[vm.qIndex]
-        QuestionCard(
-            question = q, selected = vm.selected, removed = vm.removedOptions,
-            onAnswer = vm::answer,
-        )
+        when (val ci = vm.control[vm.qIndex]) {
+            is ControlItem.Choice -> {
+                com.neuron.academy.ui.components.Eyebrow(ci.source)
+                Spacer(Modifier.height(6.dp))
+                QuestionCard(question = ci.q, selected = vm.selected, removed = vm.removedOptions, onAnswer = vm::answer)
+            }
+            is ControlItem.Open -> {
+                com.neuron.academy.ui.components.Eyebrow("Задача с открытым ответом")
+                Spacer(Modifier.height(6.dp))
+                com.neuron.academy.ui.components.Panel {
+                    MathText(ci.p.problem, style = MaterialTheme.typography.titleMedium)
+                    Spacer(Modifier.height(10.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        OutlinedTextField(vm.openInput, { s -> if (vm.openResult == null) vm.openInput = s }, label = { Text("Ответ") }, singleLine = true, modifier = Modifier.weight(1f))
+                        Spacer(Modifier.width(8.dp))
+                        Button(onClick = vm::submitOpen, enabled = vm.openResult == null && vm.openInput.isNotBlank()) { Text("Ответить") }
+                    }
+                    vm.openResult?.let { ok ->
+                        Spacer(Modifier.height(6.dp))
+                        Text(if (ok) "Верно!" else "Неверно. Правильный ответ: ${ci.p.answer}", color = if (ok) GameColors.Success else GameColors.Error)
+                        if (!ok) MathText("Решение: " + ci.p.solution, style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
+            }
+        }
     }
     item {
         val player = LocalContainer.current.game.player.collectAsState(initial = null).value
         Row(verticalAlignment = Alignment.CenterVertically) {
-            OutlinedButton(onClick = vm::useFiftyFifty, enabled = vm.selected == null && vm.removedOptions.isEmpty() && (player?.hints ?: 0) > 0) {
-                Text("50/50 (осталось ${player?.hints ?: 0})")
+            if (vm.control[vm.qIndex] is ControlItem.Choice) {
+                OutlinedButton(onClick = vm::useFiftyFifty, enabled = vm.selected == null && vm.removedOptions.isEmpty() && (player?.hints ?: 0) > 0) {
+                    Text("50/50 (осталось ${player?.hints ?: 0})")
+                }
             }
             Spacer(Modifier.weight(1f))
-            Button(onClick = vm::next, enabled = vm.selected != null) { Text(if (vm.qIndex < vm.questions.lastIndex) "Далее" else "Завершить") }
+            Button(onClick = vm::next, enabled = vm.answeredCurrent) { Text(if (vm.qIndex < vm.control.lastIndex) "Далее" else "Завершить") }
         }
-    }
-    item {
-        TextButton(onClick = { vm.generateAiTest() }, enabled = !vm.testGen.loading) { Text("Сгенерировать новый тест через ИИ") }
-        if (vm.testGen.loading) LoadingBlock("Составляю тест…")
-        vm.testGen.error?.let { ErrorBlock(it, if (vm.testGen.noKeys) ({ nav.navigate(Routes.KEYS) }) else null) }
     }
 }
 

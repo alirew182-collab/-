@@ -14,6 +14,7 @@ import com.neuron.gamification.CardCatalog
 import com.neuron.gamification.CardDef
 import com.neuron.gamification.CrystalRules
 import com.neuron.gamification.DailyQuestGenerator
+import com.neuron.gamification.Hearts
 import com.neuron.gamification.LevelSystem
 import com.neuron.gamification.NeuronLines
 import com.neuron.gamification.PlayerSnapshot
@@ -126,8 +127,19 @@ class GameRepository(
         r + quest("${QuestEvents.TASK_SOLVED}:${subject.key}", 1)
     }
 
-    suspend fun onExam(subject: Subject, grade: Int, correct: Int, won: Boolean, outcome: ExamOutcome): RewardOutcome = reward {
-        var r = addXp(correct * XpRules.TEST_CORRECT_ANSWER, "Экзамен ${subject.title} $grade кл.", subject)
+    suspend fun onExam(subject: Subject, grade: Int, correct: Int, won: Boolean, outcome: ExamOutcome, stage: Int = 0): RewardOutcome = reward {
+        var r = addXp(correct * XpRules.TEST_CORRECT_ANSWER, if (stage == 0) "Экзамен ${subject.title} $grade кл." else "Страж раздела", subject)
+        if (stage > 0) {
+            if (won && outcome.firstWin) {
+                dao.upsert(current().let { it.copy(guardiansDefeated = it.guardiansDefeated + 1) })
+                r += addXp(XpRules.GUARDIAN_DEFEATED, "Страж побеждён", subject)
+                r += addCrystals(CrystalRules.GUARDIAN_DEFEATED)
+                r += quest(QuestEvents.GUARDIAN, 1)
+                CardCatalog.byId(Curriculum.boss(subject, grade, stage).rewardCardId)?.let { r += giveCard(it) }
+                r += RewardOutcome(message = "Страж повержен — открыт следующий раздел!")
+            }
+            return@reward r
+        }
         if (won && outcome.firstWin) {
             dao.upsert(current().let { it.copy(bossesDefeated = it.bossesDefeated + 1) })
             r += addXp(XpRules.BOSS_DEFEATED, "Босс побеждён", subject)
@@ -140,6 +152,57 @@ class GameRepository(
         }
         r
     }
+
+    /** Рейд недели. */
+    suspend fun onRaid(correct: Int, won: Boolean, firstWinThisWeek: Boolean, cardId: String): RewardOutcome = reward {
+        var r = addXp(correct * XpRules.TEST_CORRECT_ANSWER, "Рейд недели", null)
+        if (won && firstWinThisWeek) {
+            dao.upsert(current().let { it.copy(raidsWon = it.raidsWon + 1) })
+            r += addXp(XpRules.RAID_WON, "Рейд недели", null) + addCrystals(CrystalRules.RAID_WON)
+            CardCatalog.byId(cardId)?.let { r += giveCard(it) }
+            r += RewardOutcome(message = "Рейд пройден! Новый босс появится на следующей неделе.")
+        }
+        r
+    }
+
+    /** Повторение пройденного: XP за ответы и сердце за хороший результат. */
+    suspend fun onReview(correct: Int, total: Int): RewardOutcome = reward {
+        var r = addXp(correct * XpRules.REVIEW_CORRECT, "Повторение", null) + quest(QuestEvents.REVIEW, 1)
+        val p = normalizedHearts()
+        var upd = p.copy(reviewsDone = p.reviewsDone + 1)
+        if (total > 0 && correct * 4 >= total * 3 && p.hearts < Hearts.MAX) {
+            upd = upd.copy(hearts = p.hearts + 1, heartsUpdatedAt = if (p.hearts + 1 >= Hearts.MAX) System.currentTimeMillis() else p.heartsUpdatedAt)
+            r += RewardOutcome(message = "+1 сердце за повторение")
+        }
+        dao.upsert(upd)
+        r
+    }
+
+    // ======================== сердца ========================
+
+    fun heartsOf(p: PlayerEntity, now: Long = System.currentTimeMillis()): Int = Hearts.current(p.hearts, p.heartsUpdatedAt, now).first
+    fun minutesToNextHeart(p: PlayerEntity, now: Long = System.currentTimeMillis()): Int = Hearts.minutesToNext(p.hearts, p.heartsUpdatedAt, now)
+
+    private suspend fun normalizedHearts(): PlayerEntity {
+        val p = current()
+        val (h, at) = Hearts.current(p.hearts, p.heartsUpdatedAt, System.currentTimeMillis())
+        val n = p.copy(hearts = h, heartsUpdatedAt = at)
+        if (n != p) dao.upsert(n)
+        return n
+    }
+
+    /** Тратит сердце. @return false, если сердец нет. */
+    suspend fun spendHeart(): Boolean = mutex.withLock {
+        val p = normalizedHearts()
+        if (p.hearts <= 0) {
+            false
+        } else {
+            dao.upsert(p.copy(hearts = p.hearts - 1, heartsUpdatedAt = if (p.hearts >= Hearts.MAX) System.currentTimeMillis() else p.heartsUpdatedAt))
+            true
+        }
+    }
+
+    suspend fun hasHearts(): Boolean = mutex.withLock { normalizedHearts().hearts > 0 }
 
     suspend fun onBlitz(score: Int, subject: Subject?): RewardOutcome = reward {
         val p = current()
@@ -211,6 +274,7 @@ class GameRepository(
         val updated = when (itemId) {
             ShopCatalog.HINTS_PACK -> p.copy(hints = p.hints + 3)
             ShopCatalog.STREAK_FREEZE -> p.copy(freezes = p.freezes + 1)
+            ShopCatalog.HEARTS_REFILL -> p.copy(hearts = Hearts.MAX, heartsUpdatedAt = System.currentTimeMillis())
             else -> p.copy(ownedItems = (p.owned + itemId).joinToString(","))
         }.let { it.copy(crystals = it.crystals - item.price, itemsBought = it.itemsBought + 1) }
         dao.upsert(updated)
@@ -318,6 +382,9 @@ class GameRepository(
             simulationsRun = p.simulationsRun,
             gradesCompleted = ls.completedGrades,
             itemsBought = p.itemsBought,
+            guardiansDefeated = p.guardiansDefeated,
+            raidsWon = p.raidsWon,
+            reviewsDone = p.reviewsDone,
         )
         val unlocked = dao.achievementIds().toSet()
         val fresh = AchievementCatalog.newlyUnlocked(snap, unlocked)

@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Diamond
+import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.LocalFireDepartment
 import androidx.compose.material.icons.rounded.Lightbulb
 import androidx.compose.material3.Icon
@@ -42,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import com.neuron.academy.data.db.PlayerEntity
 import com.neuron.academy.ui.theme.GameColors
 import com.neuron.academy.ui.theme.Unbounded
+import com.neuron.gamification.Hearts
 import com.neuron.gamification.LevelSystem
 import com.neuron.gamification.ShopCatalog
 
@@ -107,9 +109,14 @@ fun PlayerStatsBar(player: PlayerEntity, modifier: Modifier = Modifier) {
                 Text(info.rank.title, style = MaterialTheme.typography.titleMedium)
                 Text("${player.xp} XP · ещё ${info.xpToNext} до ${info.level + 1} ур.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            StatChip(Icons.Rounded.Diamond, player.crystals.toString(), GameColors.Crystal)
-            Spacer(Modifier.width(6.dp))
-            StatChip(Icons.Rounded.LocalFireDepartment, player.streak.toString(), GameColors.Fire)
+            Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Row {
+                    StatChip(Icons.Rounded.Favorite, Hearts.current(player.hearts, player.heartsUpdatedAt, System.currentTimeMillis()).first.toString(), GameColors.Error)
+                    Spacer(Modifier.width(4.dp))
+                    StatChip(Icons.Rounded.LocalFireDepartment, player.streak.toString(), GameColors.Fire)
+                }
+                StatChip(Icons.Rounded.Diamond, player.crystals.toString(), GameColors.Crystal)
+            }
         }
     }
 }

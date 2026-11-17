@@ -17,6 +17,9 @@ data class PlayerSnapshot(
     val simulationsRun: Int = 0,
     val gradesCompleted: Set<Int> = emptySet(),
     val itemsBought: Int = 0,
+    val guardiansDefeated: Int = 0,
+    val raidsWon: Int = 0,
+    val reviewsDone: Int = 0,
 )
 
 data class AchievementDef(
@@ -59,6 +62,17 @@ object AchievementCatalog {
         AchievementDef("chat_20", "Почемучка", "Задай Нейрону 20 вопросов", "💬", 20) { it.chatMessages >= 20 },
         AchievementDef("sim_10", "Экспериментатор", "Запусти 10 симуляций", "🧪", 20) { it.simulationsRun >= 10 },
         AchievementDef("shopper", "Модник", "Купи что-нибудь в магазине", "🛍️", 10) { it.itemsBought >= 1 },
+        AchievementDef("topics_25", "Четверть пути", "Пройди 25 тем", "🧱", 40) { it.topicsCompleted >= 25 },
+        AchievementDef("topics_50", "Полсотни", "Пройди 50 тем", "🏗️", 80) { it.topicsCompleted >= 50 },
+        AchievementDef("topics_100", "Сотня тем", "Пройди 100 тем", "🏛️", 200) { it.topicsCompleted >= 100 },
+        AchievementDef("perfect_25", "Перфекционист", "25 тестов на 100%", "💎", 100) { it.perfectTests >= 25 },
+        AchievementDef("guardian_1", "Первый страж", "Победи стража раздела", "🛡️", 15) { it.guardiansDefeated >= 1 },
+        AchievementDef("guardian_6", "Гроза стражей", "Победи 6 стражей", "⚔️", 50) { it.guardiansDefeated >= 6 },
+        AchievementDef("guardian_all", "Ни шагу назад", "Победи всех 18 стражей", "🏰", 200) { it.guardiansDefeated >= 18 },
+        AchievementDef("raid_1", "Рейдер", "Победи босса рейда недели", "🌀", 60) { it.raidsWon >= 1 },
+        AchievementDef("raid_4", "Ветеран рейдов", "Победи в 4 рейдах", "🌪️", 150) { it.raidsWon >= 4 },
+        AchievementDef("review_10", "Память как у слона", "Пройди 10 повторений", "🐘", 50) { it.reviewsDone >= 10 },
+        AchievementDef("streak_100", "Сотня дней", "100 дней подряд", "☄️", 300) { it.streak >= 100 },
         AchievementDef("level_explorer", "Исследователь", "Достигни звания «Исследователь»", "🧭", 20) { it.level >= Rank.EXPLORER.fromLevel },
         AchievementDef("level_scientist", "Учёный", "Достигни звания «Учёный»", "🔬", 40) { it.level >= Rank.SCIENTIST.fromLevel },
         AchievementDef("level_genius", "Гений", "Достигни звания «Гений»", "🧠", 150) { it.level >= Rank.GENIUS.fromLevel },

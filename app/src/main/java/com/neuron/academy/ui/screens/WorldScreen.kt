@@ -79,6 +79,7 @@ private sealed interface PathNode {
     data class Header(override val grade: Int) : PathNode
     data class TopicNode(override val grade: Int, val index: Int, val topicId: String) : PathNode
     data class BossNode(override val grade: Int, val index: Int) : PathNode
+    data class GuardianNode(override val grade: Int, val index: Int, val stage: Int) : PathNode
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -95,8 +96,15 @@ fun WorldScreen(nav: NavHostController, subject: Subject) {
         val list = mutableListOf<PathNode>()
         Curriculum.grades.forEach { g ->
             list += PathNode.Header(g)
-            Curriculum.topicsFor(subject, g).forEachIndexed { i, t -> list += PathNode.TopicNode(g, i, t.id) }
-            list += PathNode.BossNode(g, Curriculum.topicsFor(subject, g).size)
+            var pos = 0
+            val topics = Curriculum.topicsFor(subject, g)
+            val guardians = Curriculum.guardianCount(subject, g)
+            topics.forEachIndexed { i, t ->
+                list += PathNode.TopicNode(g, pos++, t.id)
+                val stage = (i + 1) / Curriculum.BLOCK
+                if ((i + 1) % Curriculum.BLOCK == 0 && stage in 1..guardians) list += PathNode.GuardianNode(g, pos++, stage)
+            }
+            list += PathNode.BossNode(g, pos)
         }
         list
     }
@@ -149,8 +157,37 @@ fun WorldScreen(nav: NavHostController, subject: Subject) {
                         is PathNode.TopicNode -> {
                             val st = ls.topic(node.topicId) ?: return@item
                             PathRow(zigzag[node.index % zigzag.size], zigzag[(node.index + 1) % zigzag.size], color, st.status == TopicStatus.COMPLETED) {
-                                TopicNodeView(node.index + 1, st.topic.title, st.status, color, st.perfect, st.bestScore) {
+                                TopicNodeView(st.topic.order, st.topic.title + if (st.needsReview) " · повторить" else "", st.status, color, st.perfect, st.bestScore) {
                                     if (st.status == TopicStatus.LOCKED) hint(st.lockHint) else nav.navigate(Routes.topic(st.topic.id))
+                                }
+                            }
+                        }
+                        is PathNode.GuardianNode -> {
+                            val gst = gs.subject(subject).guardian(node.stage)
+                            val guard = Curriculum.boss(subject, node.grade, node.stage)
+                            PathRow(zigzag[node.index % zigzag.size], zigzag[(node.index + 1) % zigzag.size], color, gst.passed) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(150.dp)) {
+                                    Box(
+                                        Modifier.size(70.dp).clip(RoundedCornerShape(20.dp))
+                                            .background(
+                                                when {
+                                                    gst.passed -> GameColors.Success
+                                                    gst.available -> MaterialTheme.colorScheme.secondaryContainer
+                                                    else -> MaterialTheme.colorScheme.surfaceVariant
+                                                },
+                                            )
+                                            .clickable { if (gst.available) nav.navigate(Routes.exam(subject, node.grade, node.stage)) else hint(gst.lockHint) },
+                                        contentAlignment = Alignment.Center,
+                                    ) {
+                                        when {
+                                            gst.passed -> Icon(Icons.Rounded.Check, null, tint = Color.White, modifier = Modifier.size(30.dp))
+                                            gst.available -> Text(guard.emoji, style = MaterialTheme.typography.headlineSmall)
+                                            else -> Icon(Icons.Rounded.Lock, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                                        }
+                                    }
+                                    Spacer(Modifier.height(6.dp))
+                                    Eyebrow("Страж раздела ${node.stage}")
+                                    Text(guard.name, style = MaterialTheme.typography.labelLarge, textAlign = TextAlign.Center)
                                 }
                             }
                         }

@@ -283,7 +283,7 @@ private fun RegionCard(g: GradeState, onSubject: (Subject) -> Unit, onBoss: (Sub
                 Column(
                     Modifier.weight(1f).clip(RoundedCornerShape(10.dp)).clickable { onBoss(sg.subject) }.padding(6.dp),
                 ) {
-                    Text("Экзамен", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("Стражи ${sg.guardians.count { it.passed }}/${sg.guardians.size} · экзамен", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
                     Text(
                         "${sg.subject.title} · $state",
                         style = MaterialTheme.typography.labelMedium,

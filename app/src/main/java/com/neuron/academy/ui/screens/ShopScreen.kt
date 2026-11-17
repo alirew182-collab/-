@@ -1,5 +1,6 @@
 package com.neuron.academy.ui.screens
 
+import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.foundation.background
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.size
@@ -87,16 +88,17 @@ fun ShopScreen(nav: NavHostController) {
                                         .background(com.neuron.academy.ui.theme.appColorScheme(item.id, false).primary),
                                 )
                                 ShopCategory.CONSUMABLE -> com.neuron.academy.ui.components.IconBadge(
-                                    if (item.id == ShopCatalog.HINTS_PACK) Icons.Rounded.Lightbulb else Icons.Rounded.AcUnit,
-                                    if (item.id == ShopCatalog.HINTS_PACK) GameColors.Gold else GameColors.Crystal, 48.dp,
+                                    when (item.id) { ShopCatalog.HINTS_PACK -> Icons.Rounded.Lightbulb; ShopCatalog.HEARTS_REFILL -> Icons.Rounded.Favorite; else -> Icons.Rounded.AcUnit },
+                                    when (item.id) { ShopCatalog.HINTS_PACK -> GameColors.Gold; ShopCatalog.HEARTS_REFILL -> GameColors.Error; else -> GameColors.Crystal }, 48.dp,
                                 )
                             }
                             Spacer(Modifier.width(12.dp))
                             Column(Modifier.weight(1f)) {
                                 Text(item.title, style = MaterialTheme.typography.titleMedium)
                                 Text(item.description, style = MaterialTheme.typography.bodySmall)
-                                if (item.id == ShopCatalog.HINTS_PACK) Text("У тебя: 💡 ${player.hints}", style = MaterialTheme.typography.labelSmall)
-                                if (item.id == ShopCatalog.STREAK_FREEZE) Text("У тебя: 🧊 ${player.freezes}", style = MaterialTheme.typography.labelSmall)
+                                if (item.id == ShopCatalog.HINTS_PACK) Text("У тебя: ${player.hints}", style = MaterialTheme.typography.labelSmall)
+                                if (item.id == ShopCatalog.STREAK_FREEZE) Text("У тебя: ${player.freezes}", style = MaterialTheme.typography.labelSmall)
+                                if (item.id == ShopCatalog.HEARTS_REFILL) Text("Сердец: ${c.game.heartsOf(player)} из ${com.neuron.gamification.Hearts.MAX}", style = MaterialTheme.typography.labelSmall)
                             }
                             when {
                                 cat == ShopCategory.CONSUMABLE || !owned -> Button(onClick = {

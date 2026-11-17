@@ -1,5 +1,6 @@
 package com.neuron.academy.ui.screens
 
+import com.neuron.academy.ui.LocalContainer
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material.icons.rounded.RadioButtonUnchecked
@@ -152,6 +153,16 @@ fun DailyScreen(nav: NavHostController) {
                     Spacer(Modifier.width(8.dp))
                     vm.message?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
                 }
+            }
+        }
+        item {
+            com.neuron.academy.ui.components.Panel(onClick = { nav.navigate(com.neuron.academy.ui.Routes.REVIEW) }) {
+                com.neuron.academy.ui.components.Eyebrow("Повторение")
+                Text("Освежи пройденное — +1 сердце за хороший результат", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    "Сердца: ${LocalContainer.current.game.heartsOf(player)} из ${com.neuron.gamification.Hearts.MAX}. Темы, пройденные больше недели назад, просят повторения.",
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
         }
         item { Text("Задания на сегодня", style = MaterialTheme.typography.titleLarge) }

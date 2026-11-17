@@ -60,7 +60,20 @@ data class Boss(
     val taunt: String,
     val defeatLine: String,
     val rewardCardId: String,
-)
+    /** 0 — финальный босс класса, 1..n — страж раздела, 99 — рейд недели. */
+    val stage: Int = 0,
+) {
+    val isGuardian get() = stage in 1..98
+    val isRaid get() = stage == 99
+    /** Сколько вопросов в битве. */
+    val questions get() = when { isRaid -> 20; isGuardian -> 8; else -> 15 }
+    /** Доля верных ответов для победы. */
+    val passShare get() = when { isRaid -> 0.8; isGuardian -> 0.75; else -> 0.8 }
+    /** Таймер на вопрос, сек (0 — без таймера). */
+    val timerSec get() = when { isRaid -> 25; isGuardian -> 0; else -> 35 }
+    /** В ярости (HP < 50%) ошибка стоит двух сердечек. */
+    val enrages get() = !isGuardian
+}
 
 /** Маленький DSL для компактного описания контента. */
 class TopicBuilder(val id: String, val subject: Subject, val grade: Int, val order: Int, val title: String, val emoji: String) {

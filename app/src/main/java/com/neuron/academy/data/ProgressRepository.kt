@@ -67,9 +67,9 @@ class ProgressRepository(
         return TopicTestOutcome(passed, firstCompletion, perfect, firstPerfect)
     }
 
-    suspend fun recordExam(subject: Subject, grade: Int, correct: Int, total: Int, won: Boolean): ExamOutcome {
+    suspend fun recordExam(subject: Subject, grade: Int, correct: Int, total: Int, won: Boolean, stage: Int = 0): ExamOutcome {
         val before = snapshot().completedGrades
-        val id = "${subject.key}_$grade"
+        val id = UnlockEngine.examId(subject, grade, stage)
         val old = dao.getExam(id)
         val score = if (total == 0) 0f else correct.toFloat() / total
         dao.upsertExam(
@@ -81,10 +81,28 @@ class ProgressRepository(
                 passedAt = old?.passedAt ?: if (won) System.currentTimeMillis() else null,
             ),
         )
-        recordResult("EXAM", subject, grade, null, correct, total)
+        recordResult(if (stage == 0) "EXAM" else "GUARDIAN", subject, grade, null, correct, total)
         syncUnlockedGrades()
         val after = snapshot().completedGrades
         return ExamOutcome(firstWin = won && old?.passed != true, newlyCompletedGrades = (after - before).sorted())
+    }
+
+    /** Рейд недели: id = raid_<номер недели>. @return true, если победа на этой неделе первая. */
+    suspend fun recordRaid(week: Long, correct: Int, total: Int, won: Boolean): Boolean {
+        val id = "raid_$week"
+        val old = dao.getExam(id)
+        dao.upsertExam(
+            ExamEntity(id, "raid", 0, (old?.passed == true) || won, maxOf(old?.bestScore ?: 0f, correct.toFloat() / total.coerceAtLeast(1)), (old?.attempts ?: 0) + 1, old?.passedAt ?: if (won) System.currentTimeMillis() else null),
+        )
+        return won && old?.passed != true
+    }
+
+    suspend fun raidWonThisWeek(week: Long): Boolean = dao.getExam("raid_$week")?.passed == true
+
+    /** Отмечает темы как повторённые. */
+    suspend fun markReviewed(topicIds: Collection<String>) {
+        val now = System.currentTimeMillis()
+        topicIds.forEach { id -> dao.getTopic(id)?.let { dao.upsertTopic(it.copy(lastReviewedAt = now)) } }
     }
 
     suspend fun recordResult(kind: String, subject: Subject, grade: Int, topicId: String?, correct: Int, total: Int) {

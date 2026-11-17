@@ -1,5 +1,7 @@
 package com.neuron.academy.ui.screens
 
+import androidx.compose.material.icons.rounded.Replay
+import androidx.compose.material.icons.rounded.Whatshot
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -44,6 +46,9 @@ fun GamesScreen(nav: NavHostController) {
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         item { ScreenTitle("Игры", "Тренируйся на скорость и смотри, как работают формулы") }
+        item { Eyebrow("Испытания", modifier = Modifier.padding8()) }
+        item { GameRow(Icons.Rounded.Whatshot, "Рейд недели", "20 вопросов из всех пройденных тем, таймер и ярость босса", GameColors.Error) { nav.navigate(Routes.RAID) } }
+        item { GameRow(Icons.Rounded.Replay, "Повторение", "8 вопросов из давно пройденных тем, +1 сердце", GameColors.Success) { nav.navigate(Routes.REVIEW) } }
         item { Eyebrow("Соревнование", modifier = Modifier.padding8()) }
         item { GameRow(Icons.Rounded.Timer, "Блиц", "60 секунд, как можно больше задач", GameColors.Fire) { nav.navigate(Routes.BLITZ) } }
         item { GameRow(Icons.Rounded.Psychology, "Дуэль с ИИ", "Пять раундов против Нейрона", MaterialTheme.colorScheme.primary) { nav.navigate(Routes.DUEL) } }

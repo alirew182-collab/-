@@ -39,6 +39,12 @@ class PracticeItem(val task: Practice, val aiGenerated: Boolean = false) {
     val check = AiBlock()
 }
 
+/** Задание контрольной. */
+sealed interface ControlItem {
+    data class Choice(val q: Question, val source: String) : ControlItem
+    data class Open(val p: Practice) : ControlItem
+}
+
 class TopicViewModel(private val c: AppContainer, topicId: String) : ViewModel() {
     val topic: Topic? = Curriculum.topic(topicId)
     val prereqs: List<Topic> = topic?.let { Curriculum.prerequisitesOf(it) } ?: emptyList()
@@ -54,18 +60,36 @@ class TopicViewModel(private val c: AppContainer, topicId: String) : ViewModel()
 
     val practice = mutableStateListOf<PracticeItem>().apply { topic?.practice?.forEach { add(PracticeItem(it)) } }
 
-    // ---- тест ----
-    var questions by mutableStateOf(topic?.test ?: emptyList<Question>())
+    // ---- контрольная ----
+    var control by mutableStateOf(buildControl())
         private set
+    var started by mutableStateOf(false)
     var qIndex by mutableStateOf(0)
     var selected by mutableStateOf<Int?>(null)
+    var openInput by mutableStateOf("")
+    var openResult by mutableStateOf<Boolean?>(null)
     var correctCount by mutableStateOf(0)
     var finished by mutableStateOf(false)
     var removedOptions by mutableStateOf(setOf<Int>())
     var aiTestLabel by mutableStateOf(false)
     var testResultText by mutableStateOf<String?>(null)
     var passed by mutableStateOf(false)
+    var heartsMessage by mutableStateOf<String?>(null)
     val testGen = AiBlock()
+
+    val answeredCurrent get() = selected != null || openResult != null
+
+    /**
+     * Контрольная среднего уровня: вопросы теста по теме, задачи с открытым ответом
+     * и пара вопросов из прошлых тем, на которые опирается урок.
+     */
+    private fun buildControl(): List<ControlItem> {
+        val t = topic ?: return emptyList()
+        val own = t.test.shuffled().map { ControlItem.Choice(it, "По теме урока") }
+        val open = t.practice.filter { !it.hard }.shuffled().take(2).map { ControlItem.Open(it) }
+        val past = prereqs.flatMap { p -> p.test.map { ControlItem.Choice(it, "Из темы «${p.title}»") } }.shuffled().take(2)
+        return (own + open + past).shuffled()
+    }
 
     private fun completedTitles() = learning.value.completedTopics.map { it.title }
     private fun grade() = learning.value.currentGrade
@@ -141,57 +165,82 @@ class TopicViewModel(private val c: AppContainer, topicId: String) : ViewModel()
         }
     }
 
-    // ---- тест ----
+    // ---- контрольная ----
+    /** Начать контрольную: нужно хотя бы одно сердце. */
+    fun startControl() {
+        viewModelScope.launch {
+            if (!c.game.hasHearts()) {
+                val p = c.db.playerDao().get() ?: com.neuron.academy.data.db.PlayerEntity()
+                heartsMessage = "Нет сердец. Новое появится через ${c.game.minutesToNextHeart(p)} мин. Можно пройти повторение (+1 сердце) или купить сердца в магазине."
+                return@launch
+            }
+            heartsMessage = null
+            started = true
+        }
+    }
+
     fun answer(i: Int) {
+        val item = control.getOrNull(qIndex) as? ControlItem.Choice ?: return
         if (selected != null || finished) return
         selected = i
-        if (i == questions[qIndex].correct) { correctCount++; c.feedback.correct() } else c.feedback.wrong()
+        if (i == item.q.correct) { correctCount++; c.feedback.correct() } else c.feedback.wrong()
+    }
+
+    fun submitOpen() {
+        val item = control.getOrNull(qIndex) as? ControlItem.Open ?: return
+        if (openResult != null || openInput.isBlank()) return
+        val ok = AnswerChecker.matches(openInput, item.p.answer)
+        openResult = ok
+        if (ok) { correctCount++; c.feedback.correct() } else c.feedback.wrong()
     }
 
     fun useFiftyFifty() {
+        val item = control.getOrNull(qIndex) as? ControlItem.Choice ?: return
         if (selected != null || removedOptions.isNotEmpty()) return
         viewModelScope.launch {
             if (c.game.useHint()) {
-                val q = questions[qIndex]
+                val q = item.q
                 removedOptions = q.options.indices.filter { it != q.correct }.shuffled().take((q.options.size - 2).coerceAtLeast(1)).toSet()
             }
         }
     }
 
     fun next() {
-        if (qIndex < questions.lastIndex) {
-            qIndex++; selected = null; removedOptions = emptySet()
+        if (qIndex < control.lastIndex) {
+            qIndex++; selected = null; openInput = ""; openResult = null; removedOptions = emptySet()
         } else finishTest()
     }
 
     private fun finishTest() {
         val t = topic ?: return
         finished = true
-        val total = questions.size
+        val total = control.size
         val correct = correctCount
         viewModelScope.launch {
             val outcome = c.progress.recordTopicTest(t, correct, total)
             passed = outcome.passed
             c.game.onTopicTest(t, correct, total, outcome)
+            if (!outcome.passed) c.game.spendHeart()
             testResultText = when {
-                outcome.perfect -> "Идеально! Ни одной ошибки 💯"
-                outcome.passed -> "Тест сдан! Тема пройдена 🎉"
-                else -> "Нужно хотя бы 70%. Повтори теорию и попробуй ещё раз — у тебя получится! 💪"
+                outcome.perfect -> "Идеально! Ни одной ошибки."
+                outcome.passed -> "Контрольная сдана! Тема пройдена."
+                else -> "Нужно хотя бы 70%. Ты теряешь одно сердце. Повтори теорию и попробуй ещё раз — у тебя получится!"
             }
         }
     }
 
-    fun restartTest(newQuestions: List<Question>? = null) {
-        questions = newQuestions ?: topic?.test?.shuffled() ?: emptyList()
-        qIndex = 0; selected = null; correctCount = 0; finished = false; removedOptions = emptySet(); testResultText = null
-        aiTestLabel = newQuestions != null
+    fun restartTest(newItems: List<ControlItem>? = null) {
+        control = newItems ?: buildControl()
+        qIndex = 0; selected = null; openInput = ""; openResult = null; correctCount = 0; finished = false
+        removedOptions = emptySet(); testResultText = null; started = false
+        aiTestLabel = newItems != null
     }
 
     fun generateAiTest() {
         val t = topic ?: return
         run(testGen) {
-            val qs = c.tutor.generateTest(t.subject, t.grade, listOf(t), 5, completedTitles())
-            restartTest(qs)
+            val qs = c.tutor.generateTest(t.subject, t.grade, listOf(t), 8, completedTitles())
+            restartTest(qs.map { ControlItem.Choice(it, "Вопрос от ИИ") })
             "Новый тест готов!"
         }
     }

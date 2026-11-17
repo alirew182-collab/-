@@ -12,6 +12,8 @@ data class TopicProgressEntity(
     val perfect: Boolean = false,
     val attempts: Int = 0,
     val completedAt: Long? = null,
+    /** Когда тему последний раз повторяли (интервальное повторение). */
+    val lastReviewedAt: Long? = null,
 )
 
 /** Результаты тестов, экзаменов, блица и практики — основа графиков и статистики. */
@@ -77,6 +79,11 @@ data class PlayerEntity(
     val simulationsRun: Int = 0,
     val bossesDefeated: Int = 0,
     val itemsBought: Int = 0,
+    val hearts: Int = 5,
+    val heartsUpdatedAt: Long = 0,
+    val guardiansDefeated: Int = 0,
+    val raidsWon: Int = 0,
+    val reviewsDone: Int = 0,
 ) {
     val owned: Set<String> get() = ownedItems.split(',').filter { it.isNotBlank() }.toSet()
 }

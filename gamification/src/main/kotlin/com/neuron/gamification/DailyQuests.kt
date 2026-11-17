@@ -25,6 +25,8 @@ object QuestEvents {
     const val SIMULATION = "simulation"
     const val DAILY_PROBLEM = "daily_problem"
     const val THEORY_READ = "theory_read"
+    const val REVIEW = "review"
+    const val GUARDIAN = "guardian"
 }
 
 object DailyQuestGenerator {
@@ -39,6 +41,10 @@ object DailyQuestGenerator {
         QuestDef("chat_3", "Задай Нейрону 3 вопроса", QuestEvents.CHAT_MESSAGE, 3, 15, 5),
         QuestDef("duel_1", "Выиграй дуэль у ИИ", QuestEvents.DUEL_WIN, 1, 30, 10),
         QuestDef("sim_2", "Запусти 2 симуляции", QuestEvents.SIMULATION, 2, 15, 5),
+        QuestDef("review_1", "Пройди повторение", QuestEvents.REVIEW, 1, 25, 8),
+        QuestDef("guardian_1", "Победи стража раздела", QuestEvents.GUARDIAN, 1, 40, 15),
+        QuestDef("topic_2", "Освой две новые темы", QuestEvents.TOPIC_COMPLETED, 2, 50, 15),
+        QuestDef("perfect_2", "Сдай 2 теста без ошибок", QuestEvents.TEST_PERFECT, 2, 50, 15),
         QuestDef("theory_2", "Прочитай теорию 2 тем", QuestEvents.THEORY_READ, 2, 15, 5),
     )
 

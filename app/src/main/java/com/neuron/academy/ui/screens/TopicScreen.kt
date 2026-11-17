@@ -75,7 +75,7 @@ import com.neuron.academy.ui.containerViewModel
 import com.neuron.academy.ui.theme.GameColors
 import com.neuron.gamification.NeuronLines
 
-private val tabTitles = listOf("Теория", "Видео", "Примеры", "Практика", "Контрольная", "Факт")
+private val tabTitles = listOf("Теория", "Видео", "Примеры", "Способы", "Практика", "Контрольная", "Факт")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -115,9 +115,10 @@ fun TopicScreen(nav: NavHostController, topicId: String) {
             when (tab) {
                 0 -> theoryTab(vm, nav, color)
                 1 -> videoTab(vm)
-                2 -> examplesTab(vm)
-                3 -> practiceTab(vm, nav)
-                4 -> testTab(vm, nav)
+                2 -> examplesTab(vm, nav)
+                3 -> methodsTab(vm, nav, color)
+                4 -> practiceTab(vm, nav)
+                5 -> testTab(vm, nav)
                 else -> factTab(vm, nav)
             }
         }
@@ -141,6 +142,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.theoryTab(vm: TopicVi
             MathText(topic.theory, Modifier.padding(16.dp))
         }
     }
+    item { DeepTheoryCard(vm, nav, color) }
     item {
         InfoCard("Объясни иначе", color = color) {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -164,7 +166,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.theoryTab(vm: TopicVi
     }
 }
 
-private fun androidx.compose.foundation.lazy.LazyListScope.examplesTab(vm: TopicViewModel) {
+private fun androidx.compose.foundation.lazy.LazyListScope.examplesTab(vm: TopicViewModel, nav: NavHostController) {
     val topic = vm.topic!!
     itemsIndexed(topic.examples) { i, ex ->
         val shown = remember { mutableStateMapOf<Int, Boolean>() }
@@ -177,6 +179,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.examplesTab(vm: Topic
                 if (shown[i] == true) {
                     Text("Решение:", fontWeight = FontWeight.Bold, color = GameColors.Success)
                     MathText(ex.solution)
+                    AlternativeMethods(vm, nav, ex.problem, ex.solution)
                 } else OutlinedButton(onClick = { shown[i] = true }) { Text("Показать решение") }
             }
         }
@@ -228,7 +231,12 @@ private fun androidx.compose.foundation.lazy.LazyListScope.practiceTab(vm: Topic
                     TextButton(onClick = { item.showSolution = !item.showSolution }) { Text("Решение") }
                 }
                 AnimatedVisibility(item.showHint) { MathText("Подсказка: " + item.task.hint, style = MaterialTheme.typography.bodyMedium) }
-                AnimatedVisibility(item.showSolution) { MathText("Решение: ${item.task.solution}\n\nОтвет: **${item.task.answer}**", style = MaterialTheme.typography.bodyMedium) }
+                AnimatedVisibility(item.showSolution) {
+                    Column {
+                        MathText("Решение: ${item.task.solution}\n\nОтвет: **${item.task.answer}**", style = MaterialTheme.typography.bodyMedium)
+                        AlternativeMethods(vm, nav, item.task.problem, item.task.solution)
+                    }
+                }
                 Spacer(Modifier.height(6.dp))
                 OutlinedTextField(
                     item.fullSolution, { item.fullSolution = it },

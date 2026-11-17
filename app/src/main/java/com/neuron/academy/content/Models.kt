@@ -26,6 +26,17 @@ data class Question(
 
 data class Example(val problem: String, val solution: String)
 
+/** Один способ решения задачи. */
+data class SolutionMethod(val name: String, val steps: String)
+
+/** Задача, решённая несколькими способами, и сравнение способов. */
+data class MultiSolution(
+    val problem: String,
+    val answer: String,
+    val methods: List<SolutionMethod>,
+    val compare: String,
+)
+
 data class Practice(
     val problem: String,
     val answer: String,
@@ -49,6 +60,10 @@ data class Topic(
     val realLife: String,
     val prerequisites: List<String>,
     val cardId: String,
+    /** Подробное объяснение «с нуля» — для тех, кому краткой теории мало. */
+    val deepTheory: String = "",
+    /** Задачи, решённые несколькими способами. */
+    val multi: List<MultiSolution> = emptyList(),
 )
 
 /** Босс итогового экзамена класса по предмету. */

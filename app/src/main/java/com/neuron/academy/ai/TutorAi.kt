@@ -64,6 +64,38 @@ class TutorAi(private val router: AiRouter) {
                 "Ключевая теория для опоры:\n${topic.theory.take(1500)}",
         )
 
+    /** Подробное объяснение «с нуля», понятное любому. */
+    suspend fun deepExplain(topic: Topic, grade: Int, completed: List<String>): String =
+        ask(
+            AiFeature.EXPLAIN, grade, completed,
+            "Объясни тему «${topic.title}» (${topic.subject.title}, ${topic.grade} класс) максимально подробно и просто — так, чтобы понял человек, который ничего об этом не знает. " +
+                "Структура: 1) жизненный пример, с которого всё начинается; 2) главные понятия простыми словами; 3) формулы с объяснением каждой буквы; " +
+                "4) пошаговый алгоритм решения задач; 5) подробно разобранный пример; 6) три типичные ошибки и как их избежать; 7) вопрос для самопроверки с ответом. " +
+                "Опорная теория:\n${topic.theory.take(1500)}",
+            maxTokens = 2500,
+        )
+
+    /** Другие способы решения той же задачи. */
+    suspend fun alternativeMethods(topic: Topic, problem: String, knownSolution: String, grade: Int, completed: List<String>): String =
+        ask(
+            AiFeature.EXPLAIN, grade, completed,
+            "Тема «${topic.title}». Задача: $problem\nУже известное решение: $knownSolution\n\n" +
+                "Покажи 2–3 ДРУГИХ способа решения этой же задачи. Для каждого способа: заголовок «### Способ N. Название», идея в одном предложении, " +
+                "затем решение по шагам. В конце — «### Какой способ выбрать» с коротким сравнением. Ответ во всех способах должен совпасть.",
+            maxTokens = 2500,
+        )
+
+    /** Новая задача, сразу решённая несколькими способами. */
+    suspend fun multiMethodProblem(topic: Topic, grade: Int, completed: List<String>): String =
+        ask(
+            AiFeature.TASKS, grade, completed,
+            "Придумай задачу по теме «${topic.title}» (${topic.subject.title}, ${topic.grade} класс) среднего уровня, которую можно решить несколькими способами. " +
+                "Формат: «### Задача», условие; затем «### Способ 1. …», «### Способ 2. …» (и, если есть, «### Способ 3. …») с пошаговым решением; " +
+                "затем «### Ответ» и «### Какой способ выбрать» — когда какой удобнее.",
+            temperature = 0.9,
+            maxTokens = 2500,
+        )
+
     suspend fun whyNeeded(topic: Topic, grade: Int, completed: List<String>): String =
         ask(
             AiFeature.EXPLAIN, grade, completed,
@@ -183,10 +215,10 @@ class TutorAi(private val router: AiRouter) {
             ),
         )
 
-    private suspend fun ask(feature: AiFeature, grade: Int, completed: List<String>, prompt: String, temperature: Double = 0.7): String =
+    private suspend fun ask(feature: AiFeature, grade: Int, completed: List<String>, prompt: String, temperature: Double = 0.7, maxTokens: Int = 1500): String =
         router.complete(
             feature,
-            AiRequest(systemPrompt(grade, completed), listOf(AiMessage(AiMessage.Role.USER, prompt)), temperature = temperature),
+            AiRequest(systemPrompt(grade, completed), listOf(AiMessage(AiMessage.Role.USER, prompt)), maxTokens = maxTokens, temperature = temperature),
         ).text
 
     private fun JsonObject.str(key: String) = this[key]?.let { el ->

@@ -10,10 +10,11 @@ object Curriculum {
     /** Порядок тем внутри класса. Определяет карту-путь и последовательность открытия. */
     private val order: Map<Pair<Subject, Int>, List<String>> = mapOf(
         (Subject.ALGEBRA to 9) to listOf(
-            "a9_identities", "a9_algfrac", "a9_roots9", "a9_numsets",
-            "a9_funcs", "a9_quad", "a9_quadeq", "a9_rational",
-            "a9_biquad", "a9_sys", "a9_graphsys", "a9_powerfunc",
-            "a9_ineq", "a9_interval", "a9_sysineq", "a9_logic",
+            "a9_identities", "a9_ineqproof", "a9_algfrac", "a9_roots9",
+            "a9_numsets", "a9_funcs", "a9_quad", "a9_absfunc",
+            "a9_quadeq", "a9_rational", "a9_biquad", "a9_sys",
+            "a9_graphsys", "a9_coordline", "a9_powerfunc", "a9_ineq",
+            "a9_interval", "a9_sysineq", "a9_logic", "a9_nonstandard",
             "a9_wordprob", "a9_percent", "a9_estimation", "a9_ogepract",
             "a9_prog", "a9_sums", "a9_seqrec", "a9_param",
             "a9_comb", "a9_prob", "a9_stat", "a9_ogegraphs",
@@ -21,52 +22,58 @@ object Curriculum {
         (Subject.ALGEBRA to 10) to listOf(
             "a10_roots", "a10_powerfunc", "a10_irrat", "a10_rootsineq",
             "a10_func", "a10_inverse", "a10_ratfunc", "a10_ratineq",
-            "a10_modeq", "a10_symsys", "a10_numtheory", "a10_induction",
-            "a10_radians", "a10_trig", "a10_identities", "a10_trigform",
-            "a10_sumprod", "a10_trigfunc", "a10_arc", "a10_trigeq",
-            "a10_homogeneous", "a10_trigselect", "a10_trigineq", "a10_polynom",
+            "a10_ineqmethod", "a10_modeq", "a10_symsys", "a10_numtheory",
+            "a10_induction", "a10_seqsum", "a10_radians", "a10_trig",
+            "a10_trigapps", "a10_identities", "a10_trigform", "a10_sumprod",
+            "a10_trigfunc", "a10_arc", "a10_trigeq", "a10_homogeneous",
+            "a10_trigselect", "a10_trigineq", "a10_polynom", "a10_polyroots",
             "a10_numseq", "a10_limitfunc", "a10_derivintro", "a10_complex",
         ),
         (Subject.ALGEBRA to 11) to listOf(
-            "a11_deriv", "a11_derivrules", "a11_tangent", "a11_extrema",
-            "a11_secondderiv", "a11_optim", "a11_egederiv", "a11_integral",
-            "a11_integralprops", "a11_area", "a11_volume", "a11_diffeq",
-            "a11_expfunc", "a11_lnfunc", "a11_exp", "a11_expineq",
-            "a11_log", "a11_logfunc", "a11_logeq", "a11_mixeq",
-            "a11_logsys", "a11_funcmethods", "a11_param", "a11_complex2",
-            "a11_probstat", "a11_egeprob", "a11_egetext", "a11_egeecon",
+            "a11_deriv", "a11_derivrules", "a11_tangent", "a11_tangentprob",
+            "a11_extrema", "a11_secondderiv", "a11_optim", "a11_egederiv",
+            "a11_integral", "a11_integralprops", "a11_area", "a11_integralapps",
+            "a11_volume", "a11_diffeq", "a11_expfunc", "a11_lnfunc",
+            "a11_exp", "a11_expineq", "a11_log", "a11_logfunc",
+            "a11_logeq", "a11_logineqvar", "a11_mixeq", "a11_logsys",
+            "a11_funcmethods", "a11_param", "a11_complex2", "a11_probstat",
+            "a11_binomial", "a11_egeprob", "a11_egetext", "a11_egeecon",
         ),
         (Subject.PHYSICS to 9) to listOf(
             "p9_motion", "p9_vectors", "p9_kin", "p9_graphs",
             "p9_freefall", "p9_newton", "p9_friction", "p9_gravity",
             "p9_impulse", "p9_reactive", "p9_energy", "p9_simple",
-            "p9_archimedes", "p9_heat9", "p9_waves", "p9_pendulum",
-            "p9_sound", "p9_currentbasics", "p9_emfield", "p9_electromagnet",
-            "p9_light", "p9_mirrors", "p9_refraction", "p9_lenses",
-            "p9_atom", "p9_nuclearpower", "p9_space", "p9_oge",
+            "p9_density", "p9_archimedes", "p9_heat9", "p9_waves",
+            "p9_pendulum", "p9_sound", "p9_charges", "p9_currentbasics",
+            "p9_emfield", "p9_magnets", "p9_electromagnet", "p9_light",
+            "p9_mirrors", "p9_refraction", "p9_lenses", "p9_atom",
+            "p9_nuclearpower", "p9_space", "p9_lab", "p9_oge",
         ),
         (Subject.PHYSICS to 10) to listOf(
             "p10_measure", "p10_kinem", "p10_circular", "p10_dyn",
             "p10_inclined", "p10_connected", "p10_gravity10", "p10_celestial",
-            "p10_statics", "p10_cons", "p10_collisions", "p10_workpower",
-            "p10_oscill", "p10_waves10", "p10_hydro", "p10_mkt",
-            "p10_gaslaws", "p10_surface", "p10_solids", "p10_thermo",
-            "p10_phase", "p10_heatengines", "p10_estat", "p10_dielectric",
-            "p10_capacitor", "p10_dccircuit", "p10_semi", "p10_egemech",
+            "p10_inertial", "p10_statics", "p10_rotation", "p10_cons",
+            "p10_collisions", "p10_workpower", "p10_oscill", "p10_waves10",
+            "p10_hydro", "p10_bernoulli", "p10_mkt", "p10_gaslaws",
+            "p10_surface", "p10_solids", "p10_thermo", "p10_phase",
+            "p10_heatengines", "p10_estat", "p10_dielectric", "p10_capacitor",
+            "p10_fieldenergy", "p10_dccircuit", "p10_semi", "p10_egemech",
         ),
         (Subject.PHYSICS to 11) to listOf(
-            "p11_current", "p11_circuits", "p11_magnet", "p11_lorentz",
-            "p11_magmat", "p11_induction", "p11_ac", "p11_rlc",
-            "p11_energytrans", "p11_emosc", "p11_radiowave", "p11_spectra",
-            "p11_optics", "p11_lenses11", "p11_instruments", "p11_waveoptics",
-            "p11_relativity", "p11_photoeffect", "p11_wavepart", "p11_atommodel",
-            "p11_lasers", "p11_quantum", "p11_radioactivity", "p11_nuclear",
-            "p11_particles", "p11_astro", "p11_physworld", "p11_ege",
+            "p11_current", "p11_circuits", "p11_semidevices", "p11_magnet",
+            "p11_lorentz", "p11_magmat", "p11_induction", "p11_ac",
+            "p11_rlc", "p11_energytrans", "p11_emosc", "p11_radiowave",
+            "p11_spectra", "p11_optics", "p11_lenses11", "p11_instruments",
+            "p11_waveoptics", "p11_polarization", "p11_relativity", "p11_photoeffect",
+            "p11_wavepart", "p11_atommodel", "p11_lasers", "p11_quantum",
+            "p11_radioactivity", "p11_nuclear", "p11_medphys", "p11_particles",
+            "p11_astro", "p11_stars", "p11_physworld", "p11_ege",
         ),
         (Subject.CHEMISTRY to 9) to listOf(
-            "c9_safety", "c9_periodic", "c9_mole", "c9_oxides",
-            "c9_bases", "c9_acids", "c9_salts", "c9_genetic9",
-            "c9_dissoc", "c9_ionic", "c9_react", "c9_rate9",
+            "c9_safety", "c9_mixtures", "c9_valence", "c9_periodic",
+            "c9_mole", "c9_oxides", "c9_bases", "c9_acids",
+            "c9_salts", "c9_genetic9", "c9_dissoc", "c9_hydrates",
+            "c9_ionic", "c9_react", "c9_thermo9", "c9_rate9",
             "c9_hydrolysis", "c9_hydrogen", "c9_nonmet", "c9_halogens",
             "c9_oxygen", "c9_sulfur", "c9_nitrogen", "c9_fertilizers",
             "c9_carbon", "c9_organic9", "c9_met", "c9_alkali",
@@ -77,17 +84,19 @@ object Curriculum {
             "c10_radicals", "c10_hydro", "c10_cycloalk", "c10_alkenes",
             "c10_rubber", "c10_alkynes", "c10_oil", "c10_halogenderiv",
             "c10_alc", "c10_glycerol", "c10_phenol", "c10_aldehyde",
-            "c10_acid", "c10_esters", "c10_soaps", "c10_carbs",
-            "c10_cellulose", "c10_amines", "c10_nitro", "c10_polymers",
-            "c10_nucleic", "c10_drugs", "c10_genetic", "c10_ege",
+            "c10_acid", "c10_esters", "c10_aromas", "c10_soaps",
+            "c10_carbs", "c10_cellulose", "c10_amines", "c10_amides",
+            "c10_nitro", "c10_dyes", "c10_polymers", "c10_nucleic",
+            "c10_drugs", "c10_foodchem", "c10_genetic", "c10_ege",
         ),
         (Subject.CHEMISTRY to 11) to listOf(
             "c11_atom", "c11_quantum", "c11_isotopes", "c11_periodic11",
-            "c11_bond", "c11_hybrid", "c11_crystal", "c11_gases",
-            "c11_solutions", "c11_disperse", "c11_classes", "c11_acidbase",
-            "c11_ionprod", "c11_hydrolysis11", "c11_redox", "c11_electrolysis",
-            "c11_batteries", "c11_metals11", "c11_nonmetals11", "c11_complex",
-            "c11_rate", "c11_equil", "c11_thermochem", "c11_industry",
+            "c11_bond", "c11_hybrid", "c11_crystal", "c11_nano",
+            "c11_gases", "c11_solutions", "c11_disperse", "c11_classes",
+            "c11_acidbase", "c11_ionprod", "c11_hydrolysis11", "c11_redox",
+            "c11_electrolysis", "c11_batteries", "c11_corrosion11", "c11_metals11",
+            "c11_nonmetals11", "c11_polymers11", "c11_complex", "c11_rate",
+            "c11_equil", "c11_thermochem", "c11_industry", "c11_green",
             "c11_calcs", "c11_analysis", "c11_ege", "c11_life",
         ),
     )
@@ -95,11 +104,19 @@ object Curriculum {
     private val all: Map<String, Topic> = (
         AlgebraContent.topics + AlgebraExtra.topics + AlgebraMore.topics + AlgebraPlus.topics +
             PhysicsContent.topics + PhysicsExtra.topics + PhysicsMore.topics + PhysicsPlus.topics +
-            ChemistryContent.topics + ChemistryExtra.topics + ChemistryMore.topics + ChemistryPlus.topics
+            ChemistryContent.topics + ChemistryExtra.topics + ChemistryMore.topics + ChemistryPlus.topics +
+            AlgebraX.topics + PhysicsX.topics + ChemistryX.topics
         ).associateBy { it.id }
 
     val topics: List<Topic> = order.flatMap { (key, ids) ->
-        ids.mapIndexedNotNull { i, id -> all[id]?.copy(subject = key.first, grade = key.second, order = i + 1) }
+        ids.mapIndexedNotNull { i, id ->
+            val deep = DeepContent.entries[id]
+            all[id]?.copy(
+                subject = key.first, grade = key.second, order = i + 1,
+                deepTheory = deep?.theory?.trimIndent().orEmpty(),
+                multi = deep?.multi.orEmpty(),
+            )
+        }
     }.sortedWith(compareBy({ it.grade }, { it.subject.ordinal }, { it.order }))
 
     private val byId = topics.associateBy { it.id }
@@ -193,6 +210,16 @@ object Curriculum {
         Boss(Subject.CHEMISTRY, 10, "Экзаменатор ЕГЭ-Органик", "⬡", "Пять стрелок — пять ловушек!", "Цепочка решена!", "sci_butlerov", stage = 6),
         Boss(Subject.CHEMISTRY, 11, "Батарейный Голем", "🔋", "Я разряжу тебя до нуля!", "Ток иссяк…", "el_Li", stage = 5),
         Boss(Subject.CHEMISTRY, 11, "Экзаменатор ЕГЭ", "🎓", "Задача 34 ждёт тебя!", "Ты сдал химию!", "sci_le_chatelier", stage = 6),
+        // ---- стражи 7 ----
+        Boss(Subject.ALGEBRA, 9, "Модульный Хамелеон", "🦎", "Мой график ломается там, где ты не ждёшь!", "Все изломы найдены…", "sci_descartes", stage = 7),
+        Boss(Subject.ALGEBRA, 10, "Многочленный Гидра", "🐉", "Отруби корень — вырастут два новых!", "Безу разложил меня на множители…", "sci_cardano", stage = 7),
+        Boss(Subject.ALGEBRA, 11, "Биномиальный Сфинкс", "🦁", "Угадай коэффициент при x⁵!", "Треугольник Паскаля раскрыл тайну…", "sci_leibniz", stage = 7),
+        Boss(Subject.PHYSICS, 9, "Лабораторный Голем", "🧪", "Твоя погрешность больше моего роста!", "Измерения точны…", "sci_ohm", stage = 7),
+        Boss(Subject.PHYSICS, 10, "Вращающийся Вихрь", "🌀", "Мой момент инерции бесконечен!", "Момент импульса сохранён…", "sci_coulomb", stage = 7),
+        Boss(Subject.PHYSICS, 11, "Звёздный Колосс", "🌟", "Я сожгу тебя термоядом!", "Ты разгадал мой спектр…", "sci_hubble", stage = 7),
+        Boss(Subject.CHEMISTRY, 9, "Валентный Химера", "🧬", "Сколько у меня связей? Не угадаешь!", "Формула составлена верно…", "sci_hess", stage = 7),
+        Boss(Subject.CHEMISTRY, 10, "Красильный Джинн", "🎨", "Я перекрашу все твои ответы!", "Индикатор показал правду…", "sci_zinin", stage = 7),
+        Boss(Subject.CHEMISTRY, 11, "Нанороботный Рой", "🤖", "Нас миллиарды — и все по 10 нм!", "Рой разобран на атомы…", "sci_zelinsky", stage = 7),
     )
 
     /** Боссы еженедельного рейда — смешивают все пройденные темы. */

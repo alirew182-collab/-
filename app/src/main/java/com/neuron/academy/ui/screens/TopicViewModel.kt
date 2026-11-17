@@ -57,6 +57,19 @@ class TopicViewModel(private val c: AppContainer, topicId: String) : ViewModel()
     val fact = AiBlock()
     val prereq = AiBlock()
     val generate = AiBlock()
+    val deep = AiBlock()
+    val multiAi = AiBlock()
+    /** ИИ-разборы «другими способами» для примеров и задач (ключ — текст условия). */
+    val altBlocks = mutableMapOf<String, AiBlock>()
+
+    fun altBlock(key: String): AiBlock = altBlocks.getOrPut(key) { AiBlock() }
+
+    fun askDeep() { val t = topic ?: return; run(deep) { c.tutor.deepExplain(t, grade(), completedTitles()) } }
+    fun askMultiProblem() { val t = topic ?: return; run(multiAi) { c.tutor.multiMethodProblem(t, grade(), completedTitles()) } }
+    fun askAlternative(problem: String, solution: String) {
+        val t = topic ?: return
+        run(altBlock(problem)) { c.tutor.alternativeMethods(t, problem, solution, grade(), completedTitles()) }
+    }
 
     val practice = mutableStateListOf<PracticeItem>().apply { topic?.practice?.forEach { add(PracticeItem(it)) } }
 

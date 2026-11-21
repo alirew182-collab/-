@@ -107,9 +107,10 @@ fun HomeScreen(nav: NavHostController) {
             item {
                 Row(Modifier.fillMaxWidth().statusBarsPadding(), verticalAlignment = Alignment.Top) {
                     Column(Modifier.weight(1f)) {
-                        Eyebrow("${ls.currentGrade} класс · ${regionNames[ls.currentGrade]}" + if (ls.teacherMode) " · режим учителя" else "")
+                        // заголовок называет, где ты сейчас; приветствие говорит Нейрон ниже
+                        Eyebrow("${ls.currentGrade} класс" + if (ls.teacherMode) " · режим учителя" else "")
                         Spacer(Modifier.height(4.dp))
-                        Text("Привет, ${player.name.ifBlank { "друг" }}", style = MaterialTheme.typography.headlineMedium)
+                        Text(regionNames[ls.currentGrade] ?: "${ls.currentGrade} класс", style = MaterialTheme.typography.headlineMedium)
                     }
                     IconButton(onClick = { nav.navigate(Routes.SETTINGS) }) { Icon(Icons.Rounded.Settings, "Настройки") }
                 }

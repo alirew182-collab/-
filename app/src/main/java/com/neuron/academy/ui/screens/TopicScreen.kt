@@ -97,7 +97,7 @@ fun TopicScreen(nav: NavHostController, topicId: String) {
                     title = {
                         Column {
                             Text(topic.title, maxLines = 1, style = MaterialTheme.typography.titleLarge)
-                            Text("${topic.subject.title} · ${topic.grade} класс" + if (state?.status == TopicStatus.COMPLETED) " · ✅ пройдена" else "", style = MaterialTheme.typography.bodySmall)
+                            Text("${topic.subject.title} · ${topic.grade} класс" + if (state?.status == TopicStatus.COMPLETED) " · пройдена" else "", style = MaterialTheme.typography.bodySmall)
                         }
                     },
                     navigationIcon = { IconButton(onClick = { nav.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Назад") } },
@@ -178,7 +178,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.examplesTab(vm: Topic
                 MathText(ex.problem)
                 Spacer(Modifier.height(8.dp))
                 if (shown[i] == true) {
-                    Text("Решение:", fontWeight = FontWeight.Bold, color = GameColors.Success)
+                    Text("Решение", fontWeight = FontWeight.Medium, color = GameColors.Success)
                     MathText(ex.solution)
                     AlternativeMethods(vm, nav, ex.problem, ex.solution)
                 } else OutlinedButton(onClick = { shown[i] = true }) { Text("Показать решение") }
@@ -334,7 +334,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.testTab(vm: TopicView
                     }
                     vm.openResult?.let { ok ->
                         Spacer(Modifier.height(6.dp))
-                        Text(if (ok) "Верно!" else "Неверно. Правильный ответ: ${ci.p.answer}", color = if (ok) GameColors.Success else GameColors.Error)
+                        Text(if (ok) "Верно" else "Неверно. Правильный ответ: ${ci.p.answer}", color = if (ok) GameColors.Success else GameColors.Error)
                         if (!ok) MathText("Решение: " + ci.p.solution, style = MaterialTheme.typography.bodyMedium)
                     }
                 }
@@ -378,7 +378,7 @@ fun QuestionCard(question: com.neuron.academy.content.Question, selected: Int?, 
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Text("${'A' + i}", fontWeight = FontWeight.Bold, modifier = Modifier.width(24.dp))
+                        Text("${'A' + i}", fontWeight = FontWeight.Medium, modifier = Modifier.width(24.dp))
                         MathText(opt, Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
                         if (selected != null && i == question.correct) Icon(Icons.Rounded.Check, null, tint = GameColors.Success)
                         if (selected == i && i != question.correct) Icon(Icons.Rounded.Close, null, tint = GameColors.Error)
@@ -396,13 +396,13 @@ private fun androidx.compose.foundation.lazy.LazyListScope.factTab(vm: TopicView
     val topic = vm.topic!!
     item {
         val skin = LocalContainer.current.game.player.collectAsState(initial = null).value?.skin ?: "skin_classic"
-        NeuronBubble("А вот интересный факт! 🤓", skin)
+        NeuronBubble("Ещё один факт по теме", skin)
     }
     item {
         InfoCard("Интересный факт", color = GameColors.Gold) { Text(topic.fact, style = MaterialTheme.typography.bodyLarge) }
     }
     item {
-        InfoCard("Ещё факт от ИИ") { AiSection(vm.fact, nav, buttonText = "Удиви меня!", onClick = vm::askFact) }
+        InfoCard("Ещё факт от ИИ") { AiSection(vm.fact, nav, buttonText = "Другой факт", onClick = vm::askFact) }
     }
 }
 

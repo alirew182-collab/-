@@ -23,7 +23,6 @@ import com.neuron.academy.data.ThemeMode
 /* Шрифты: Unbounded — для заголовков и цифр, Onest — для текста. Оба с кириллицей (OFL). */
 val Unbounded = FontFamily(
     Font(R.font.unbounded_500, FontWeight.Medium),
-    Font(R.font.unbounded_700, FontWeight.Bold),
 )
 val Onest = FontFamily(
     Font(R.font.onest_400, FontWeight.Normal),
@@ -123,8 +122,13 @@ fun appColorScheme(themeId: String, dark: Boolean): ColorScheme {
     )
 }
 
-private fun display(size: Int, weight: FontWeight = FontWeight.Bold, line: Int = (size * 1.18).toInt(), spacing: Double = -0.02) =
-    TextStyle(fontFamily = Unbounded, fontWeight = weight, fontSize = size.sp, lineHeight = line.sp, letterSpacing = (size * spacing).sp)
+// Иерархия — размером и цветом, а не жирностью: заголовки 500, текст 400–500.
+// Плотный трекинг — только у крупных заголовков, у мелкого текста он 0.
+private fun display(size: Int, weight: FontWeight = FontWeight.Medium, line: Int = (size * 1.2).toInt()) =
+    TextStyle(
+        fontFamily = Unbounded, fontWeight = weight, fontSize = size.sp, lineHeight = line.sp,
+        letterSpacing = if (size >= 28) (size * -0.02).sp else 0.sp,
+    )
 
 private fun body(size: Int, weight: FontWeight = FontWeight.Normal, line: Int = (size * 1.45).toInt(), spacing: Double = 0.0) =
     TextStyle(fontFamily = Onest, fontWeight = weight, fontSize = size.sp, lineHeight = line.sp, letterSpacing = spacing.sp)
@@ -134,17 +138,17 @@ private val AppTypography = Typography(
     displayMedium = display(42),
     displaySmall = display(34),
     headlineLarge = display(30),
-    headlineMedium = display(25),
-    headlineSmall = display(21, FontWeight.Bold),
-    titleLarge = display(17, FontWeight.Medium, 22),
-    titleMedium = body(16, FontWeight.SemiBold, 22),
-    titleSmall = body(14, FontWeight.SemiBold, 20),
-    bodyLarge = body(16),
-    bodyMedium = body(15),
+    headlineMedium = display(26),
+    headlineSmall = display(22),
+    titleLarge = display(18, line = 24),
+    titleMedium = body(16, FontWeight.Medium, 22),
+    titleSmall = body(14, FontWeight.Medium, 20),
+    bodyLarge = body(16, line = 24),
+    bodyMedium = body(15, line = 22),
     bodySmall = body(13, line = 18),
-    labelLarge = body(14, FontWeight.SemiBold, 18, 0.1),
-    labelMedium = body(12, FontWeight.SemiBold, 16, 0.2),
-    labelSmall = body(11, FontWeight.Medium, 14, 0.3),
+    labelLarge = body(14, FontWeight.Medium, 20),
+    labelMedium = body(12, FontWeight.Medium, 16),
+    labelSmall = body(11, FontWeight.Medium, 16, 0.1),
 )
 
 private val AppShapes = Shapes(

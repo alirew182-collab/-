@@ -69,7 +69,7 @@ class DuelViewModel(private val c: AppContainer) : ViewModel() {
     var elapsedMs by mutableLongStateOf(0)
     var playerChoice by mutableStateOf<Int?>(null)
     var aiChoice by mutableStateOf<Int?>(null)
-    var aiStatus by mutableStateOf("Нейрон думает… 🤔")
+    var aiStatus by mutableStateOf("Нейрон думает…")
     var started by mutableStateOf(false)
     var finished by mutableStateOf(false)
     var realAi by mutableStateOf(false)
@@ -90,7 +90,7 @@ class DuelViewModel(private val c: AppContainer) : ViewModel() {
         val t = QuickTaskGenerator.next(hard = true)
         task = t
         roundState = RoundState.PLAYING
-        playerChoice = null; aiChoice = null; aiStatus = "Нейрон думает… 🤔"; elapsedMs = 0
+        playerChoice = null; aiChoice = null; aiStatus = "Нейрон думает…"; elapsedMs = 0
         aiReady = false
         // ИИ решает с форой: минимальное «время на размышление», чтобы дуэль была честной
         aiTimeMs = Random.nextLong(5000, 12000)
@@ -124,10 +124,10 @@ class DuelViewModel(private val c: AppContainer) : ViewModel() {
         val a = aiAnswer ?: t.correct
         aiChoice = a
         if (a == t.correct) {
-            aiStatus = "Нейрон ответил верно за ${elapsedMs / 1000.0} с ⚡"
+            aiStatus = "Нейрон ответил верно за ${elapsedMs / 1000.0} с"
             if (playerChoice == null || playerChoice != t.correct) endRound(RoundState.AI_WON)
         } else {
-            aiStatus = "Нейрон ошибся! 😅 Твой шанс!"
+            aiStatus = "Нейрон ошибся, отвечай ты"
             if (playerChoice != null && playerChoice != t.correct) endRound(RoundState.DRAW)
         }
     }
@@ -175,7 +175,7 @@ fun DuelScreen(nav: NavHostController) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
                     com.neuron.academy.ui.components.IconBadge(Icons.Rounded.Person, MaterialTheme.colorScheme.primary, 52.dp); Text(player.name.ifBlank { "Ты" }); Text("${vm.playerScore}", style = MaterialTheme.typography.headlineMedium)
                 }
-                Text("VS", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Black, color = GameColors.Error)
+                Text("VS", style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
                     NeuronAvatar(player.skin, 52.dp); Text("Нейрон"); Text("${vm.aiScore}", style = MaterialTheme.typography.headlineMedium)
                 }
@@ -183,14 +183,14 @@ fun DuelScreen(nav: NavHostController) {
             Spacer(Modifier.height(12.dp))
             when {
                 !vm.started -> {
-                    Text("5 раундов. Кто первым верно ответит — получает очко. Нейрон думает с небольшой форой, так что у тебя есть шанс! 😉" +
+                    Text("5 раундов. Кто первым верно ответит — получает очко. Нейрон думает с небольшой форой, так что у тебя есть шанс" +
                         "\n\nЕсли добавлен API-ключ, задачу по-настоящему решает ИИ.", textAlign = TextAlign.Center)
                     Spacer(Modifier.height(20.dp))
-                    Button(onClick = vm::start, modifier = Modifier.fillMaxWidth().height(54.dp)) { Text("К барьеру!") }
+                    Button(onClick = vm::start, modifier = Modifier.fillMaxWidth().height(54.dp)) { Text("Начать дуэль") }
                 }
                 vm.finished -> {
                     val won = vm.playerScore > vm.aiScore
-                    Text(if (won) "Ты победил!" else if (vm.playerScore == vm.aiScore) "Ничья!" else "Нейрон победил", style = MaterialTheme.typography.headlineMedium)
+                    Text(if (won) "Ты победил" else if (vm.playerScore == vm.aiScore) "Ничья" else "Нейрон победил", style = MaterialTheme.typography.headlineMedium)
                     Text("${vm.playerScore} : ${vm.aiScore}", style = MaterialTheme.typography.displaySmall)
                     Spacer(Modifier.height(20.dp))
                     Button(onClick = vm::start, modifier = Modifier.fillMaxWidth()) { Text("Реванш") }
@@ -226,9 +226,9 @@ fun DuelScreen(nav: NavHostController) {
                     } else {
                         Text(
                             when (vm.roundState) {
-                                RoundState.PLAYER_WON -> "Раунд твой! 🎉"
-                                RoundState.AI_WON -> "Нейрон оказался быстрее ⚡"
-                                else -> "Никто не угадал 🤷"
+                                RoundState.PLAYER_WON -> "Раунд твой"
+                                RoundState.AI_WON -> "Нейрон ответил быстрее"
+                                else -> "Никто не ответил верно"
                             },
                             style = MaterialTheme.typography.titleMedium,
                         )

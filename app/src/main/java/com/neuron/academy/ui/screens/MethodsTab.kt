@@ -95,7 +95,7 @@ private fun MultiSolutionCard(number: Int, ms: MultiSolution, color: Color) {
             MathText(m.steps, style = MaterialTheme.typography.bodyMedium)
         }
         Spacer(Modifier.height(8.dp))
-        Text("Ответ: ${ms.answer}", fontWeight = FontWeight.Bold, color = GameColors.Success)
+        Text("Ответ: ${ms.answer}", fontWeight = FontWeight.Medium, color = GameColors.Success)
         Spacer(Modifier.height(6.dp))
         Eyebrow("Какой способ выбрать")
         Text(ms.compare, style = MaterialTheme.typography.bodySmall)

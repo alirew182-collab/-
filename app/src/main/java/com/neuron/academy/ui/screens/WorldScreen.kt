@@ -249,10 +249,8 @@ private fun PathRow(offset: Float, nextOffset: Float?, color: Color, done: Boole
 
 @Composable
 private fun TopicNodeView(number: Int, title: String, status: TopicStatus, color: Color, perfect: Boolean, score: Float, onClick: () -> Unit) {
-    val pulse = rememberInfiniteTransition(label = "p")
-    val scale by pulse.animateFloat(1f, if (status == TopicStatus.AVAILABLE) 1.06f else 1f, infiniteRepeatable(tween(1100), RepeatMode.Reverse), label = "s")
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(140.dp)) {
-        val base = Modifier.size(72.dp).scale(scale).clip(CircleShape)
+        val base = Modifier.size(72.dp).clip(CircleShape)
         val styled = when (status) {
             TopicStatus.COMPLETED -> base.background(color)
             TopicStatus.AVAILABLE -> base.background(MaterialTheme.colorScheme.surfaceContainer).border(4.dp, color, CircleShape)

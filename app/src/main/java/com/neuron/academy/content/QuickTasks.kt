@@ -142,7 +142,7 @@ object ChemLab {
         Reaction("agno3", "hcl", "AgNO₃ + HCl → AgCl↓ + HNO₃", ReactionEffect.PRECIPITATE, 0x55FFFFFF, 0xFFFFFFFF, "Белый осадок AgCl — так находят хлорид-ионы."),
         Reaction("na2co3", "hcl", "Na₂CO₃ + 2HCl → 2NaCl + H₂O + CO₂↑", ReactionEffect.GAS, 0x33FFFFFF, 0xFFE0F7FA, "Бурное «вскипание» — выделяется углекислый газ."),
         Reaction("na2co3", "h2so4", "Na₂CO₃ + H₂SO₄ → Na₂SO₄ + H₂O + CO₂↑", ReactionEffect.GAS, 0x33FFFFFF, 0xFFE0F7FA, "Пузыри CO₂ — карбонаты всегда «шипят» с кислотами."),
-        Reaction("zn", "hcl", "Zn + 2HCl → ZnCl₂ + H₂↑", ReactionEffect.GAS, 0x33FFFFFF, 0xFFFFFFFF, "Цинк растворяется, выделяется водород. Поднеси спичку — услышишь «хлопок»!"),
+        Reaction("zn", "hcl", "Zn + 2HCl → ZnCl₂ + H₂↑", ReactionEffect.GAS, 0x33FFFFFF, 0xFFFFFFFF, "Цинк растворяется, выделяется водород. Поднеси спичку — услышишь «хлопок»."),
         Reaction("zn", "h2so4", "Zn + H₂SO₄ → ZnSO₄ + H₂↑", ReactionEffect.GAS, 0x33FFFFFF, 0xFFFFFFFF, "Выделяется водород — так его получают в лаборатории."),
         Reaction("bacl2", "h2so4", "BaCl₂ + H₂SO₄ → BaSO₄↓ + 2HCl", ReactionEffect.PRECIPITATE, 0x66FFFFFF, 0xFFFAFAFA, "Белый осадок сульфата бария — качественная реакция на SO₄²⁻."),
         Reaction("fecl3", "naoh", "FeCl₃ + 3NaOH → Fe(OH)₃↓ + 3NaCl", ReactionEffect.PRECIPITATE, 0x66A1887F, 0xFF8D4E2A, "Бурый осадок гидроксида железа(III) — цвет ржавчины."),

@@ -90,7 +90,7 @@ fun insights(results: List<TestResultEntity>, now: Long = System.currentTimeMill
         if (thisWeek.isNotEmpty() && lastWeek.isNotEmpty()) {
             val diff = ((acc(thisWeek) - acc(lastWeek)) * 100).roundToInt()
             when {
-                diff > 0 -> out += "Ты стал лучше в $name на $diff% за неделю!"
+                diff > 0 -> out += "Ты стал лучше в $name на $diff% за неделю"
                 diff < 0 -> out += "В $name точность снизилась на ${-diff}% — повтори теорию, и всё вернётся."
                 else -> out += "В $name стабильно: ${(acc(thisWeek) * 100).roundToInt()}% верных ответов."
             }
@@ -98,7 +98,7 @@ fun insights(results: List<TestResultEntity>, now: Long = System.currentTimeMill
             out += "На этой неделе в $name: ${(acc(thisWeek) * 100).roundToInt()}% верных ответов."
         }
     }
-    if (out.isEmpty()) out += "Пройди пару тестов — и я покажу, как ты растёшь 📊"
+    if (out.isEmpty()) out += "После пары тестов здесь появится график твоих результатов"
     return out
 }
 
@@ -128,7 +128,7 @@ fun ProfileScreen(nav: NavHostController) {
                     Subject.entries.forEach { s ->
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             val f = ls.subjectFraction(s)
-                            ProgressRing(f, s.accent, 72.dp) { Text("${(f * 100).roundToInt()}%", fontWeight = FontWeight.Bold) }
+                            ProgressRing(f, s.accent, 72.dp) { Text("${(f * 100).roundToInt()}%", fontWeight = FontWeight.Medium) }
                             Text(s.title, style = MaterialTheme.typography.labelMedium)
                         }
                     }
@@ -185,7 +185,7 @@ fun ProfileScreen(nav: NavHostController) {
                 StatLine("Вопросов Нейрону", "${player.chatMessages}")
             }
         }
-        item { NeuronBubble("Помни: важен не только результат, но и каждый маленький шаг. Я горжусь тобой! 🤖💙", player.skin) }
+        item { NeuronBubble("Каждая пройденная тема остаётся в этом графике", player.skin) }
     }
 }
 
@@ -200,7 +200,7 @@ private fun labelFor(day: Long, period: Int): String {
 private fun StatLine(label: String, value: String) {
     Row(Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
         Text(label, modifier = Modifier.weight(1f))
-        Text(value, fontWeight = FontWeight.Bold)
+        Text(value, fontWeight = FontWeight.Medium)
     }
 }
 

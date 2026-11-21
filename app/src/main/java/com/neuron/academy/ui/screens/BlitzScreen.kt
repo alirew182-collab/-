@@ -115,12 +115,12 @@ fun BlitzScreen(nav: NavHostController) {
                     Subject.entries.forEach { s -> FilterChip(vm.subject == s, { vm.subject = s }, label = { Text(s.title) }) }
                 }
                 Spacer(Modifier.height(24.dp))
-                Button(onClick = vm::start, modifier = Modifier.fillMaxWidth().height(56.dp)) { Text("Старт!", fontSize = 20.sp) }
+                Button(onClick = vm::start, modifier = Modifier.fillMaxWidth().height(56.dp)) { Text("Старт", fontSize = 20.sp) }
             } else if (vm.running) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Text("${vm.timeLeft} с", style = MaterialTheme.typography.titleLarge, color = if (vm.timeLeft <= 10) GameColors.Error else MaterialTheme.colorScheme.onSurface)
                     Spacer(Modifier.weight(1f))
-                    Text("${vm.score}   ❌ ${vm.mistakes}", style = MaterialTheme.typography.titleLarge)
+                    Text("Верно ${vm.score} · ошибок ${vm.mistakes}", style = MaterialTheme.typography.titleMedium)
                 }
                 LinearProgressIndicator(progress = { vm.timeLeft / 60f }, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp))
                 Spacer(Modifier.height(24.dp))
@@ -128,7 +128,7 @@ fun BlitzScreen(nav: NavHostController) {
                 if (t != null) {
                     AnimatedContent(t, label = "task") { task ->
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(task.subject.title.uppercase(), style = MaterialTheme.typography.labelLarge)
+                            Text(task.subject.title, style = MaterialTheme.typography.labelLarge)
                             Spacer(Modifier.height(8.dp))
                             Text(task.text, style = MaterialTheme.typography.headlineSmall, textAlign = TextAlign.Center)
                             Spacer(Modifier.height(24.dp))
@@ -141,19 +141,19 @@ fun BlitzScreen(nav: NavHostController) {
                                             modifier = Modifier.weight(1f).height(64.dp),
                                             shape = RoundedCornerShape(16.dp),
                                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer, contentColor = MaterialTheme.colorScheme.onSecondaryContainer),
-                                        ) { Text(opt, fontSize = 18.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center) }
+                                        ) { Text(opt, fontSize = 18.sp, fontWeight = FontWeight.Medium, textAlign = TextAlign.Center) }
                                     }
                                 }
                             }
                         }
                     }
                 }
-                vm.flash?.let { Text(if (it) "+1" else "❌", color = if (it) GameColors.Success else GameColors.Error, fontSize = 22.sp, modifier = Modifier.padding(top = 12.dp)) }
+                vm.flash?.let { Text(if (it) "+1" else "Мимо", color = if (it) GameColors.Success else GameColors.Error, fontSize = 22.sp, modifier = Modifier.padding(top = 12.dp)) }
             } else {
                 NeuronMascot(player.skin, 96.dp, if (vm.newRecord) MascotMood.HAPPY else MascotMood.NORMAL)
-                Text("Время вышло!", style = MaterialTheme.typography.headlineMedium)
+                Text("Время вышло", style = MaterialTheme.typography.headlineMedium)
                 Text("Решено: ${vm.score} · Ошибок: ${vm.mistakes}", style = MaterialTheme.typography.titleMedium)
-                if (vm.newRecord) Text("Новый рекорд!", color = GameColors.Gold, style = MaterialTheme.typography.titleLarge)
+                if (vm.newRecord) Text("Новый рекорд", color = GameColors.Gold, style = MaterialTheme.typography.titleLarge)
                 Spacer(Modifier.height(24.dp))
                 Button(onClick = vm::start, modifier = Modifier.fillMaxWidth().height(52.dp)) { Text("Ещё раз") }
             }

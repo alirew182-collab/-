@@ -60,12 +60,10 @@ fun NeuronMascot(
         }),
         label = "blink",
     )
-    val bob by t.animateFloat(0f, if (animated) 1f else 0f, infiniteRepeatable(tween(1600), RepeatMode.Reverse), label = "bob")
-    val glow by t.animateFloat(0.45f, 1f, infiniteRepeatable(tween(900, easing = LinearEasing), RepeatMode.Reverse), label = "glow")
-
-    Canvas(modifier.size(size).graphicsLayer { translationY = -bob * size.toPx() * 0.04f }) {
+    // живым робота делает только моргание; без покачивания и мигающих огоньков
+    Canvas(modifier.size(size)) {
         val s = this.size.minDimension
-        drawMascot(s, l, mood, if (animated) blink else 1f, glow)
+        drawMascot(s, l, mood, if (animated) blink else 1f, 1f)
     }
 }
 

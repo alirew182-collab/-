@@ -56,7 +56,8 @@ import kotlin.random.Random
 
 private data class Particle(var x: Float, var y: Float, var vx: Float, var vy: Float, var rot: Float, val vr: Float, val color: Color, val w: Float, val h: Float)
 
-private val confettiColors = listOf(Color(0xFFFF5252), Color(0xFFFFD740), Color(0xFF69F0AE), Color(0xFF40C4FF), Color(0xFFE040FB), Color(0xFFFF6E40))
+// конфетти в цветах предметов и награды, без неона
+private val confettiColors = listOf(Color(0xFF3550C8), Color(0xFFD2452F), Color(0xFF138A66), Color(0xFFC9930C), Color(0xFF1E88B8))
 
 /** Конфетти поверх экрана. */
 @Composable
@@ -132,8 +133,8 @@ fun RewardHost(rewards: Flow<RewardOutcome>, feedback: Feedback, skin: String) {
                     modifier = Modifier.padding(12.dp),
                 ) {
                     Row(Modifier.padding(horizontal = 16.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-                        if (r.xp > 0) Text("+${r.xp} XP", color = Color(0xFFB39DDB), fontWeight = FontWeight.Bold)
-                        if (r.crystals > 0) { Spacer(Modifier.width(8.dp)); Text("+${r.crystals} 💎", color = Color(0xFF81D4FA), fontWeight = FontWeight.Bold) }
+                        if (r.xp > 0) Text("+${r.xp} XP", color = MaterialTheme.colorScheme.inverseOnSurface, fontWeight = FontWeight.Medium)
+                        if (r.crystals > 0) { Spacer(Modifier.width(8.dp)); CrystalAmount(r.crystals, MaterialTheme.colorScheme.inverseOnSurface) }
                         r.message?.let { Spacer(Modifier.width(8.dp)); Text(it, color = MaterialTheme.colorScheme.inverseOnSurface, style = MaterialTheme.typography.bodySmall) }
                     }
                 }
@@ -148,36 +149,36 @@ fun RewardHost(rewards: Flow<RewardOutcome>, feedback: Feedback, skin: String) {
                         NeuronAvatar(skin, 72.dp)
                         Spacer(Modifier.height(12.dp))
                         if (r.newLevel != null) {
-                            Text("Новый уровень!", style = MaterialTheme.typography.headlineSmall)
+                            Text("Новый уровень", style = MaterialTheme.typography.headlineSmall)
                             AnimatedVisibility(true, enter = scaleIn()) {
-                                Text("${r.newLevel}", fontSize = 64.sp, fontWeight = FontWeight.Black, color = GameColors.Xp)
+                                Text("${r.newLevel}", fontSize = 64.sp, fontFamily = com.neuron.academy.ui.theme.Unbounded, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.primary)
                             }
-                            r.newRank?.let { Text("Новое звание: ${it.emoji} ${it.title}", style = MaterialTheme.typography.titleMedium, color = GameColors.Gold) }
+                            r.newRank?.let { Text("Новое звание: ${it.title}", style = MaterialTheme.typography.titleMedium, color = GameColors.Gold) }
                         }
                         r.achievements.forEach { a ->
                             Spacer(Modifier.height(10.dp))
-                            Text("${a.emoji} Достижение: ${a.title}", style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)
+                            Text("Достижение: ${a.title}", style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)
                             Text(a.description, style = MaterialTheme.typography.bodySmall)
                         }
                         r.card?.let { c ->
                             Spacer(Modifier.height(12.dp))
                             Surface(shape = RoundedCornerShape(16.dp), color = Color(c.rarity.color).copy(alpha = 0.18f)) {
                                 Column(Modifier.padding(14.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Text("Новая карточка!", style = MaterialTheme.typography.labelLarge)
+                                    Text("Новая карточка", style = MaterialTheme.typography.labelLarge)
                                     Text(c.emoji, fontSize = 44.sp)
-                                    Text(c.title, fontWeight = FontWeight.Bold)
+                                    Text(c.title, fontWeight = FontWeight.Medium)
                                     Text(c.rarity.title, color = Color(c.rarity.color), style = MaterialTheme.typography.labelMedium)
                                 }
                             }
                         }
                         Spacer(Modifier.height(12.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            if (r.xp > 0) Text("+${r.xp} XP", color = GameColors.Xp, fontWeight = FontWeight.Bold)
-                            if (r.crystals > 0) Text("+${r.crystals} 💎", color = GameColors.Crystal, fontWeight = FontWeight.Bold)
+                            if (r.xp > 0) Text("+${r.xp} XP", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium)
+                            if (r.crystals > 0) CrystalAmount(r.crystals, GameColors.Crystal)
                         }
                         r.message?.let { Spacer(Modifier.height(8.dp)); Text(it, textAlign = TextAlign.Center, style = MaterialTheme.typography.bodyMedium) }
                         Spacer(Modifier.height(16.dp))
-                        Button(onClick = { big = null }, modifier = Modifier.fillMaxWidth()) { Text("Ура!") }
+                        Button(onClick = { big = null }, modifier = Modifier.fillMaxWidth()) { Text("Дальше") }
                     }
                 }
                 ConfettiOverlay(Modifier.matchParentSizeSafe())

@@ -144,9 +144,9 @@ fun ParabolaScreen(nav: NavHostController) = SimScaffold(nav, "Парабола 
     Spacer(Modifier.height(8.dp))
     InfoCard("Что видно на графике") {
         Text("• Ветви направлены ${if (aa > 0) "вверх (a > 0)" else "вниз (a < 0)"}")
-        Text("• Вершина 🟠: (${fmt(x0)}; ${fmt(y0)})")
+        Text("• Вершина (оранжевая точка): (${fmt(x0)}; ${fmt(y0)})")
         Text("• Дискриминант D = ${fmt(d)}")
-        Text("• Корни 🟢: " + if (roots.isEmpty()) "нет (D < 0 — парабола не пересекает ось Ox)" else roots.joinToString("; ") { fmt(it) })
+        Text("• Корни (зелёные точки): " + if (roots.isEmpty()) "нет (D < 0 — парабола не пересекает ось Ox)" else roots.joinToString("; ") { fmt(it) })
         Spacer(Modifier.height(6.dp))
         Text("Попробуй: поставь a отрицательным — «улыбка» станет «грустью». Двигай c — парабола поднимается и опускается.", style = MaterialTheme.typography.bodySmall)
     }
@@ -155,7 +155,7 @@ fun ParabolaScreen(nav: NavHostController) = SimScaffold(nav, "Парабола 
 @Composable
 private fun SliderRow(label: String, value: Float, range: ClosedFloatingPointRange<Float>, onChange: (Float) -> Unit) {
     Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-        Text("$label = ${fmt(value)}", modifier = Modifier.width(90.dp), fontWeight = FontWeight.Bold)
+        Text("$label = ${fmt(value)}", modifier = Modifier.width(90.dp), fontWeight = FontWeight.Medium)
         Slider(value, { onChange((it * 10).toInt() / 10f) }, valueRange = range, modifier = Modifier.weight(1f))
     }
 }
@@ -228,11 +228,11 @@ fun ProjectileScreen(nav: NavHostController) = SimScaffold(nav, "Бросок п
             if (trails.size >= 3) trails.removeAt(0)
             trails.add(pts)
         }
-    }, modifier = Modifier.fillMaxWidth()) { Text("Бросить!") }
+    }, modifier = Modifier.fillMaxWidth()) { Text("Бросить") }
     Spacer(Modifier.height(8.dp))
     InfoCard("Расчёт") {
         MathText("\\(L = \\frac{v_0^2 \\sin 2\\alpha}{g}\\) = **${fmt(range)} м**\n\\(H = \\frac{v_0^2 \\sin^2\\alpha}{2g}\\) = **${fmt(hMax)} м**\n\\(t = \\frac{2 v_0 \\sin\\alpha}{g}\\) = **${fmt(flight)} с**")
-        Text("Подсказка: максимальная дальность — при угле 45°. На Луне тот же бросок улетит в 6 раз дальше!", style = MaterialTheme.typography.bodySmall)
+        Text("Подсказка: максимальная дальность — при угле 45°. На Луне тот же бросок улетит в 6 раз дальше.", style = MaterialTheme.typography.bodySmall)
     }
 }
 
@@ -292,7 +292,7 @@ fun ChemMixScreen(nav: NavHostController) = SimScaffold(nav, "Смешивани
             if (x != null && y != null) scope.launch { mixedKey = x to y; progress.snapTo(0f); progress.animateTo(1f, tween(1200)) }
         },
         enabled = a != null && b != null, modifier = Modifier.fillMaxWidth(),
-    ) { Text("Смешать!") }
+    ) { Text("Смешать") }
     Spacer(Modifier.height(10.dp))
 
     val glass = MaterialTheme.colorScheme.onSurface
@@ -332,16 +332,16 @@ fun ChemMixScreen(nav: NavHostController) = SimScaffold(nav, "Смешивани
     if (mixedKey != null) {
         if (reaction != null) {
             InfoCard(reaction.effect.title) {
-                Text(reaction.equation, fontWeight = FontWeight.Bold)
+                Text(reaction.equation, fontWeight = FontWeight.Medium)
                 Spacer(Modifier.height(6.dp))
                 Text(reaction.comment)
             }
         } else {
             InfoCard("Реакция не идёт") {
-                Text("Видимых изменений нет: не образуется ни осадка, ни газа, ни воды. Попробуй другую пару! Подсказка: щёлочь + соль меди, кислота + сода, нитрат серебра + хлорид…")
+                Text("Видимых изменений нет: не образуется ни осадка, ни газа, ни воды. Попробуй другую пару. Подсказка: щёлочь + соль меди, кислота + сода, нитрат серебра + хлорид…")
             }
         }
     }
     Spacer(Modifier.height(8.dp))
-    Text("Это виртуальная лаборатория. Настоящие опыты — только с учителем и в защитных очках!", style = MaterialTheme.typography.bodySmall)
+    Text("Это виртуальная лаборатория. Настоящие опыты — только с учителем и в защитных очках.", style = MaterialTheme.typography.bodySmall)
 }

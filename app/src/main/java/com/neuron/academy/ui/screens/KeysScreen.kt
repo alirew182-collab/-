@@ -111,7 +111,7 @@ fun KeysScreen(nav: NavHostController) {
             val msg = try {
                 val data = KeyBackup.export(c.keyStore.keys.value, pendingPassword)
                 withContext(Dispatchers.IO) { ctx.contentResolver.openOutputStream(uri)?.use { it.write(data.toByteArray()) } }
-                "Экспортировано ключей: ${c.keyStore.keys.value.size} 🔐"
+                "Экспортировано ключей: ${c.keyStore.keys.value.size}"
             } catch (e: Exception) { "Ошибка экспорта: ${e.userMessage()}" }
             snackbar.showSnackbar(msg)
         }
@@ -141,7 +141,7 @@ fun KeysScreen(nav: NavHostController) {
                     AiSource.entries.forEach { src ->
                         Row(Modifier.fillMaxWidth().selectable(source == src) { c.settings.setAiSource(src) }.padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                             RadioButton(source == src, { c.settings.setAiSource(src) })
-                            Column { Text(src.title, fontWeight = FontWeight.SemiBold); Text(src.description, style = MaterialTheme.typography.bodySmall) }
+                            Column { Text(src.title, fontWeight = FontWeight.Medium); Text(src.description, style = MaterialTheme.typography.bodySmall) }
                         }
                     }
                     Text(
@@ -161,7 +161,7 @@ fun KeysScreen(nav: NavHostController) {
                     KeySelectionMode.entries.forEach { m ->
                         Row(Modifier.fillMaxWidth().selectable(mode == m) { c.settings.setKeyMode(m) }.padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                             RadioButton(mode == m, { c.settings.setKeyMode(m) })
-                            Column { Text(m.title, fontWeight = FontWeight.SemiBold); Text(m.description, style = MaterialTheme.typography.bodySmall) }
+                            Column { Text(m.title, fontWeight = FontWeight.Medium); Text(m.description, style = MaterialTheme.typography.bodySmall) }
                         }
                     }
                     Text("При ошибке (429, 401, 5xx, таймаут) запрос автоматически уходит на следующий ключ.", style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 6.dp))
@@ -181,7 +181,7 @@ fun KeysScreen(nav: NavHostController) {
                 }
             }
             if (keys.isEmpty()) item {
-                EmptyHint("Пока нет ключей. Добавь ключ Claude, OpenAI, Gemini, OpenRouter, DeepSeek или свой OpenAI-совместимый сервер — и Нейрон оживёт!")
+                EmptyHint("Пока нет ключей. Добавь ключ Claude, OpenAI, Gemini, OpenRouter, DeepSeek или свой OpenAI-совместимый сервер. Без ключа работает встроенный ИИ")
             }
             items(keys.sortedByDescending { it.priority }, key = { it.id }) { k ->
                 KeyCard(
@@ -209,7 +209,7 @@ fun KeysScreen(nav: NavHostController) {
             text = {
                 Column {
                     Text(
-                        if (action == BackupAction.EXPORT) "Файл будет зашифрован AES-256. Без пароля его не открыть — запомни пароль!"
+                        if (action == BackupAction.EXPORT) "Файл будет зашифрован AES-256. Без пароля его не открыть, поэтому запиши пароль"
                         else "Введи пароль, которым был зашифрован файл ключей.",
                         style = MaterialTheme.typography.bodySmall,
                     )

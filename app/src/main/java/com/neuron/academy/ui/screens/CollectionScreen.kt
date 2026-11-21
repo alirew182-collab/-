@@ -85,9 +85,9 @@ fun CollectionScreen(nav: NavHostController) {
                     Card(shape = RoundedCornerShape(18.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)) {
                         Column(Modifier.fillMaxWidth().padding(12.dp).alpha(if (has) 1f else 0.4f), horizontalAlignment = Alignment.CenterHorizontally) {
                             if (has) Text(a.emoji, fontSize = 36.sp) else androidx.compose.material3.Icon(Icons.Rounded.Lock, null, modifier = Modifier.padding(8.dp))
-                            Text(a.title, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center, style = MaterialTheme.typography.bodyMedium)
+                            Text(a.title, fontWeight = FontWeight.Medium, textAlign = TextAlign.Center, style = MaterialTheme.typography.bodyMedium)
                             Text(a.description, textAlign = TextAlign.Center, style = MaterialTheme.typography.bodySmall)
-                            Text("+${a.rewardCrystals} 💎", style = MaterialTheme.typography.labelSmall)
+                            Text("+${a.rewardCrystals} кристаллов", style = MaterialTheme.typography.labelSmall)
                         }
                     }
                 }
@@ -117,8 +117,10 @@ fun CollectionScreen(nav: NavHostController) {
     opened?.let { card ->
         AlertDialog(
             onDismissRequest = { opened = null },
-            confirmButton = { TextButton(onClick = { opened = null }) { Text("Круто!") } },
-            title = { Text("${card.emoji} ${card.title}") },
+            confirmButton = { TextButton(onClick = { opened = null }) { Text("Закрыть") } },
+            // эмодзи карточки — её «картинка», поэтому она стоит отдельно, а не в заголовке
+            icon = { Text(card.emoji, fontSize = 40.sp) },
+            title = { Text(card.title) },
             text = {
                 Column {
                     Text(card.subtitle, style = MaterialTheme.typography.labelLarge)

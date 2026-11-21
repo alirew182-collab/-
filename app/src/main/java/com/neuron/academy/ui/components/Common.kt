@@ -48,8 +48,6 @@ import com.neuron.gamification.Hearts
 import com.neuron.gamification.LevelSystem
 import com.neuron.gamification.ShopCatalog
 
-fun skinEmoji(skinId: String): String = ShopCatalog.byId(skinId)?.emoji ?: "🤖"
-
 /** Робот-помощник «Нейрон». */
 @Composable
 fun NeuronAvatar(skin: String, size: Dp = 64.dp, animated: Boolean = true, mood: MascotMood = MascotMood.NORMAL) {
@@ -78,10 +76,10 @@ fun Panel(
     }
 }
 
-/** Маленькая надпись над блоком (как рубрика в журнале). */
+/** Маленькая надпись над блоком: обычный регистр, без разрядки. */
 @Composable
 fun Eyebrow(text: String, color: Color = MaterialTheme.colorScheme.onSurfaceVariant, modifier: Modifier = Modifier) {
-    Text(text.uppercase(), style = MaterialTheme.typography.labelMedium, color = color, modifier = modifier)
+    Text(text, style = MaterialTheme.typography.labelMedium, color = color, modifier = modifier)
 }
 
 @Composable
@@ -195,6 +193,16 @@ fun LoadingBlock(text: String = "Нейрон думает…", skin: String = "
         NeuronMascot(skin, 36.dp, MascotMood.THINKING)
         Spacer(Modifier.width(10.dp))
         Text(text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
+/** Награда в кристаллах: значок и число, без эмодзи. */
+@Composable
+fun CrystalAmount(amount: Int, color: Color) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(Icons.Rounded.Diamond, null, tint = color, modifier = Modifier.size(16.dp))
+        Spacer(Modifier.width(4.dp))
+        Text("+$amount", color = color, style = MaterialTheme.typography.labelLarge)
     }
 }
 

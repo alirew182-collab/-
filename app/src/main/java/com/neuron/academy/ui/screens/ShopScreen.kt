@@ -73,7 +73,7 @@ fun ShopScreen(nav: NavHostController) {
         },
     ) { pad ->
         LazyColumn(Modifier.fillMaxSize().padding(pad), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            item { NeuronBubble("Кристаллы даются за темы, тесты без ошибок, боссов и достижения. Трать с умом! 💎", player.skin) }
+            item { NeuronBubble("Кристаллы даются за темы, тесты без ошибок, боссов и достижения. Их можно потратить здесь", player.skin) }
             ShopCategory.entries.forEach { cat ->
                 item(key = cat.name) { SectionTitle(cat.title) }
                 items(ShopCatalog.items.filter { it.category == cat }, key = { it.id }) { item ->
@@ -104,13 +104,13 @@ fun ShopScreen(nav: NavHostController) {
                                 cat == ShopCategory.CONSUMABLE || !owned -> Button(onClick = {
                                     scope.launch {
                                         val msg = when (c.game.buy(item.id)) {
-                                            GameRepository.PurchaseResult.Ok -> { c.feedback.correct(); "Куплено: ${item.title} ✨" }
-                                            GameRepository.PurchaseResult.NotEnough -> "Не хватает кристаллов. Пройди пару тем! 💎"
+                                            GameRepository.PurchaseResult.Ok -> { c.feedback.correct(); "Куплено: ${item.title}" }
+                                            GameRepository.PurchaseResult.NotEnough -> "Не хватает кристаллов: их дают за темы и тесты"
                                             GameRepository.PurchaseResult.AlreadyOwned -> "Уже есть"
                                         }
                                         snackbar.showSnackbar(msg)
                                     }
-                                }) { Text(if (item.price == 0) "Бесплатно" else "${item.price} 💎") }
+                                }) { Text(if (item.price == 0) "Бесплатно" else "${item.price} кристаллов") }
                                 equipped -> Text("Надето", color = GameColors.Success)
                                 else -> OutlinedButton(onClick = { scope.launch { c.game.equip(item.id) } }) { Text("Надеть") }
                             }

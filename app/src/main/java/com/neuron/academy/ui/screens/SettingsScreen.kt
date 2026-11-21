@@ -124,7 +124,7 @@ fun SettingsScreen(nav: NavHostController) {
                         Text("Время: %02d:%02d".format(hour, minute), modifier = Modifier.weight(1f))
                         TextButton(onClick = { showTime = true }) { Text("Изменить") }
                     }
-                    Text("Нейрон пишет дружелюбно и без давления 🙂", style = MaterialTheme.typography.bodySmall)
+                    Text("Нейрон пишет дружелюбно и без давления", style = MaterialTheme.typography.bodySmall)
                 }
             }
             item {

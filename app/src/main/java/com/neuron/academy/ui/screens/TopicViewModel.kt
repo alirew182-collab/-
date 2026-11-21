@@ -155,7 +155,7 @@ class TopicViewModel(private val c: AppContainer, topicId: String) : ViewModel()
         run(generate) {
             val g = c.tutor.generateTask(t, d, grade(), completedTitles())
             practice.add(0, PracticeItem(Practice(g.problem, g.answer, g.hint, g.solution, hard = d == Difficulty.HARD), aiGenerated = true))
-            "Новая задача добавлена!"
+            "Новая задача добавлена"
         }
     }
 
@@ -182,7 +182,7 @@ class TopicViewModel(private val c: AppContainer, topicId: String) : ViewModel()
                 c.feedback.correct()
                 c.game.onPracticeSolved(t, t.subject, usedHint = item.showHint, hard = item.task.hard)
             }
-            (if (r.correct) "Верно!\n\n" else "Есть неточности.\n\n") + r.feedback
+            (if (r.correct) "Верно.\n\n" else "Есть неточности.\n\n") + r.feedback
         }
     }
 
@@ -243,9 +243,9 @@ class TopicViewModel(private val c: AppContainer, topicId: String) : ViewModel()
             c.game.onTopicTest(t, correct, total, outcome)
             if (!outcome.passed) c.game.spendHeart()
             testResultText = when {
-                outcome.perfect -> "Идеально! Ни одной ошибки."
-                outcome.passed -> "Контрольная сдана! Тема пройдена."
-                else -> "Нужно хотя бы 70%. Ты теряешь одно сердце. Повтори теорию и попробуй ещё раз — у тебя получится!"
+                outcome.perfect -> "Без единой ошибки"
+                outcome.passed -> "Контрольная сдана, тема пройдена"
+                else -> "Нужно хотя бы 70%. Ты теряешь одно сердце. Повтори теорию и попробуй ещё раз."
             }
         }
     }
@@ -262,7 +262,7 @@ class TopicViewModel(private val c: AppContainer, topicId: String) : ViewModel()
         run(testGen) {
             val qs = c.tutor.generateTest(t.subject, t.grade, listOf(t), 8, completedTitles())
             restartTest(qs.map { ControlItem.Choice(it, "Вопрос от ИИ") })
-            "Новый тест готов!"
+            "Новый тест готов"
         }
     }
 }

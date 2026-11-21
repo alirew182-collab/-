@@ -71,7 +71,7 @@ fun BuiltinAiSection() {
         )
         val engineText = when (val e = engineState) {
             is com.neuron.academy.ai.local.EngineState.Loading -> "Загружаю модель в память…"
-            is com.neuron.academy.ai.local.EngineState.Loaded -> if (e.onGpu) "Работает на видеокарте ⚡" else "Работает на процессоре"
+            is com.neuron.academy.ai.local.EngineState.Loaded -> if (e.onGpu) "Работает на видеокарте" else "Работает на процессоре"
             else -> null
         }
         if (engineText != null) Text(engineText, style = MaterialTheme.typography.labelMedium, color = GameColors.Success)
@@ -85,7 +85,7 @@ fun BuiltinAiSection() {
             Panel {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
-                        if (m == llm.recommended) Text("★ Лучший выбор для твоего телефона", style = MaterialTheme.typography.labelMedium, color = GameColors.Gold)
+                        if (m == llm.recommended) Text("Подходит твоему телефону лучше всего", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
                         Text(m.title, style = MaterialTheme.typography.titleMedium)
                         Text("${m.sizeLabel} · от ${m.minRamGb} ГБ ОЗУ", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }

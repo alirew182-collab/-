@@ -106,7 +106,7 @@ fun ReviewScreen(nav: NavHostController) {
                             NeuronMascot("skin_classic", 80.dp, if (vm.correct * 4 >= list.size * 3) MascotMood.HAPPY else MascotMood.THINKING)
                             Text("${vm.correct} из ${list.size}", style = MaterialTheme.typography.headlineMedium)
                             Text(
-                                if (vm.correct * 4 >= list.size * 3) "Отлично! Знания освежены, держи сердце." else "Есть что подтянуть — темы с ошибками стоит перечитать.",
+                                if (vm.correct * 4 >= list.size * 3) "Повторение засчитано: +1 сердце" else "Есть что подтянуть — темы с ошибками стоит перечитать.",
                                 style = MaterialTheme.typography.bodyMedium,
                             )
                             Spacer(Modifier.height(12.dp))

@@ -198,8 +198,8 @@ class ExamViewModel(
             lives -= if (wasEnraged) 2 else 1
             hurtTick++
             line = when {
-                i == -1 -> "Время вышло! ${boss.name} атакует!"
-                wasEnraged -> "${boss.name} в ярости: двойной урон!"
+                i == -1 -> "Время вышло, ${boss.name} атакует"
+                wasEnraged -> "${boss.name} в ярости: ошибка стоит две жизни"
                 else -> "${boss.name}: «Мимо!»"
             }
             c.feedback.wrong()
@@ -317,15 +317,15 @@ fun ExamScreen(nav: NavHostController, subject: Subject, grade: Int, stage: Int 
                     BattlePhase.WON, BattlePhase.LOST -> item {
                         val won = vm.phase == BattlePhase.WON
                         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-                            Text(if (won) "Победа!" else "Поражение", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Black)
+                            Text(if (won) "Победа" else "Поражение", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Black)
                             Text("Правильных ответов: ${vm.correct}")
                             Spacer(Modifier.height(8.dp))
                             Text(
                                 when {
                                     !won -> "Повтори темы, в которых ошибся, и возвращайся. Босс никуда не денется."
-                                    raid -> "Рейд недели пройден!"
-                                    stage > 0 -> "Страж повержен — следующий раздел открыт!"
-                                    else -> "Экзамен по предмету «${subject.title}» за $grade класс сдан!"
+                                    raid -> "Рейд недели пройден"
+                                    stage > 0 -> "Страж повержен, следующий раздел открыт"
+                                    else -> "Экзамен по предмету «${subject.title}» за $grade класс сдан"
                                 },
                                 textAlign = TextAlign.Center,
                             )

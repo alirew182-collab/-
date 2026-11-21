@@ -43,13 +43,13 @@ import com.neuron.academy.ui.LocalContainer
 import com.neuron.academy.ui.components.NeuronAvatar
 import kotlinx.coroutines.launch
 
-private data class Page(val emoji: String, val title: String, val text: String)
+private data class Page(val title: String, val text: String)
 
 private val pages = listOf(
-    Page("👋", "Привет! Я — Нейрон", "Робот-помощник и твой личный репетитор по алгебре, физике и химии. Мои микросхемы обожают объяснять сложное простыми словами!"),
-    Page("🗺️", "Три мира знаний", "Город чисел — алгебра\nЛаборатория сил — физика\nАлхимическая башня — химия\n\nКлассы 9 → 10 → 11 — это регионы, которые открываются по мере прохождения."),
-    Page("⚔️", "Боссы и награды", "В конце каждого класса тебя ждёт битва с боссом. Побеждай, собирай карточки учёных и элементов, копи кристаллы и XP, держи серию дней."),
-    Page("🧠", "Встроенный ИИ", "Я умею работать прямо на телефоне — без ключей и интернета. Скачай модель один раз в «Настройках ИИ», и я смогу объяснять «иначе», придумывать задачи и проверять решения. Теория, тесты и игры работают и без неё."),
+    Page("Я Нейрон", "Робот-репетитор по алгебре, физике и химии для 9–11 классов. Объясняю по шагам и подстраиваюсь под то, что ты уже прошёл."),
+    Page("Три мира", "Город чисел — алгебра\nЛаборатория сил — физика\nАлхимическая башня — химия\n\nКлассы 9 → 10 → 11 — это регионы, которые открываются по мере прохождения."),
+    Page("Боссы и награды", "В конце каждого класса тебя ждёт битва с боссом. Побеждай, собирай карточки учёных и элементов, копи кристаллы и XP, держи серию дней."),
+    Page("Встроенный ИИ", "Я работаю прямо на телефоне, без ключей и интернета. Скачай модель один раз в «Настройках ИИ», и я смогу объяснять «иначе», придумывать задачи и проверять решения. Теория, тесты и игры работают и без неё."),
 )
 
 @Composable
@@ -78,7 +78,7 @@ fun OnboardingScreen(onDone: () -> Unit) {
                         Spacer(Modifier.height(16.dp))
                         OutlinedTextField(name, { name = it.take(24) }, label = { Text("Имя") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                         Spacer(Modifier.height(12.dp))
-                        Text("Начинаем с 9 класса. Вперёд, к звёздам! 🚀", textAlign = TextAlign.Center)
+                        Text("Начинаем с 9 класса", textAlign = TextAlign.Center)
                     }
                 }
             }
@@ -97,7 +97,7 @@ fun OnboardingScreen(onDone: () -> Unit) {
                     }
                 },
                 modifier = Modifier.fillMaxWidth().height(54.dp),
-            ) { Text(if (page < last) "Дальше" else "Поехали!", fontWeight = FontWeight.Bold) }
+            ) { Text(if (page < last) "Дальше" else "Начать") }
             if (page < last) TextButton(onClick = { page = last }) { Text("Пропустить") }
         }
     }

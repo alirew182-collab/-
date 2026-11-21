@@ -53,11 +53,11 @@ fun markdownToAnnotated(text: String): AnnotatedString = buildAnnotatedString {
             line.startsWith("# ") -> { header = true; line = line.removePrefix("# ") }
             line.startsWith("- ") || line.startsWith("* ") -> line = "• " + line.drop(2)
         }
-        if (header) pushStyle(SpanStyle(fontWeight = FontWeight.Bold, fontSize = 18.sp))
+        if (header) pushStyle(SpanStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp))
         val parts = line.split("**")
         parts.forEachIndexed { idx, part ->
             if (idx % 2 == 1) {
-                pushStyle(SpanStyle(fontWeight = FontWeight.Bold)); append(part); pop()
+                pushStyle(SpanStyle(fontWeight = FontWeight.SemiBold)); append(part); pop()
             } else append(part)
         }
         if (header) pop()

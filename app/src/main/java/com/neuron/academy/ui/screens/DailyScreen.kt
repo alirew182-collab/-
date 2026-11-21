@@ -116,8 +116,8 @@ class DailyViewModel(private val c: AppContainer) : ViewModel() {
 
     fun buyFreeze() = viewModelScope.launch {
         message = when (c.game.buy(ShopCatalog.STREAK_FREEZE)) {
-            GameRepository.PurchaseResult.Ok -> "Заморозка куплена!"
-            GameRepository.PurchaseResult.NotEnough -> "Не хватает кристаллов 💎"
+            GameRepository.PurchaseResult.Ok -> "Заморозка куплена"
+            GameRepository.PurchaseResult.NotEnough -> "Не хватает кристаллов"
             else -> null
         }
     }
@@ -144,12 +144,12 @@ fun DailyScreen(nav: NavHostController) {
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
                         Text("${player.streak} дн. подряд", style = MaterialTheme.typography.headlineSmall)
-                        Text("Рекорд: ${player.bestStreak} · Заморозок: 🧊 ${player.freezes}", style = MaterialTheme.typography.bodyMedium)
+                        Text("Рекорд: ${player.bestStreak} · заморозок: ${player.freezes}", style = MaterialTheme.typography.bodyMedium)
                         Text("Заморозка спасёт серию, если пропустишь день.", style = MaterialTheme.typography.bodySmall)
                     }
                 }
                 Row(Modifier.padding(start = 18.dp, end = 18.dp, bottom = 14.dp), verticalAlignment = Alignment.CenterVertically) {
-                    OutlinedButton(onClick = { vm.buyFreeze() }) { Text("Купить 🧊 за ${CrystalRules.STREAK_FREEZE_PRICE} 💎") }
+                    OutlinedButton(onClick = { vm.buyFreeze() }) { Text("Купить заморозку за ${CrystalRules.STREAK_FREEZE_PRICE} кристаллов") }
                     Spacer(Modifier.width(8.dp))
                     vm.message?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
                 }
@@ -174,7 +174,7 @@ fun DailyScreen(nav: NavHostController) {
                         Spacer(Modifier.width(10.dp))
                         Column(Modifier.weight(1f)) {
                             Text(q.def.title, style = MaterialTheme.typography.titleMedium)
-                            Text("Награда: +${q.def.rewardXp} XP, +${q.def.rewardCrystals} 💎", style = MaterialTheme.typography.bodySmall)
+                            Text("Награда: +${q.def.rewardXp} XP, +${q.def.rewardCrystals} кристаллов", style = MaterialTheme.typography.bodySmall)
                         }
                         if (q.done && !q.claimed) Button(onClick = { vm.claim(q.def.id) }) { Text("Забрать") }
                     }
@@ -195,14 +195,14 @@ fun DailyScreen(nav: NavHostController) {
                         MathText(p.problem)
                         Spacer(Modifier.height(8.dp))
                         if (p.solved) {
-                            Text("Решено! Возвращайся завтра за новой задачей.", color = GameColors.Success, fontWeight = FontWeight.Bold)
+                            Text("Решено. Новая задача появится завтра", color = GameColors.Success, fontWeight = FontWeight.Bold)
                         } else {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 OutlinedTextField(vm.answer, { vm.answer = it; vm.wrong = false }, label = { Text("Ответ") }, singleLine = true, modifier = Modifier.weight(1f))
                                 Spacer(Modifier.width(8.dp))
                                 Button(onClick = vm::check) { Text("✓") }
                             }
-                            if (vm.wrong) Text("Пока не то. Подсказка поможет! 💡", color = GameColors.Error)
+                            if (vm.wrong) Text("Пока не то. Открой подсказку", color = GameColors.Error)
                         }
                         Row {
                             TextButton(onClick = { vm.showHint = !vm.showHint }) { Text("Подсказка") }

@@ -30,6 +30,7 @@ import io.ktor.client.plugins.HttpTimeout
 /** Простое ручное внедрение зависимостей. */
 class AppContainer(context: Context) {
     val db = AppDatabase.create(context)
+    val backup = com.neuron.academy.data.ProgressBackup(context, db)
     val settings = SettingsRepository(context)
     val keyStore = SecureKeyStore(context)
     val http = HttpClient(OkHttp) {

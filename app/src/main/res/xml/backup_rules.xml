@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 6–11: в резервную копию Google попадает только прогресс и настройки. -->
+<full-backup-content>
+    <include domain="database" path="neuron.db" />
+    <include domain="sharedpref" path="neuron_settings.xml" />
+</full-backup-content>

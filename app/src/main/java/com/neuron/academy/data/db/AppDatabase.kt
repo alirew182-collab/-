@@ -13,7 +13,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         ChatMessageEntity::class, PlayerEntity::class, AchievementEntity::class, CardEntity::class,
         XpEventEntity::class, QuestEntity::class, DailyProblemEntity::class, KeyStatEntity::class,
     ],
-    version = 2,
+    version = AppDatabase.VERSION,
     exportSchema = false,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -23,6 +23,9 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun keyStatsDao(): KeyStatsDao
 
     companion object {
+        /** Версия схемы. При её повышении обязательно добавляй миграцию: иначе прогресс учеников не перенесётся. */
+        const val VERSION = 2
+
         /** v2: сердца, стражи, рейды и повторение. Прогресс ученика сохраняется. */
         val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(db: SupportSQLiteDatabase) {
@@ -38,7 +41,8 @@ abstract class AppDatabase : RoomDatabase() {
         fun create(context: Context): AppDatabase =
             Room.databaseBuilder(context, AppDatabase::class.java, "neuron.db")
                 .addMigrations(MIGRATION_1_2)
-                .fallbackToDestructiveMigration()
+                // прогресс никогда не стирается при обновлении; очистка — только при откате на старую версию
+                .fallbackToDestructiveMigrationOnDowngrade(dropAllTables = true)
                 .build()
     }
 }

@@ -127,6 +127,7 @@ fun SettingsScreen(nav: NavHostController) {
                     Text("Нейрон пишет дружелюбно и без давления", style = MaterialTheme.typography.bodySmall)
                 }
             }
+            item { ProgressBackupCard() }
             item {
                 InfoCard("Обучение") {
                     Text("Порог завершения класса: ${(threshold * 100).toInt()}% тем по каждому предмету + итоговые экзамены")
@@ -140,7 +141,7 @@ fun SettingsScreen(nav: NavHostController) {
             }
             item {
                 InfoCard("О приложении") {
-                    Text("Нейрон: Академия 1.0 — алгебра, физика и химия 9–11 классов с ИИ-репетитором.")
+                    Text("Нейрон: Академия ${com.neuron.academy.BuildConfig.VERSION_NAME} — алгебра, физика и химия 9–11 классов с ИИ-репетитором.")
                     Text("Формулы: KaTeX (офлайн). ИИ: Anthropic, OpenAI, Gemini, OpenRouter, DeepSeek и любые OpenAI-совместимые серверы.", style = MaterialTheme.typography.bodySmall)
                 }
             }
@@ -204,5 +205,68 @@ fun SwitchRow(title: String, checked: Boolean, onChange: (Boolean) -> Unit) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Text(title, modifier = Modifier.weight(1f))
         Switch(checked, onChange)
+    }
+}
+
+/** Сохранение прогресса в файл и восстановление — на случай переустановки или нового телефона. */
+@Composable
+private fun ProgressBackupCard() {
+    val c = LocalContainer.current
+    val scope = rememberCoroutineScope()
+    var status by remember { mutableStateOf<String?>(null) }
+    var busy by remember { mutableStateOf(false) }
+    var pendingRestore by remember { mutableStateOf<android.net.Uri?>(null) }
+
+    val save = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri ->
+        if (uri != null) scope.launch {
+            busy = true
+            status = try {
+                c.backup.export(uri); "Прогресс сохранён в файл"
+            } catch (e: Exception) {
+                "Не удалось сохранить: ${e.message}"
+            }
+            busy = false
+        }
+    }
+    val open = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> pendingRestore = uri }
+
+    InfoCard("Прогресс") {
+        Text(
+            "Обновления ставятся поверх приложения, и прогресс сохраняется сам. " +
+                "Файл нужен, если переустанавливаешь приложение или переходишь на другой телефон.",
+            style = MaterialTheme.typography.bodySmall,
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
+            OutlinedButton(onClick = { save.launch(com.neuron.academy.data.ProgressBackup.fileName()) }, enabled = !busy) { Text("Сохранить в файл") }
+            OutlinedButton(onClick = { open.launch(arrayOf("*/*")) }, enabled = !busy) { Text("Восстановить") }
+        }
+        status?.let { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 6.dp)) }
+        Text("API-ключи в файл не попадают: для них есть экспорт в «Настройках ИИ».", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+
+    pendingRestore?.let { uri ->
+        AlertDialog(
+            onDismissRequest = { pendingRestore = null },
+            title = { Text("Восстановить прогресс?") },
+            text = { Text("Текущий прогресс на этом телефоне заменится прогрессом из файла. Приложение перезапустится.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    pendingRestore = null
+                    scope.launch {
+                        busy = true
+                        try {
+                            c.backup.import(uri)
+                            c.backup.restartApp()
+                        } catch (e: Exception) {
+                            // если база уже была закрыта для замены — перезапуск вернёт приложение в рабочее состояние
+                            if (!c.db.isOpen) c.backup.restartApp()
+                            status = e.message ?: "Не удалось восстановить"
+                            busy = false
+                        }
+                    }
+                }) { Text("Восстановить") }
+            },
+            dismissButton = { TextButton(onClick = { pendingRestore = null }) { Text("Отмена") } },
+        )
     }
 }

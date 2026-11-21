@@ -12,6 +12,8 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      HAS_RELEASE_KEY: ${{ secrets.NEURON_KEYSTORE_PASSWORD != '' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -27,6 +29,8 @@ jobs:
           curl -fsSL --max-time 30 -o app/src/main/assets/certs/russian_trusted_sub_ca.crt https://gu-st.ru/content/lending/russian_trusted_sub_ca_pem.crt || rm -f app/src/main/assets/certs/russian_trusted_sub_ca.crt
           ls -la app/src/main/assets/certs
       - name: Build release APK
+        env:
+          NEURON_KEYSTORE_PASSWORD: ${{ secrets.NEURON_KEYSTORE_PASSWORD }}
         run: |
           chmod +x gradlew
           ./gradlew :app:assembleRelease --stacktrace
@@ -35,7 +39,9 @@ jobs:
         with:
           name: NeuronAcademy-apk
           path: app/build/outputs/apk/release/*.apk
+      # APK публикуется только с постоянной подписью: иначе он не встанет поверх установленной версии
       - name: Commit APK to branch
+        if: env.HAS_RELEASE_KEY == 'true'
         run: |
           mkdir -p dist
           cp app/build/outputs/apk/release/app-release.apk dist/NeuronAcademy.apk
@@ -44,3 +50,6 @@ jobs:
           git add -f dist/NeuronAcademy.apk
           git commit -m "Собранный APK [skip ci]" || exit 0
           git push
+      - name: Нет секрета с паролем ключа
+        if: env.HAS_RELEASE_KEY != 'true'
+        run: echo "::warning::Секрет NEURON_KEYSTORE_PASSWORD не задан. Код собран, но APK не опубликован в dist/, потому что подписан временным ключом."

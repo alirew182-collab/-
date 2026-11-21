@@ -16,18 +16,36 @@ android {
         applicationId = "com.neuron.academy"
         minSdk = 26
         targetSdk = 34
-        versionCode = 9
-        versionName = "2.5"
+        versionCode = 10
+        versionName = "2.6"
         // Встроенная модель работает на 64-битных устройствах
         ndk { abiFilters += listOf("arm64-v8a", "x86_64") }
+    }
+
+    // Постоянный ключ подписи: одна и та же подпись у всех версий, поэтому новая версия
+    // ставится поверх старой как обновление и прогресс сохраняется.
+    // Файл ключа зашифрован; пароль берётся из секрета GitHub NEURON_KEYSTORE_PASSWORD.
+    val releasePassword = System.getenv("NEURON_KEYSTORE_PASSWORD").orEmpty()
+    val releaseKeystore = file("neuron-release.p12")
+    signingConfigs {
+        create("release") {
+            storeFile = releaseKeystore
+            storeType = "PKCS12"
+            storePassword = releasePassword
+            keyAlias = "neuron"
+            keyPassword = releasePassword
+        }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
-            // Для удобной установки релизная сборка подписывается debug-ключом.
-            // Для публикации замените на собственный signingConfig.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = if (releasePassword.isNotEmpty() && releaseKeystore.exists()) {
+                signingConfigs.getByName("release")
+            } else {
+                logger.warn("NEURON_KEYSTORE_PASSWORD не задан: сборка подписана временным debug-ключом и не встанет поверх установленной версии")
+                signingConfigs.getByName("debug")
+            }
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }

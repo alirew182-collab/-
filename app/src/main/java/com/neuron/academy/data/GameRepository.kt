@@ -301,6 +301,24 @@ class GameRepository(
         }
     }
 
+    /** Восстановление данных игрока из прошлой версии. Значения только увеличиваются. */
+    suspend fun restorePlayer(level: Int?, crystals: Int?, streak: Int?, guardiansAdded: Int, bossesAdded: Int): RewardOutcome = reward {
+        val p = current()
+        val xp = maxOf(p.xp, level?.let { LevelSystem.xpForLevel(it) } ?: 0)
+        val s = maxOf(p.streak, streak ?: 0)
+        dao.upsert(
+            p.copy(
+                xp = xp,
+                crystals = maxOf(p.crystals, crystals ?: 0),
+                streak = s, bestStreak = maxOf(p.bestStreak, s),
+                lastActiveDay = if ((streak ?: 0) > p.streak) today() else p.lastActiveDay,
+                guardiansDefeated = p.guardiansDefeated + guardiansAdded,
+                bossesDefeated = p.bossesDefeated + bossesAdded,
+            ),
+        )
+        RewardOutcome(message = "Прогресс восстановлен")
+    }
+
     // ======================== внутреннее ========================
 
     private suspend fun reward(block: suspend () -> RewardOutcome): RewardOutcome {

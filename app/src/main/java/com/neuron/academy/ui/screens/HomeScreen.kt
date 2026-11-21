@@ -118,6 +118,7 @@ fun HomeScreen(nav: NavHostController) {
             item { PlayerStatsBar(player) }
             item { NeuronBubble(vm.greeting, player.skin) }
             item { InstallAiCard { nav.navigate(Routes.KEYS) } }
+            if (ls.completedTopicIds.isEmpty()) item { RestoreHintCard { nav.navigate(Routes.RESTORE) } }
             item { ContinueCard(ls) { nav.navigate(Routes.topic(it)) } }
             item {
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -141,6 +142,18 @@ fun HomeScreen(nav: NavHostController) {
             }
             item { Spacer(Modifier.height(8.dp)) }
         }
+    }
+}
+
+/** Пока ничего не пройдено — предлагаем перенести прогресс из прошлой версии. */
+@Composable
+private fun RestoreHintCard(onOpen: () -> Unit) {
+    Panel(onClick = onOpen) {
+        Eyebrow("Уже занимался раньше")
+        Spacer(Modifier.height(4.dp))
+        Text("Перенеси прогресс из прошлой версии", style = MaterialTheme.typography.titleMedium)
+        Spacer(Modifier.height(4.dp))
+        Text("Опиши словами, где остановился, или покажи скриншоты — Нейрон отметит пройденные темы.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 

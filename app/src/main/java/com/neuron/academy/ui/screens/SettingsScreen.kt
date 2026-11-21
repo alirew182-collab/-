@@ -127,7 +127,7 @@ fun SettingsScreen(nav: NavHostController) {
                     Text("Нейрон пишет дружелюбно и без давления", style = MaterialTheme.typography.bodySmall)
                 }
             }
-            item { ProgressBackupCard() }
+            item { ProgressBackupCard(nav) }
             item {
                 InfoCard("Обучение") {
                     Text("Порог завершения класса: ${(threshold * 100).toInt()}% тем по каждому предмету + итоговые экзамены")
@@ -210,7 +210,7 @@ fun SwitchRow(title: String, checked: Boolean, onChange: (Boolean) -> Unit) {
 
 /** Сохранение прогресса в файл и восстановление — на случай переустановки или нового телефона. */
 @Composable
-private fun ProgressBackupCard() {
+private fun ProgressBackupCard(nav: NavHostController) {
     val c = LocalContainer.current
     val scope = rememberCoroutineScope()
     var status by remember { mutableStateOf<String?>(null) }
@@ -240,6 +240,7 @@ private fun ProgressBackupCard() {
             OutlinedButton(onClick = { save.launch(com.neuron.academy.data.ProgressBackup.fileName()) }, enabled = !busy) { Text("Сохранить в файл") }
             OutlinedButton(onClick = { open.launch(arrayOf("*/*")) }, enabled = !busy) { Text("Восстановить") }
         }
+        TextButton(onClick = { nav.navigate(Routes.RESTORE) }, contentPadding = PaddingValues(0.dp)) { Text("Перенести прогресс из старой версии") }
         status?.let { Text(it, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 6.dp)) }
         Text("API-ключи в файл не попадают: для них есть экспорт в «Настройках ИИ».", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }

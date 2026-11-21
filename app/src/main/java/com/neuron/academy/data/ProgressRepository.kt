@@ -1,5 +1,6 @@
 package com.neuron.academy.data
 
+import com.neuron.academy.content.Curriculum
 import com.neuron.academy.content.Subject
 import com.neuron.academy.content.Topic
 import com.neuron.academy.data.db.ExamEntity
@@ -107,6 +108,47 @@ class ProgressRepository(
 
     suspend fun recordResult(kind: String, subject: Subject, grade: Int, topicId: String?, correct: Int, total: Int) {
         dao.insertResult(TestResultEntity(topicId = topicId, subject = subject.key, grade = grade, kind = kind, correct = correct, total = total))
+    }
+
+    /**
+     * Восстановление прогресса из прошлой версии: отмечает первые темы пройденными, стражей
+     * пройденных разделов и боссов — побеждёнными, открывает классы. Прогресс только добавляется.
+     * @return сколько стражей и боссов добавлено (для счётчиков игрока).
+     */
+    suspend fun restore(items: List<SubjectGradeRestore>): Pair<Int, Int> {
+        val now = System.currentTimeMillis()
+        var guardians = 0
+        var bosses = 0
+        suspend fun pass(id: String, subject: Subject, grade: Int): Boolean {
+            val old = dao.getExam(id)
+            if (old?.passed == true) return false
+            dao.upsertExam(ExamEntity(id, subject.key, grade, true, maxOf(old?.bestScore ?: 0f, 0.8f), (old?.attempts ?: 0) + 1, now))
+            return true
+        }
+        items.forEach { r ->
+            val topics = Curriculum.topicsFor(r.subject, r.grade)
+            val n = if (r.bossBeaten) topics.size else r.completed.coerceIn(0, topics.size)
+            topics.take(n).forEach { t ->
+                val old = dao.getTopic(t.id)
+                if (old?.completed != true) {
+                    dao.upsertTopic(
+                        (old ?: TopicProgressEntity(t.id)).copy(
+                            theoryRead = true, completed = true,
+                            bestScore = maxOf(old?.bestScore ?: 0f, 0.8f),
+                            completedAt = old?.completedAt ?: now, lastReviewedAt = now,
+                        ),
+                    )
+                }
+            }
+            // страж раздела st побеждён, если ученик ушёл дальше этого раздела
+            for (st in 1..Curriculum.guardianCount(r.subject, r.grade)) {
+                if ((n > st * Curriculum.BLOCK || r.bossBeaten) && pass(UnlockEngine.examId(r.subject, r.grade, st), r.subject, r.grade)) guardians++
+            }
+            if (r.bossBeaten && pass(UnlockEngine.examId(r.subject, r.grade), r.subject, r.grade)) bosses++
+            if (n > 0) Curriculum.grades.filter { it <= r.grade }.forEach { dao.unlockGrade(UnlockedGradeEntity(it)) }
+        }
+        syncUnlockedGrades()
+        return guardians to bosses
     }
 
     /** Фиксирует открытые классы в базе, чтобы изменение порога не закрывало их обратно. */

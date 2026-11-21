@@ -19,6 +19,8 @@ enum class LocalModel(
     /** Модель с рекуррентным состоянием: на каждый запрос нужен новый движок (особенность рантайма). */
     val freshEngine: Boolean,
     val contextTokens: Int,
+    /** Модель понимает картинки (скриншоты). */
+    val vision: Boolean = false,
 ) {
     MINI(
         "qwen3.5-0.8b",
@@ -34,7 +36,7 @@ enum class LocalModel(
         "Новая модель Google для телефонов: заметно умнее в математике и объяснениях, отвечает быстро благодаря видеокарте.",
         "https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/2d74ac41a33d7da82f39f7d5720a04c68514a103/gemma-4-E2B-it.litertlm",
         "gemma-4-e2b-it.litertlm",
-        2_588_147_712L, 6, gpu = true, freshEngine = false, contextTokens = 8192,
+        2_588_147_712L, 6, gpu = true, freshEngine = false, contextTokens = 8192, vision = true,
     ),
     GEMMA_E4B(
         "gemma4-e4b",
@@ -42,7 +44,7 @@ enum class LocalModel(
         "Самая умная встроенная модель: сложные задачи, подробные решения. Для мощных телефонов.",
         "https://huggingface.co/litert-community/gemma-4-E4B-it-litert-lm/resolve/f254b5ba6e36f7d89cc7892e268e9877bc20f0a0/gemma-4-E4B-it.litertlm",
         "gemma-4-e4b-it.litertlm",
-        3_659_530_240L, 8, gpu = true, freshEngine = false, contextTokens = 8192,
+        3_659_530_240L, 8, gpu = true, freshEngine = false, contextTokens = 8192, vision = true,
     );
 
     val sizeLabel: String get() = "%.1f ГБ".format(sizeBytes / 1_000_000_000.0)

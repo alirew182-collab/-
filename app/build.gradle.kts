@@ -16,8 +16,8 @@ android {
         applicationId = "com.neuron.academy"
         minSdk = 26
         targetSdk = 34
-        versionCode = 10
-        versionName = "2.6"
+        versionCode = 11
+        versionName = "2.7"
         // Встроенная модель работает на 64-битных устройствах
         ndk { abiFilters += listOf("arm64-v8a", "x86_64") }
     }

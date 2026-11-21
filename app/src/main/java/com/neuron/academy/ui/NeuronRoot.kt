@@ -41,6 +41,7 @@ import com.neuron.academy.data.db.PlayerEntity
 import com.neuron.academy.ui.components.RewardHost
 import com.neuron.academy.ui.screens.BlitzScreen
 import com.neuron.academy.ui.screens.ChatScreen
+import com.neuron.academy.ui.screens.RestoreScreen
 import com.neuron.academy.ui.screens.ChemMixScreen
 import com.neuron.academy.ui.screens.CollectionScreen
 import com.neuron.academy.ui.screens.DailyScreen
@@ -77,6 +78,7 @@ object Routes {
     const val SHOP = "shop"
     const val SETTINGS = "settings"
     const val KEYS = "keys"
+    const val RESTORE = "restore"
     fun world(s: Subject) = "world/${s.key}"
     fun topic(id: String) = "topic/$id"
     fun exam(s: Subject, grade: Int, stage: Int = 0) = "exam/${s.key}/$grade/$stage"
@@ -195,6 +197,7 @@ fun NeuronRoot(c: AppContainer, deepLink: String? = null, onDeepLinkHandled: () 
                     composable(Routes.SHOP) { ShopScreen(nav) }
                     composable(Routes.SETTINGS) { SettingsScreen(nav) }
                     composable(Routes.KEYS) { KeysScreen(nav) }
+                    composable(Routes.RESTORE) { RestoreScreen(nav) }
                     composable("key_edit/{id}", listOf(navArgument("id") { type = NavType.StringType })) {
                         KeyEditScreen(nav, it.arguments?.getString("id") ?: "new")
                     }

@@ -5,6 +5,7 @@ import android.app.DownloadManager
 import android.content.Context
 import android.net.Uri
 import com.google.ai.edge.litertlm.Backend
+import com.google.ai.edge.litertlm.Content
 import com.google.ai.edge.litertlm.Contents
 import com.google.ai.edge.litertlm.ConversationConfig
 import com.google.ai.edge.litertlm.Engine
@@ -327,6 +328,65 @@ class OnDeviceLlm(private val context: Context) {
             } finally {
                 // у моделей с рекуррентным состоянием каждый запрос — на чистом движке
                 if (m.freshEngine) releaseEngine()
+            }
+        }
+    }
+
+    /** Понимает ли активная модель картинки и готова ли она. */
+    val canSeeImages: Boolean get() = _active.value.vision && isActiveReady
+
+    /**
+     * Запрос с картинками (например, скриншотами). Для него нужен отдельный движок с модулем
+     * зрения, поэтому обычный движок на время выгружается из памяти.
+     */
+    suspend fun completeWithImages(system: String, prompt: String, images: List<File>): String = withContext(Dispatchers.Default) {
+        val m = _active.value
+        if (!isReady(m)) throw AiException(AiErrorKind.BAD_REQUEST, null, "Встроенный ИИ ещё не скачан")
+        if (!m.vision) throw AiException(AiErrorKind.BAD_REQUEST, null, "«${m.title}» не умеет читать картинки. Выбери модель Gemma 4 в «Настройках ИИ»")
+        engineMutex.withLock {
+            releaseEngine()
+            _engineState.value = EngineState.Loading
+            val cacheDir = File(context.cacheDir, "litertlm").apply { mkdirs() }.absolutePath
+            fun create(gpu: Boolean): Engine {
+                val b = if (gpu) Backend.GPU() else Backend.CPU()
+                val e = Engine(
+                    EngineConfig(
+                        modelPath = file(m).absolutePath, backend = b, visionBackend = if (gpu) Backend.GPU() else Backend.CPU(),
+                        maxNumTokens = m.contextTokens, maxNumImages = images.size.coerceAtLeast(1), cacheDir = cacheDir,
+                    ),
+                )
+                try { e.initialize() } catch (t: Throwable) { runCatching { e.close() }; throw t }
+                return e
+            }
+            val useGpu = m.gpu && _useGpu.value && !prefs.getBoolean("gpu_failed_${m.id}", false)
+            val eng = try {
+                if (useGpu) runCatching { create(true) }.getOrElse { create(false) } else create(false)
+            } catch (e: Throwable) {
+                _engineState.value = EngineState.Idle
+                throw AiException(AiErrorKind.SERVER, null, "Не удалось запустить распознавание картинок: ${e.message ?: e.javaClass.simpleName}")
+            }
+            try {
+                val cfg = ConversationConfig(
+                    systemInstruction = Contents.of(system),
+                    samplerConfig = SamplerConfig(topK = 20, topP = 0.9, temperature = 0.2),
+                    maxOutputToken = 1024,
+                )
+                eng.createConversation(cfg).use { conv ->
+                    val parts = listOf<Content>(Content.Text(prompt)) + images.map { Content.ImageFile(it.absolutePath) }
+                    val sb = StringBuilder()
+                    try {
+                        conv.sendMessageAsync(Contents.of(parts)).collect { sb.append(it.toString()) }
+                    } catch (e: CancellationException) {
+                        runCatching { conv.cancelProcess() }
+                        throw e
+                    } catch (e: Throwable) {
+                        if (sb.isBlank()) throw AiException(AiErrorKind.SERVER, null, "Ошибка распознавания: ${e.message ?: e.javaClass.simpleName}")
+                    }
+                    clean(sb.toString()).ifBlank { throw AiException(AiErrorKind.PARSE, null, "Модель вернула пустой ответ") }
+                }
+            } finally {
+                runCatching { eng.close() }
+                _engineState.value = EngineState.Idle
             }
         }
     }

@@ -224,6 +224,34 @@ class TutorAi(private val router: AiRouter) {
             ),
         )
 
+    // ---------- перенос прогресса из прошлой версии ----------
+
+    private fun restoreSystem(): String = buildString {
+        append("Ты помогаешь перенести прогресс ученика из старой версии приложения «Нейрон: Академия» (алгебра, физика, химия, 9–11 классы). ")
+        append("Твоя задача — извлечь факты о прогрессе и вернуть их строго в формате JSON.\n\n")
+        append(com.neuron.academy.data.RestoreParser.FORMAT)
+    }
+
+    /** Разбирает описание прогресса словами («алгебра 9 класс — дошёл до квадратных уравнений…»). */
+    suspend fun restoreFromText(description: String): String =
+        router.complete(
+            AiFeature.CHAT,
+            AiRequest(restoreSystem(), listOf(AiMessage(AiMessage.Role.USER, "Описание ученика:\n$description")), maxTokens = 1024, temperature = 0.1),
+        ).text
+
+    val canReadScreenshots: Boolean get() = router.canSeeImages
+
+    /** Распознаёт прогресс по скриншотам старой версии (карта тем, профиль). */
+    suspend fun restoreFromScreenshots(images: List<java.io.File>): String =
+        router.completeWithImages(
+            restoreSystem(),
+            "Это скриншоты из старой версии приложения. На карте предмета пройденные темы отмечены галочкой или звездой и процентом, " +
+                "открытая тема — номером в кружке, закрытые — замком. В профиле и на главном экране видны уровень, XP, кристаллы и серия дней. " +
+                "Определи по каждому предмету и классу, который виден на скриншотах, последнюю пройденную тему (точное название с экрана), " +
+                "и уровень, кристаллы и серию, если они видны.",
+            images,
+        )
+
     private suspend fun ask(feature: AiFeature, grade: Int, completed: List<String>, prompt: String, temperature: Double = 0.7, maxTokens: Int = 1500): String =
         router.complete(
             feature,

@@ -40,6 +40,12 @@ class AiRouter(
         return AiResult(text, "Встроенный ИИ", local.active.value.title, System.currentTimeMillis() - started)
     }
 
+    /** Можно ли распознавать картинки (встроенная Gemma 4). */
+    val canSeeImages: Boolean get() = local.canSeeImages
+
+    suspend fun completeWithImages(system: String, prompt: String, images: List<java.io.File>): String =
+        local.completeWithImages(system, prompt, images)
+
     /** Порядок ключей для конкретной функции. */
     fun orderedKeys(feature: AiFeature): List<ApiKeyConfig> {
         val active = keyStore.keys.value.filter { it.enabled }.sortedByDescending { it.priority }

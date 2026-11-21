@@ -50,6 +50,16 @@ jobs:
           git add -f dist/NeuronAcademy.apk
           git commit -m "Собранный APK [skip ci]" || exit 0
           git push
+      # Без секрета APK кладётся в dist/pending/: его переподписывают постоянным ключом вручную,
+      # а в dist/NeuronAcademy.apk попадает только сборка с постоянной подписью.
       - name: Нет секрета с паролем ключа
         if: env.HAS_RELEASE_KEY != 'true'
-        run: echo "::warning::Секрет NEURON_KEYSTORE_PASSWORD не задан. Код собран, но APK не опубликован в dist/, потому что подписан временным ключом."
+        run: |
+          echo "::warning::Секрет NEURON_KEYSTORE_PASSWORD не задан. APK подписан временным ключом и положен в dist/pending/ для переподписи."
+          mkdir -p dist/pending
+          cp app/build/outputs/apk/release/app-release.apk dist/pending/NeuronAcademy-tempkey.apk
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f dist/pending/NeuronAcademy-tempkey.apk
+          git commit -m "APK с временной подписью для переподписи [skip ci]" || exit 0
+          git push

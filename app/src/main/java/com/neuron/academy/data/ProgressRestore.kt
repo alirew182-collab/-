@@ -87,8 +87,15 @@ object RestoreParser {
         val topics = Curriculum.topicsFor(subject, grade)
         val scored = topics.mapIndexed { i, t ->
             val have = words(t.title)
-            val common = want.count { w -> have.any { h -> h.startsWith(w.take(5)) || w.startsWith(h.take(5)) } }
-            i to common.toDouble() / maxOf(want.size, have.size)
+            // точное слово весит больше, чем общее начало: «квадратные» ≠ «квадратичная»
+            val common = want.sumOf { w ->
+                when {
+                    w in have -> 1.0
+                    have.any { h -> h.startsWith(w.take(5)) || w.startsWith(h.take(5)) } -> 0.6
+                    else -> 0.0
+                }
+            }
+            i to common / maxOf(want.size, have.size)
         }
         val best = scored.maxByOrNull { it.second } ?: return null
         return best.first.takeIf { best.second >= 0.34 }

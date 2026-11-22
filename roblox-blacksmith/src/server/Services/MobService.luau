@@ -131,7 +131,11 @@ local function buildModel(def: any): Model
 	root.Name = "HumanoidRootPart"
 	root.Size = def.Size
 	root.Color = def.Color
-	root.Material = Enum.Material.SmoothPlastic
+	-- стад-стиль: пластик с шипами на всех гранях
+	root.Material = Enum.Material.Plastic
+	for _, surfaceName in { "TopSurface", "BottomSurface", "FrontSurface", "BackSurface", "LeftSurface", "RightSurface" } do
+		(root :: any)[surfaceName] = Enum.SurfaceType.Studs
+	end
 	root.CanCollide = false
 	root.Parent = model
 

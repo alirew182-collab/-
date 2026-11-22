@@ -173,7 +173,9 @@ function buildVisual(weapon: Types.WeaponData): (Instance?, BasePart?)
 		local ore = Config.Ores[weapon.Ore]
 		local part = Instance.new("Part")
 		part.Size = def.Size
-		part.Material = Enum.Material.Metal
+		part.Material = Enum.Material.Plastic -- стад-стиль: пластик с узором Weld
+		part.TopSurface = Enum.SurfaceType.Weld
+		part.BottomSurface = Enum.SurfaceType.Weld
 		part.Color = if ore then ore.Color else Color3.new(0.7, 0.7, 0.7)
 		root = part
 		primary = part

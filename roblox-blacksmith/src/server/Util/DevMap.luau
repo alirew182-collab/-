@@ -41,7 +41,8 @@ local function block(name: string, size: Vector3, position: Vector3, color: Colo
 	p.Position = position
 	p.Anchored = true
 	p.Color = color
-	p.Material = Enum.Material.SmoothPlastic
+	p.Material = Enum.Material.Plastic
+	p.TopSurface = Enum.SurfaceType.Studs
 	if tag then
 		CollectionService:AddTag(p, tag)
 	end

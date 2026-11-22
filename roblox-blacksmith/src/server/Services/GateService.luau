@@ -19,6 +19,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local Format = require(ReplicatedStorage.Shared.Format)
 local Char = require(script.Parent.Parent.Util.Char)
 local Prompts = require(script.Parent.Parent.Util.Prompts)
+local Stud = require(script.Parent.Parent.World.Stud)
 local DataService = require(script.Parent.DataService)
 local EconomyService = require(script.Parent.EconomyService)
 local LevelService = require(script.Parent.LevelService)
@@ -103,40 +104,48 @@ local function collectSpawns(root: Instance, name: string): { CFrame }
 	return list
 end
 
+-- Запасная арена в стад-стиле: каменный пол со светлой серединой, ярусные стены, жаровни по углам
 local function buildFallbackArena(origin: Vector3): Instance
 	local size = G.Arena.FallbackSize
 	local model = Instance.new("Model")
 	model.Name = "FallbackArena"
+	local SC = Stud.Color
 
-	local function part(name: string, partSize: Vector3, cf: CFrame, color: Color3, material: Enum.Material, transparency: number?)
-		local p = Instance.new("Part")
-		p.Name = name
-		p.Size = partSize
-		p.CFrame = cf
-		p.Anchored = true
-		p.Color = color
-		p.Material = material
-		p.Transparency = transparency or 0
-		p.Parent = model
-		return p
+	Stud.brick(model, Vector3.new(size, 2, size), CFrame.new(origin), SC.StoneDark, { Name = "Floor" })
+	Stud.brick(model, Vector3.new(size - 24, 0.4, size - 24), CFrame.new(origin + Vector3.new(0, 1.2, 0)), SC.Stone, { Pattern = "StudsNoGrid" })
+	local half = size / 2
+	for _, side in {
+		{ Vector3.new(0, 0, -half), Vector3.new(size, 0, 4) },
+		{ Vector3.new(0, 0, half), Vector3.new(size, 0, 4) },
+		{ Vector3.new(half, 0, 0), Vector3.new(4, 0, size) },
+		{ Vector3.new(-half, 0, 0), Vector3.new(4, 0, size) },
+	} do
+		local at, span = side[1], side[2]
+		Stud.brick(model, Vector3.new(span.X, 10, span.Z), CFrame.new(origin + at + Vector3.new(0, 6, 0)), SC.StoneDark)
+		Stud.brick(model, Vector3.new(span.X * 0.98 + 0.1, 6, span.Z * 0.6 + 0.1), CFrame.new(origin + at + Vector3.new(0, 14, 0)), SC.Stone)
+		Stud.brick(model, Vector3.new(span.X + 0.6, 0.6, span.Z * 0.6 + 0.8), CFrame.new(origin + at + Vector3.new(0, 17.3, 0)), SC.StoneLight, { Pattern = "StudsNoGrid" })
+	end
+	-- жаровни по углам: единственный светящийся акцент арены
+	for _, cx in { -1, 1 } do
+		for _, cz in { -1, 1 } do
+			local p = origin + Vector3.new(cx * (half - 8), 1, cz * (half - 8))
+			Stud.brick(model, Vector3.new(3, 3, 3), CFrame.new(p + Vector3.new(0, 1.5, 0)), SC.Iron, { Pattern = "Weld" })
+			local fire = Stud.brick(model, Vector3.new(2, 0.4, 2), CFrame.new(p + Vector3.new(0, 3.2, 0)), SC.Ember, { Neon = true, Collide = false })
+			local l = Instance.new("PointLight")
+			l.Color = Color3.fromRGB(255, 150, 70)
+			l.Range = 30
+			l.Brightness = 2
+			l.Parent = fire
+		end
 	end
 
-	part("Floor", Vector3.new(size, 2, size), CFrame.new(origin), Color3.fromRGB(45, 35, 40), Enum.Material.Basalt)
-	local h = 16
-	local wallColor = Color3.fromRGB(60, 140, 255)
-	part("WallN", Vector3.new(size, h, 2), CFrame.new(origin + Vector3.new(0, h / 2, -size / 2)), wallColor, Enum.Material.ForceField, 0.2)
-	part("WallS", Vector3.new(size, h, 2), CFrame.new(origin + Vector3.new(0, h / 2, size / 2)), wallColor, Enum.Material.ForceField, 0.2)
-	part("WallE", Vector3.new(2, h, size), CFrame.new(origin + Vector3.new(size / 2, h / 2, 0)), wallColor, Enum.Material.ForceField, 0.2)
-	part("WallW", Vector3.new(2, h, size), CFrame.new(origin + Vector3.new(-size / 2, h / 2, 0)), wallColor, Enum.Material.ForceField, 0.2)
-
-	local spawnColor = Color3.new(1, 1, 1)
 	for i = 1, 4 do
 		local x = (i - 2.5) * 6
-		part("PlayerSpawn", Vector3.new(2, 1, 2), CFrame.new(origin + Vector3.new(x, 1.5, size / 2 - 15)), spawnColor, Enum.Material.Neon)
+		Stud.brick(model, Vector3.new(2, 1, 2), CFrame.new(origin + Vector3.new(x, 1.5, half - 15)), SC.White, { Name = "PlayerSpawn" })
 	end
 	for i = 1, 6 do
 		local x = (i - 3.5) * 14
-		part("MobSpawn", Vector3.new(2, 1, 2), CFrame.new(origin + Vector3.new(x, 1.5, -size / 2 + 20)), spawnColor, Enum.Material.Neon)
+		Stud.brick(model, Vector3.new(2, 1, 2), CFrame.new(origin + Vector3.new(x, 1.5, -half + 20)), SC.White, { Name = "MobSpawn" })
 	end
 	return model
 end

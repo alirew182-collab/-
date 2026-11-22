@@ -228,9 +228,20 @@ function LeaderboardService:Start()
 			end
 		end
 	end)
+	-- Roblox даёт BindToClose ~30 с на всё. Сохраняем всех параллельно и ждём не дольше 20 с,
+	-- чтобы осталось время ProfileStore (sharp edge SE-6 из roblox-game-skill)
 	game:BindToClose(function()
+		local pending = 0
 		for _, player in Players:GetPlayers() do
-			save(player)
+			pending += 1
+			task.spawn(function()
+				save(player)
+				pending -= 1
+			end)
+		end
+		local deadline = os.clock() + 20
+		while pending > 0 and os.clock() < deadline do
+			task.wait(0.1)
 		end
 	end)
 end

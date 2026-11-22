@@ -59,7 +59,7 @@ local function spawnPoint(zone: any): Vector3
 		local r = rng:NextNumber(12, zone.Radius * 0.8)
 		local x, z = zone.Center.X + math.cos(angle) * r, zone.Center.Z + math.sin(angle) * r
 		local y = WorldBuilder.GroundAt(x, z)
-		if y < 8 then
+		if y < 1.5 then -- не на вершинах холмов: оттуда мобу не слезть
 			return Vector3.new(x, y + 3, z)
 		end
 	end

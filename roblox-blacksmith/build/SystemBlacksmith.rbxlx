@@ -1,4 +1,4 @@
-<roblox version="4"><Item class="Workspace" referent="RBX0000005C"><Properties><string name="Name">Workspace</string><bool name="StreamingEnabled">true</bool></Properties></Item><Item class="ReplicatedStorage" referent="RBX0000005D"><Properties><string name="Name">ReplicatedStorage</string></Properties><Item class="Folder" referent="RBX0000001D"><Properties><string name="Name">Shared</string></Properties><Item class="ModuleScript" referent="RBX00000015"><Properties><string name="Name">Config</string><ProtectedString name="Source"><![CDATA[--!strict
+<roblox version="4"><Item class="Workspace" referent="RBX0000005D"><Properties><string name="Name">Workspace</string><bool name="StreamingEnabled">true</bool></Properties></Item><Item class="ReplicatedStorage" referent="RBX0000005E"><Properties><string name="Name">ReplicatedStorage</string></Properties><Item class="Folder" referent="RBX0000001D"><Properties><string name="Name">Shared</string></Properties><Item class="ModuleScript" referent="RBX00000015"><Properties><string name="Name">Config</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ЕДИНАЯ ТОЧКА ВХОДА В БАЛАНС.
 	Все числа игры — в соседних модулях этой папки. Код читает их только через Config.
@@ -1250,6 +1250,10 @@ local World = {
 		MinDamageShare = 0.03, -- нанёс хотя бы 3% HP — получаешь награду
 	},
 
+	-- Шахматная текстура поверх травы (стад-стиль): rbxassetid картинки 2×2 в шашку.
+	-- Загрузи свою или возьми из Creator Store. Пусто = без текстуры.
+	CheckerTextureId = "",
+
 	Lighting = {
 		ClockTime = 14.5,
 		Brightness = 2.2,
@@ -2476,7 +2480,7 @@ function WeaponMath.MaxHealth(level: number): number
 end
 
 return WeaponMath
-]]></ProtectedString></Properties></Item></Item></Item><Item class="ServerScriptService" referent="RBX0000005E"><Properties><string name="Name">ServerScriptService</string></Properties><Item class="Script" referent="RBX00000042"><Properties><string name="Name">Server</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item></Item></Item><Item class="ServerScriptService" referent="RBX0000005F"><Properties><string name="Name">ServerScriptService</string></Properties><Item class="Script" referent="RBX00000043"><Properties><string name="Name">Server</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ТОЧКА ВХОДА СЕРВЕРА.
 	Порядок: все сервисы → :Init() (создают свои папки/Remote) → :Start() (подписки, циклы).
@@ -3780,6 +3784,7 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local Format = require(ReplicatedStorage.Shared.Format)
 local Char = require(script.Parent.Parent.Util.Char)
 local Prompts = require(script.Parent.Parent.Util.Prompts)
+local Stud = require(script.Parent.Parent.World.Stud)
 local DataService = require(script.Parent.DataService)
 local EconomyService = require(script.Parent.EconomyService)
 local LevelService = require(script.Parent.LevelService)
@@ -3864,40 +3869,48 @@ local function collectSpawns(root: Instance, name: string): { CFrame }
 	return list
 end
 
+-- Запасная арена в стад-стиле: каменный пол со светлой серединой, ярусные стены, жаровни по углам
 local function buildFallbackArena(origin: Vector3): Instance
 	local size = G.Arena.FallbackSize
 	local model = Instance.new("Model")
 	model.Name = "FallbackArena"
+	local SC = Stud.Color
 
-	local function part(name: string, partSize: Vector3, cf: CFrame, color: Color3, material: Enum.Material, transparency: number?)
-		local p = Instance.new("Part")
-		p.Name = name
-		p.Size = partSize
-		p.CFrame = cf
-		p.Anchored = true
-		p.Color = color
-		p.Material = material
-		p.Transparency = transparency or 0
-		p.Parent = model
-		return p
+	Stud.brick(model, Vector3.new(size, 2, size), CFrame.new(origin), SC.StoneDark, { Name = "Floor" })
+	Stud.brick(model, Vector3.new(size - 24, 0.4, size - 24), CFrame.new(origin + Vector3.new(0, 1.2, 0)), SC.Stone, { Pattern = "StudsNoGrid" })
+	local half = size / 2
+	for _, side in {
+		{ Vector3.new(0, 0, -half), Vector3.new(size, 0, 4) },
+		{ Vector3.new(0, 0, half), Vector3.new(size, 0, 4) },
+		{ Vector3.new(half, 0, 0), Vector3.new(4, 0, size) },
+		{ Vector3.new(-half, 0, 0), Vector3.new(4, 0, size) },
+	} do
+		local at, span = side[1], side[2]
+		Stud.brick(model, Vector3.new(span.X, 10, span.Z), CFrame.new(origin + at + Vector3.new(0, 6, 0)), SC.StoneDark)
+		Stud.brick(model, Vector3.new(span.X * 0.98 + 0.1, 6, span.Z * 0.6 + 0.1), CFrame.new(origin + at + Vector3.new(0, 14, 0)), SC.Stone)
+		Stud.brick(model, Vector3.new(span.X + 0.6, 0.6, span.Z * 0.6 + 0.8), CFrame.new(origin + at + Vector3.new(0, 17.3, 0)), SC.StoneLight, { Pattern = "StudsNoGrid" })
+	end
+	-- жаровни по углам: единственный светящийся акцент арены
+	for _, cx in { -1, 1 } do
+		for _, cz in { -1, 1 } do
+			local p = origin + Vector3.new(cx * (half - 8), 1, cz * (half - 8))
+			Stud.brick(model, Vector3.new(3, 3, 3), CFrame.new(p + Vector3.new(0, 1.5, 0)), SC.Iron, { Pattern = "Weld" })
+			local fire = Stud.brick(model, Vector3.new(2, 0.4, 2), CFrame.new(p + Vector3.new(0, 3.2, 0)), SC.Ember, { Neon = true, Collide = false })
+			local l = Instance.new("PointLight")
+			l.Color = Color3.fromRGB(255, 150, 70)
+			l.Range = 30
+			l.Brightness = 2
+			l.Parent = fire
+		end
 	end
 
-	part("Floor", Vector3.new(size, 2, size), CFrame.new(origin), Color3.fromRGB(45, 35, 40), Enum.Material.Basalt)
-	local h = 16
-	local wallColor = Color3.fromRGB(60, 140, 255)
-	part("WallN", Vector3.new(size, h, 2), CFrame.new(origin + Vector3.new(0, h / 2, -size / 2)), wallColor, Enum.Material.ForceField, 0.2)
-	part("WallS", Vector3.new(size, h, 2), CFrame.new(origin + Vector3.new(0, h / 2, size / 2)), wallColor, Enum.Material.ForceField, 0.2)
-	part("WallE", Vector3.new(2, h, size), CFrame.new(origin + Vector3.new(size / 2, h / 2, 0)), wallColor, Enum.Material.ForceField, 0.2)
-	part("WallW", Vector3.new(2, h, size), CFrame.new(origin + Vector3.new(-size / 2, h / 2, 0)), wallColor, Enum.Material.ForceField, 0.2)
-
-	local spawnColor = Color3.new(1, 1, 1)
 	for i = 1, 4 do
 		local x = (i - 2.5) * 6
-		part("PlayerSpawn", Vector3.new(2, 1, 2), CFrame.new(origin + Vector3.new(x, 1.5, size / 2 - 15)), spawnColor, Enum.Material.Neon)
+		Stud.brick(model, Vector3.new(2, 1, 2), CFrame.new(origin + Vector3.new(x, 1.5, half - 15)), SC.White, { Name = "PlayerSpawn" })
 	end
 	for i = 1, 6 do
 		local x = (i - 3.5) * 14
-		part("MobSpawn", Vector3.new(2, 1, 2), CFrame.new(origin + Vector3.new(x, 1.5, -size / 2 + 20)), spawnColor, Enum.Material.Neon)
+		Stud.brick(model, Vector3.new(2, 1, 2), CFrame.new(origin + Vector3.new(x, 1.5, -half + 20)), SC.White, { Name = "MobSpawn" })
 	end
 	return model
 end
@@ -4800,7 +4813,9 @@ function buildVisual(weapon: Types.WeaponData): (Instance?, BasePart?)
 		local ore = Config.Ores[weapon.Ore]
 		local part = Instance.new("Part")
 		part.Size = def.Size
-		part.Material = Enum.Material.Metal
+		part.Material = Enum.Material.Plastic -- стад-стиль: пластик с узором Weld
+		part.TopSurface = Enum.SurfaceType.Weld
+		part.BottomSurface = Enum.SurfaceType.Weld
 		part.Color = if ore then ore.Color else Color3.new(0.7, 0.7, 0.7)
 		root = part
 		primary = part
@@ -5181,9 +5196,20 @@ function LeaderboardService:Start()
 			end
 		end
 	end)
+	-- Roblox даёт BindToClose ~30 с на всё. Сохраняем всех параллельно и ждём не дольше 20 с,
+	-- чтобы осталось время ProfileStore (sharp edge SE-6 из roblox-game-skill)
 	game:BindToClose(function()
+		local pending = 0
 		for _, player in Players:GetPlayers() do
-			save(player)
+			pending += 1
+			task.spawn(function()
+				save(player)
+				pending -= 1
+			end)
+		end
+		local deadline = os.clock() + 20
+		while pending > 0 and os.clock() < deadline do
+			task.wait(0.1)
 		end
 	end)
 end
@@ -5774,7 +5800,11 @@ local function buildModel(def: any): Model
 	root.Name = "HumanoidRootPart"
 	root.Size = def.Size
 	root.Color = def.Color
-	root.Material = Enum.Material.SmoothPlastic
+	-- стад-стиль: пластик с шипами на всех гранях
+	root.Material = Enum.Material.Plastic
+	for _, surfaceName in { "TopSurface", "BottomSurface", "FrontSurface", "BackSurface", "LeftSurface", "RightSurface" } do
+		(root :: any)[surfaceName] = Enum.SurfaceType.Studs
+	end
 	root.CanCollide = false
 	root.Parent = model
 
@@ -7499,7 +7529,7 @@ local function spawnPoint(zone: any): Vector3
 		local r = rng:NextNumber(12, zone.Radius * 0.8)
 		local x, z = zone.Center.X + math.cos(angle) * r, zone.Center.Z + math.sin(angle) * r
 		local y = WorldBuilder.GroundAt(x, z)
-		if y < 8 then
+		if y < 1.5 then -- не на вершинах холмов: оттуда мобу не слезть
 			return Vector3.new(x, y + 3, z)
 		end
 	end
@@ -7741,7 +7771,8 @@ local function block(name: string, size: Vector3, position: Vector3, color: Colo
 	p.Position = position
 	p.Anchored = true
 	p.Color = color
-	p.Material = Enum.Material.SmoothPlastic
+	p.Material = Enum.Material.Plastic
+	p.TopSurface = Enum.SurfaceType.Studs
 	if tag then
 		CollectionService:AddTag(p, tag)
 	end
@@ -8049,20 +8080,181 @@ function Proximity.AnchorPart(instance: Instance): BasePart?
 end
 
 return Proximity
-]]></ProtectedString></Properties></Item></Item><Item class="Folder" referent="RBX00000041"><Properties><string name="Name">World</string></Properties><Item class="ModuleScript" referent="RBX00000040"><Properties><string name="Name">WorldBuilder</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item></Item><Item class="Folder" referent="RBX00000042"><Properties><string name="Name">World</string></Properties><Item class="ModuleScript" referent="RBX00000040"><Properties><string name="Name">Stud</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
-	ГЕНЕРАТОР МИРА (Terrain + постройки из Part).
-	Строится один раз при старте сервера, если в карте нет своих объектов с тегом OreNode.
-	Детерминированный (Config.World.Seed) — мир одинаковый на всех серверах.
+	СТАД-СТИЛЬ: одна функция brick() для всех деталей мира (правила скилла Studify, RoClicks).
 
-	Что строится:
-	  • Угольный Оплот (город): площадь, фонтан с Кристаллом Системы, кузня, лавка торговца,
-	    доски лидеров, фонари, деревья, точка появления.
-	  • Медные холмы, Карьер Железный Клык, Грот лунного серебра — жилы руды + мобы.
-	  • Равнина Врат — точки появления порталов с каменными кругами.
-	  • Дороги, озеро, горы по краю карты и невидимые стены.
-	Деталей ~400 — нормально для слабых телефонов. Все модели — со своими тегами,
-	так что любую можно заменить своей моделью с тем же тегом.
+	• Материал всегда Plastic. Узор шипов на всех гранях задаётся по РОЛИ детали:
+	    Universal   — большие заливки: земля, плиты, массивы холмов
+	    StudsNoGrid — крыши, полы, шапки травы (в фолбэке без вариантов → Studs)
+	    Weld        — конструкции: столбы, перила, рамы, ящики
+	    Studs       — стены и акценты
+	  Если в MaterialService есть варианты с этими именами — используются они (рендер сильнее),
+	  иначе узор ставится через SurfaceType на каждую грань.
+	• Neon — только акцент (свечение руды, горна, порталов, кристалла Системы), без узора.
+	• Камни: узор Inlet только сверху, бока гладкие.
+	• Детали меньше 0.5 во всех измерениях — чистый пластик без узора.
+	• Защита от мерцания совпадающих граней: каждая деталь чуть больше заданного размера
+	  (от 0.0002 до 0.02, по счётчику), поэтому у соседей грани никогда не совпадают в одной
+	  плоскости, а стыки всегда «утоплены» друг в друга, а не разъезжаются щелью.
+]]
+
+local MaterialService = game:GetService("MaterialService")
+
+local Stud = {}
+
+local VARIANTS = { "Universal", "StudsNoGrid", "Weld", "Studs" }
+local hasVariant: { [string]: boolean } = {}
+for _, name in VARIANTS do
+	hasVariant[name] = MaterialService:FindFirstChild(name, true) ~= nil
+end
+Stud.UsingVariants = hasVariant.Universal == true
+
+local counter = 0
+
+export type Options = {
+	Pattern: string?, -- Universal | StudsNoGrid | Weld | Studs
+	Class: string?, -- Part | WedgePart | CornerWedgePart
+	Name: string?,
+	Neon: boolean?,
+	Rock: boolean?,
+	Collide: boolean?,
+	Transparency: number?,
+	Shadow: boolean?,
+	Shape: Enum.PartType?,
+}
+
+local function surfaceFor(pattern: string): Enum.SurfaceType
+	if pattern == "Weld" then
+		return Enum.SurfaceType.Weld
+	elseif pattern == "Universal" then
+		return Enum.SurfaceType.Universal
+	end
+	return Enum.SurfaceType.Studs -- Studs и StudsNoGrid
+end
+
+local function setAllSurfaces(p: BasePart, surface: Enum.SurfaceType)
+	p.TopSurface = surface
+	p.BottomSurface = surface
+	p.FrontSurface = surface
+	p.BackSurface = surface
+	p.LeftSurface = surface
+	p.RightSurface = surface
+end
+
+function Stud.brick(parent: Instance, size: Vector3, cframe: CFrame, color: Color3, options: Options?): BasePart
+	local o: Options = options or {}
+	local p = Instance.new(o.Class or "Part") :: BasePart
+	if o.Shape and p:IsA("Part") then
+		(p :: Part).Shape = o.Shape
+	end
+	counter += 1
+	local eps = ((counter % 97) + 1) * 0.0002
+	p.Size = size + Vector3.new(eps, eps, eps)
+	p.CFrame = cframe
+	p.Color = color
+	p.Anchored = true
+	p.CanCollide = if o.Collide == nil then true else o.Collide
+	if o.Collide == false then
+		p.CanQuery = false
+		p.CanTouch = false
+	end
+	if o.Transparency then
+		p.Transparency = o.Transparency
+	end
+	if o.Shadow == false then
+		p.CastShadow = false
+	end
+	if o.Name then
+		p.Name = o.Name
+	end
+
+	local tiny = size.X < 0.5 and size.Y < 0.5 and size.Z < 0.5
+	if o.Neon then
+		p.Material = Enum.Material.Neon
+		setAllSurfaces(p, Enum.SurfaceType.Smooth)
+	elseif tiny then
+		p.Material = Enum.Material.Plastic
+		setAllSurfaces(p, Enum.SurfaceType.Smooth)
+	elseif o.Rock then
+		p.Material = Enum.Material.Plastic
+		setAllSurfaces(p, Enum.SurfaceType.Smooth)
+		p.TopSurface = Enum.SurfaceType.Inlet
+	else
+		p.Material = Enum.Material.Plastic
+		local pattern = o.Pattern or "Universal"
+		if hasVariant[pattern] then
+			p.MaterialVariant = pattern
+			setAllSurfaces(p, Enum.SurfaceType.Smooth)
+		else
+			setAllSurfaces(p, surfaceFor(pattern))
+			p.BottomSurface = Enum.SurfaceType.Inlet
+		end
+	end
+	p.Parent = parent
+	return p
+end
+
+function Stud.model(name: string, parent: Instance): Model
+	local m = Instance.new("Model")
+	m.Name = name
+	m.Parent = parent
+	return m
+end
+
+-- Палитра стад-стиля (пастель, «солнечный» свет). Земля — лососевая, камень — лавандовый.
+Stud.Color = {
+	Grass = Color3.fromRGB(126, 179, 60),
+	GrassDark = Color3.fromRGB(84, 165, 59),
+	GrassBright = Color3.fromRGB(113, 206, 42),
+	Tuft = Color3.fromRGB(77, 150, 54),
+	Dirt = Color3.fromRGB(207, 109, 76),
+	DirtRose = Color3.fromRGB(218, 120, 110),
+	DirtDeep = Color3.fromRGB(176, 92, 88),
+	Coral = Color3.fromRGB(232, 126, 120),
+	CoralDark = Color3.fromRGB(218, 110, 108),
+	Sand = Color3.fromRGB(236, 208, 150),
+	Peach = Color3.fromRGB(243, 180, 128),
+	PeachDark = Color3.fromRGB(230, 160, 110),
+	Stone = Color3.fromRGB(150, 158, 218),
+	StoneDark = Color3.fromRGB(122, 128, 194),
+	StoneLight = Color3.fromRGB(180, 186, 236),
+	Wood = Color3.fromRGB(165, 105, 62),
+	WoodDark = Color3.fromRGB(136, 83, 52),
+	Water = Color3.fromRGB(64, 200, 240),
+	Snow = Color3.fromRGB(236, 244, 255),
+	Frost = Color3.fromRGB(190, 222, 250),
+	Ice = Color3.fromRGB(160, 210, 250),
+	Red = Color3.fromRGB(226, 72, 72),
+	White = Color3.fromRGB(250, 248, 244),
+	Gold = Color3.fromRGB(250, 196, 60),
+	Blue = Color3.fromRGB(2, 106, 175),
+	Roof = Color3.fromRGB(196, 72, 62),
+	RoofDark = Color3.fromRGB(160, 56, 52),
+	Iron = Color3.fromRGB(96, 100, 112),
+	Ember = Color3.fromRGB(255, 136, 40),
+	SystemBlue = Color3.fromRGB(88, 190, 255),
+}
+
+return Stud
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000041"><Properties><string name="Name">WorldBuilder</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	ГЕНЕРАТОР МИРА В СТАД-СТИЛЕ (правила скилла Studify, RoClicks).
+	Всё из деталей Plastic с узором шипов, без Terrain и без гладких материалов.
+	Строится один раз при старте сервера, если в карте нет своих объектов с тегом OreNode.
+	Детерминированный (Config.World.Seed): одинаковый мир на всех серверах.
+
+	Раскладка (не менялась с прошлых этапов, это наш согласованный блок-аут):
+	  Угольный Оплот (0, 0)        — площадь, фонтан с Кристаллом Системы, кузня, лавка, доски, Торговый ряд
+	  Медные холмы (-200, 20)      — холмы из лососевой земли с травяными шапками, деревья, медь
+	  Карьер Железный Клык (10,-210) — лавандовый камень, каменное кольцо с проходом, вагонетки, железо
+	  Грот лунного серебра (210,-10) — зимний рескин: снег, морозные ели, ледяные кристаллы, лунное серебро
+	  Равнина Врат (0, 210)        — каменные площадки для порталов
+	  Озеро (130, 125), дорожки из плиток, кольцо плато по краю карты.
+
+	Контракты с игровыми сервисами (теги и имена) те же, что раньше: Forge, Merchant, Leaderboard,
+	GateSpawn, OreNode (+OreId), ShopStall (+Slot, Counter, Pedestal1..3, Owner), Spin.
+	Все детали мира — пустые для игроков визуально, кроме того, что в папке Ground (по ней ходят).
 ]]
 
 local CollectionService = game:GetService("CollectionService")
@@ -8070,25 +8262,34 @@ local Lighting = game:GetService("Lighting")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config)
+local Stud = require(script.Parent.Stud)
 
 local W = Config.World
 local T = Config.Tags
+local C = Stud.Color
+local brick = Stud.brick
+local model = Stud.model
 
 local WorldBuilder = {}
 
 WorldBuilder.Built = false -- true, если мир построен кодом (зоны совпадают с Config.World)
 
-local terrain = workspace.Terrain
 local rng = Random.new(W.Seed)
 local root: Folder
+local ground: Folder -- всё, по чему ходят (для GroundAt)
 
-local M = Enum.Material
+local function deg(d: number): number
+	return math.rad(d)
+end
 
--- ===== Помощники =====
+local function yaw15(): number
+	return deg(15 * rng:NextInteger(0, 23))
+end
+
+-- ===== Земля =====
 
 local rayParams = RaycastParams.new()
 rayParams.FilterType = Enum.RaycastFilterType.Include
-rayParams.FilterDescendantsInstances = { terrain }
 
 local function groundAt(x: number, z: number): number
 	local hit = workspace:Raycast(Vector3.new(x, 250, z), Vector3.new(0, -500, 0), rayParams)
@@ -8099,36 +8300,83 @@ local function groundPos(x: number, z: number): Vector3
 	return Vector3.new(x, groundAt(x, z), z)
 end
 
-local function part(parent: Instance, props: { [string]: any }): Part
-	local p = Instance.new("Part")
-	p.Anchored = true
-	p.TopSurface = Enum.SurfaceType.Smooth
-	p.BottomSurface = Enum.SurfaceType.Smooth
-	-- порядок важен: форма → размер → остальное → позиция
-	if props.Shape then
-		p.Shape = props.Shape
-	end
-	if props.Size then
-		p.Size = props.Size
-	end
-	for key, value in props do
-		if key ~= "Shape" and key ~= "Size" and key ~= "CFrame" then
-			(p :: any)[key] = value
+-- Круг из горизонтальных полос: ступенчатый контур вместо гладкого (стиль «всё террасами»)
+local function disc(parent: Instance, cx: number, cz: number, radius: number, bottom: number, thick: number, color: Color3, options: Stud.Options?)
+	local strips = math.max(6, math.floor(radius / 6))
+	local band = 2 * radius / strips
+	for i = 0, strips - 1 do
+		local zc = -radius + band * (i + 0.5)
+		local half = math.floor(math.sqrt(math.max(0, radius * radius - zc * zc)) / 2) * 2
+		if half >= 2 then
+			brick(parent, Vector3.new(half * 2, thick, band), CFrame.new(cx, bottom + thick / 2, cz + zc), color, options)
 		end
 	end
-	if props.CFrame then
-		p.CFrame = props.CFrame
-	end
-	p.Parent = parent
-	return p
 end
 
-local function model(name: string, parent: Instance): Model
-	local m = Instance.new("Model")
-	m.Name = name
-	m.Parent = parent
-	return m
+local function inDisc(x: number, z: number, cx: number, cz: number, r: number): boolean
+	return (x - cx) ^ 2 + (z - cz) ^ 2 <= r * r
 end
+
+-- ===== Торговый ряд: координаты =====
+
+local MARKET_X0 = 48
+local MARKET_STEP = 14
+local MARKET_ROW_A = 44 -- прилавки смотрят на +Z
+local MARKET_ROW_B = 76 -- прилавки смотрят на −Z
+local PLAZA_R = 30
+
+local function inMarket(x: number, z: number): boolean
+	return x > MARKET_X0 - 12 and x < MARKET_X0 + MARKET_STEP * 8 + 4 and z > MARKET_ROW_A - 10 and z < MARKET_ROW_B + 10
+end
+
+local function nearRoad(x: number, z: number, width: number): boolean
+	for _, zone in W.Zones do
+		if zone.Id ~= "Town" then
+			local dir = Vector3.new(zone.Center.X, 0, zone.Center.Z)
+			local len = dir.Magnitude
+			local unit = dir.Unit
+			local point = Vector3.new(x, 0, z)
+			local t = math.clamp(point:Dot(unit), 0, len)
+			if (point - unit * t).Magnitude < width then
+				return true
+			end
+		end
+	end
+	return false
+end
+
+-- Занятые места: разные объекты не должны пересекаться (дерево не растёт сквозь кузню)
+local reserved: { { X: number, Z: number, R: number } } = {}
+
+local function reserve(x: number, z: number, r: number)
+	table.insert(reserved, { X = x, Z = z, R = r })
+end
+
+local function free(x: number, z: number, r: number): boolean
+	for _, o in reserved do
+		if (o.X - x) ^ 2 + (o.Z - z) ^ 2 < (o.R + r) ^ 2 then
+			return false
+		end
+	end
+	return true
+end
+
+-- свободно и не на дороге/рынке; при успехе место занимается
+local function claim(x: number, z: number, r: number, roadGap: number): boolean
+	if not free(x, z, r) or inMarket(x, z) or nearRoad(x, z, roadGap) then
+		return false
+	end
+	reserve(x, z, r)
+	return true
+end
+
+local function randomInZone(zone: any, minR: number, maxR: number): (number, number)
+	local angle = rng:NextNumber(0, math.pi * 2)
+	local r = rng:NextNumber(minR, maxR)
+	return zone.Center.X + math.cos(angle) * r, zone.Center.Z + math.sin(angle) * r
+end
+
+-- ===== Мелкие помощники =====
 
 local function light(parent: BasePart, color: Color3, range: number, brightness: number)
 	local l = Instance.new("PointLight")
@@ -8139,215 +8387,246 @@ local function light(parent: BasePart, color: Color3, range: number, brightness:
 	l.Parent = parent
 end
 
--- Подпись над зданием (вместо эмодзи). Текст переводит клиент по атрибуту LocKey.
+-- Подпись над зданием. Текст переводит клиент по атрибуту LocKey.
 local function sign(parent: BasePart, locKey: string, height: number)
 	local gui = Instance.new("BillboardGui")
-	gui.Size = UDim2.fromOffset(160, 32)
+	gui.Size = UDim2.fromOffset(180, 36)
 	gui.StudsOffsetWorldSpace = Vector3.new(0, height, 0)
 	gui.MaxDistance = 140
 	gui.LightInfluence = 0
-	gui.AlwaysOnTop = false
 	local label = Instance.new("TextLabel")
 	label.Size = UDim2.fromScale(1, 1)
 	label.BackgroundTransparency = 1
 	label.TextScaled = true
-	label.Font = Enum.Font.GothamMedium
+	label.Font = Enum.Font.GothamBold
 	label.Text = locKey
 	label:SetAttribute("LocKey", locKey)
-	label.TextColor3 = Color3.fromRGB(239, 233, 222)
-	label.TextStrokeColor3 = Color3.fromRGB(18, 17, 15)
-	label.TextStrokeTransparency = 0.4
+	label.TextColor3 = C.White
+	label.TextStrokeColor3 = Color3.fromRGB(40, 30, 30)
+	label.TextStrokeTransparency = 0.2
 	label.Parent = gui
 	gui.Parent = parent
 end
 
--- Торговый ряд: два ряда прилавков вдоль улицы (Z = MARKET_STREET_Z)
-local MARKET_X0 = 48
-local MARKET_STEP = 14
-local MARKET_ROW_A = 44 -- прилавки смотрят на +Z
-local MARKET_ROW_B = 76 -- прилавки смотрят на −Z
-local MARKET_STREET_Z = 60
-
-local function inMarket(x: number, z: number): boolean
-	return x > MARKET_X0 - 14 and x < MARKET_X0 + MARKET_STEP * 8 + 6 and z > MARKET_ROW_A - 12 and z < MARKET_ROW_B + 12
-end
-
-local function randomInZone(zone: any, minR: number, maxR: number): (number, number)
-	local angle = rng:NextNumber(0, math.pi * 2)
-	local r = rng:NextNumber(minR, maxR)
-	return zone.Center.X + math.cos(angle) * r, zone.Center.Z + math.sin(angle) * r
-end
-
--- ===== Terrain =====
-
-local function buildTerrain()
-	local size = W.Size
-	local Z = W.Zones
-
-	-- основа: камень снизу, трава сверху (верх земли = Y 0)
-	terrain:FillBlock(CFrame.new(0, -26, 0), Vector3.new(size, 12, size), M.Rock)
-	terrain:FillBlock(CFrame.new(0, -10, 0), Vector3.new(size, 20, size), M.Grass)
-
-	-- дороги из города в каждую зону
-	for _, zone in Z do
-		if zone.Id ~= "Town" then
-			local from = Vector3.new(0, -1, 0)
-			local to = Vector3.new(zone.Center.X, -1, zone.Center.Z)
-			local length = (to - from).Magnitude
-			local mid = (from + to) / 2
-			terrain:FillBlock(CFrame.lookAt(mid, to), Vector3.new(10, 2, length), M.Ground)
-		end
-	end
-
-	-- Торговый ряд: мощёная улица и дорожка от площади
-	terrain:FillBlock(
-		CFrame.new((MARKET_X0 + MARKET_X0 + MARKET_STEP * 7) / 2, -1, MARKET_STREET_Z),
-		Vector3.new(MARKET_STEP * 8 + 12, 2, MARKET_ROW_B - MARKET_ROW_A + 16),
-		M.Cobblestone
-	)
-	terrain:FillBlock(CFrame.lookAt(Vector3.new(20, -1, 30), Vector3.new(MARKET_X0, -1, MARKET_STREET_Z)), Vector3.new(8, 2, 60), M.Cobblestone)
-
-	-- город: мощёная площадь
-	terrain:FillCylinder(CFrame.new(0, -1, 0), 2, 40, M.Cobblestone)
-
-	-- Медные холмы: холмы и проплешины земли
-	local copper = Z.CopperHills
-	for _ = 1, 9 do
-		local x, z = randomInZone(copper, 25, copper.Radius * 0.95)
-		local r = rng:NextNumber(14, 26)
-		terrain:FillBall(Vector3.new(x, -r * 0.6, z), r, M.Grass)
-	end
-	for _ = 1, 6 do
-		local x, z = randomInZone(copper, 0, copper.Radius * 0.8)
-		terrain:FillCylinder(CFrame.new(x, -1, z), 2.2, rng:NextNumber(8, 16), M.Ground)
-	end
-
-	-- Карьер: сланцевый пол, скальное кольцо с проходом к городу, каменные столбы
-	local quarry = Z.IronQuarry
-	terrain:FillCylinder(CFrame.new(quarry.Center.X, -1, quarry.Center.Z), 2.2, quarry.Radius * 0.85, M.Slate)
-	local toTown = math.atan2(-quarry.Center.Z, -quarry.Center.X)
-	for i = 0, 23 do
-		local angle = i / 24 * math.pi * 2
-		local diff = math.abs(math.atan2(math.sin(angle - toTown), math.cos(angle - toTown)))
-		if diff > 0.35 then -- проход в сторону города
-			local r = rng:NextNumber(11, 17)
-			local dist = quarry.Radius * 0.85 + 4
-			terrain:FillBall(
-				Vector3.new(quarry.Center.X + math.cos(angle) * dist, -2, quarry.Center.Z + math.sin(angle) * dist),
-				r,
-				M.Rock
-			)
-		end
-	end
-	for _ = 1, 6 do
-		local x, z = randomInZone(quarry, 20, quarry.Radius * 0.65)
-		terrain:FillBall(Vector3.new(x, -3, z), rng:NextNumber(5, 9), M.Basalt)
-	end
-
-	-- Грот: снег, ледяные глыбы
-	local grotto = Z.MoonGrotto
-	terrain:FillCylinder(CFrame.new(grotto.Center.X, -1, grotto.Center.Z), 2.2, grotto.Radius * 0.9, M.Snow)
-	for _ = 1, 10 do
-		local x, z = randomInZone(grotto, 25, grotto.Radius * 0.95)
-		local r = rng:NextNumber(6, 13)
-		terrain:FillBall(Vector3.new(x, -r * 0.3, z), r, M.Glacier)
-	end
-
-	-- Равнина Врат: густая трава
-	local plains = Z.GatePlains
-	terrain:FillCylinder(CFrame.new(plains.Center.X, -1, plains.Center.Z), 2.2, plains.Radius * 0.9, M.LeafyGrass)
-
-	-- озеро между городом, гротом и равниной
-	local lake = Vector3.new(130, 0, 125)
-	terrain:FillCylinder(CFrame.new(lake.X, -1, lake.Z), 2.2, 38, M.Sand)
-	terrain:FillCylinder(CFrame.new(lake.X, -5, lake.Z), 10, 31, M.Air)
-	terrain:FillCylinder(CFrame.new(lake.X, -6.5, lake.Z), 7, 31, M.Water)
-
-	-- горы по краю карты
-	local half = size / 2
-	local step = 34
-	local edge = -half
-	while edge <= half do
-		for _, pos in {
-			Vector3.new(edge, 0, -half),
-			Vector3.new(edge, 0, half),
-			Vector3.new(-half, 0, edge),
-			Vector3.new(half, 0, edge),
-		} do
-			local r = rng:NextNumber(32, 46)
-			terrain:FillBall(Vector3.new(pos.X, rng:NextNumber(0, 8), pos.Z), r, M.Rock)
-			if rng:NextNumber() < 0.5 then
-				terrain:FillBall(Vector3.new(pos.X, r * 0.75, pos.Z), r * 0.35, M.Snow)
-			end
-		end
-		edge += step
-	end
+-- Ориентация «лицом» (локальная −Z) к точке, с шагом 15°
+local function facing(pos: Vector3, target: Vector3): CFrame
+	local d = target - pos
+	local yaw = math.atan2(-d.X, -d.Z)
+	yaw = math.rad(math.floor(math.deg(yaw) / 15 + 0.5) * 15)
+	return CFrame.new(pos) * CFrame.Angles(0, yaw, 0)
 end
 
 -- ===== Природа =====
 
-local function tree(parent: Instance, position: Vector3, scale: number, leafColor: Color3)
-	local m = model("Tree", parent)
-	local height = 9 * scale
-	part(m, {
-		Name = "Trunk",
-		Size = Vector3.new(1.6 * scale, height, 1.6 * scale),
-		CFrame = CFrame.new(position + Vector3.new(0, height / 2 - 0.5, 0)),
-		Material = M.Wood,
-		Color = Color3.fromRGB(105, 70, 45),
-	})
-	part(m, {
-		Name = "Leaves",
-		Shape = Enum.PartType.Ball,
-		Size = Vector3.one * (10 * scale),
-		CFrame = CFrame.new(position + Vector3.new(0, height + 2 * scale, 0)),
-		Material = M.Grass,
-		Color = leafColor,
-		CastShadow = true,
-	})
+-- Пучок травы: 3-4 травинки веером с наклоном 15°
+local function tuft(parent: Instance, pos: Vector3)
+	local m = model("Tuft", parent)
+	local n = rng:NextInteger(3, 4)
+	local base = yaw15()
+	for i = 1, n do
+		local h = rng:NextNumber(0.8, 1.5)
+		local lean = if i % 2 == 0 then 15 else -15
+		brick(
+			m,
+			Vector3.new(0.3, h, 0.3),
+			CFrame.new(pos) * CFrame.Angles(0, base + deg(i * 60), 0) * CFrame.Angles(deg(lean), 0, 0) * CFrame.new(0, h / 2, 0),
+			C.Tuft,
+			{ Pattern = "Studs", Collide = false, Shadow = false }
+		)
+	end
 end
 
-local function crystal(parent: Instance, position: Vector3, height: number, color: Color3)
-	part(parent, {
-		Name = "Crystal",
-		Size = Vector3.new(height * 0.35, height, height * 0.35),
-		CFrame = CFrame.new(position + Vector3.new(0, height * 0.4, 0))
-			* CFrame.Angles(rng:NextNumber(-0.3, 0.3), rng:NextNumber(0, math.pi), rng:NextNumber(-0.3, 0.3)),
-		Material = M.Neon,
-		Color = color,
-		CanCollide = false,
-		CastShadow = false,
-	})
+-- Плоский цветок «плюсом»: серединка и 4 лепестка
+local function flower(parent: Instance, pos: Vector3, petal: Color3)
+	local m = model("Flower", parent)
+	local y = pos.Y + 0.15
+	brick(m, Vector3.new(0.6, 0.3, 0.6), CFrame.new(pos.X, y + 0.05, pos.Z), C.Gold, { Collide = false, Shadow = false })
+	for _, o in { Vector3.new(0.6, 0, 0), Vector3.new(-0.6, 0, 0), Vector3.new(0, 0, 0.6), Vector3.new(0, 0, -0.6) } do
+		brick(m, Vector3.new(0.6, 0.3, 0.6), CFrame.new(pos.X + o.X, y, pos.Z + o.Z), petal, { Collide = false, Shadow = false })
+	end
+end
+
+local FLOWER_COLORS = { C.Red, C.White, Color3.fromRGB(240, 120, 200), Color3.fromRGB(140, 120, 255) }
+
+local function scatter(parent: Instance, zone: any, minR: number, maxR: number, tufts: number, flowers: number)
+	for _ = 1, tufts do
+		local x, z = randomInZone(zone, minR, maxR)
+		if not nearRoad(x, z, 6) and not inMarket(x, z) and free(x, z, 1) then
+			tuft(parent, groundPos(x, z))
+		end
+	end
+	for _ = 1, flowers do
+		local x, z = randomInZone(zone, minR, maxR)
+		if not nearRoad(x, z, 6) and not inMarket(x, z) and free(x, z, 1) then
+			flower(parent, groundPos(x, z), FLOWER_COLORS[rng:NextInteger(1, #FLOWER_COLORS)])
+		end
+	end
+end
+
+-- Дерево-«блоб» (воксельная сфера на высоком коралловом стволе, корни растут из ствола)
+local function blobTree(parent: Instance, pos: Vector3, scale: number, leaf: Color3, leaf2: Color3)
+	local m = model("Tree", parent)
+	local trunkH = 9 * scale
+	local segH = trunkH / 4
+	local tw = 2.8 * scale
+	for i = 0, 3 do
+		local off = if i % 2 == 0 then 0.2 else -0.2
+		brick(
+			m,
+			Vector3.new(tw, segH + 0.3, tw),
+			CFrame.new(pos + Vector3.new(off, segH * (i + 0.5), -off)),
+			if i % 2 == 0 then C.Coral else C.CoralDark,
+			{ Pattern = "Weld" }
+		)
+	end
+	-- корни: из боковины ствола на высоте ~2 вниз под 45°, с «носком» на земле
+	for i = 1, 3 do
+		local a = deg(120 * i + 30)
+		local dir = Vector3.new(math.cos(a), 0, math.sin(a))
+		local start = pos + dir * (tw / 2) + Vector3.new(0, 2, 0)
+		local toe = pos + dir * (tw / 2 + 1.8) + Vector3.new(0, 0.3, 0)
+		local mid = (start + toe) / 2
+		brick(m, Vector3.new(1, 1, (start - toe).Magnitude + 0.4), CFrame.lookAt(mid, toe), C.CoralDark, { Pattern = "Weld", Collide = false })
+		brick(m, Vector3.new(1.4, 0.6, 1.4), CFrame.new(toe), C.Coral, { Pattern = "Weld", Collide = false })
+	end
+	-- крона: 6 ярусов по округлому профилю + выступы
+	local maxW = 10 * scale
+	local profile = { 0.55, 0.85, 1.0, 0.95, 0.75, 0.45 }
+	local y0 = pos.Y + trunkH - 1
+	for i, k in profile do
+		local w = maxW * k
+		local cy = y0 + (i - 0.5) * 1.6 * scale
+		local jx, jz = rng:NextNumber(-0.8, 0.8), rng:NextNumber(-0.8, 0.8)
+		brick(m, Vector3.new(w, 1.6 * scale, w), CFrame.new(pos.X + jx, cy, pos.Z + jz), leaf, { Pattern = "StudsNoGrid", Collide = false })
+		if i >= 2 and i <= 5 then
+			for _ = 1, 2 do
+				local a = rng:NextNumber(0, math.pi * 2)
+				local b = rng:NextNumber(1.6, 2.8) * scale
+				local r = w / 2
+				brick(
+					m,
+					Vector3.new(b, b * 0.8, b),
+					CFrame.new(pos.X + jx + math.cos(a) * r, cy, pos.Z + jz + math.sin(a) * r),
+					if rng:NextNumber() < 0.4 then leaf2 else leaf,
+					{ Pattern = "StudsNoGrid", Collide = false }
+				)
+			end
+		end
+	end
+	-- ветка: три звена, каждое поднимается круче и уходит в низ кроны
+	local p = pos + Vector3.new(tw / 2, trunkH * 0.6, 0)
+	local dir = Vector3.new(1, 0.4, 0.2).Unit
+	for i = 1, 3 do
+		local nextP = p + dir * (1.8 * scale)
+		brick(
+			m,
+			Vector3.new(0.9 - i * 0.15, 0.9 - i * 0.15, (nextP - p).Magnitude + 0.3),
+			CFrame.lookAt((p + nextP) / 2, nextP),
+			if i % 2 == 0 then C.Coral else C.CoralDark,
+			{ Pattern = "Weld", Collide = false }
+		)
+		p = nextP
+		dir = (dir + Vector3.new(0, 0.45, 0)).Unit
+	end
+	m.PrimaryPart = m:FindFirstChildWhichIsA("BasePart")
+end
+
+-- Ярусная ель (зимний рескин): ярусы 8,5,7,4,5,2 по центру ствола, снежные шапки
+local function pineTree(parent: Instance, pos: Vector3, scale: number)
+	local m = model("FrostPine", parent)
+	local trunkH = 3 * scale
+	brick(m, Vector3.new(1.6 * scale, trunkH, 1.6 * scale), CFrame.new(pos + Vector3.new(0, trunkH / 2, 0)), C.WoodDark, { Pattern = "Weld" })
+	local widths = { 8, 5, 7, 4, 5, 2 }
+	local y = pos.Y + trunkH
+	for i, w in widths do
+		local ww = w * scale
+		local h = 1.4 * scale
+		brick(m, Vector3.new(ww, h, ww), CFrame.new(pos.X, y + h / 2, pos.Z), if i % 2 == 0 then C.Frost else C.Ice, { Pattern = "StudsNoGrid", Collide = i == 1 })
+		brick(m, Vector3.new(ww * 0.8, 0.3, ww * 0.8), CFrame.new(pos.X, y + h + 0.15, pos.Z), C.Snow, { Pattern = "StudsNoGrid", Collide = false })
+		y += h
+	end
+end
+
+-- Камень: 2-3 плиты с разным поворотом на 15°, узор Inlet только сверху
+local function rock(parent: Instance, pos: Vector3, scale: number, tones: { Color3 }): Model
+	local m = model("Rock", parent)
+	local n = rng:NextInteger(2, 3)
+	local y = pos.Y
+	for i = 1, n do
+		local w = rng:NextNumber(2.6, 4.2) * scale * (1 - (i - 1) * 0.25)
+		local h = rng:NextNumber(1.2, 2) * scale
+		local d = rng:NextNumber(2.4, 3.8) * scale * (1 - (i - 1) * 0.25)
+		brick(
+			m,
+			Vector3.new(w, h, d),
+			CFrame.new(pos.X + rng:NextNumber(-0.4, 0.4), y + h / 2, pos.Z + rng:NextNumber(-0.4, 0.4)) * CFrame.Angles(0, yaw15(), 0),
+			tones[rng:NextInteger(1, #tones)],
+			{ Rock = true }
+		)
+		y += h * 0.85
+	end
+	m.PrimaryPart = m:FindFirstChildWhichIsA("BasePart")
+	return m
+end
+
+-- Холм: 2-4 перекрывающихся блока земли с травяными шапками (растёт из земли, а не лежит на ней)
+local function hill(parent: Instance, pos: Vector3)
+	local m = model("Hill", parent)
+	local n = rng:NextInteger(2, 4)
+	for i = 1, n do
+		local w = rng:NextNumber(12, 26)
+		local d = rng:NextNumber(10, 22)
+		local h = rng:NextNumber(3, 8) * (if i == 1 then 1.2 else 0.8)
+		local yaw = deg(15 * rng:NextInteger(0, 2))
+		local c = CFrame.new(pos + Vector3.new(rng:NextNumber(-8, 8), 0, rng:NextNumber(-8, 8))) * CFrame.Angles(0, yaw, 0)
+		brick(m, Vector3.new(w, h, d), c * CFrame.new(0, h / 2, 0), if i % 2 == 0 then C.DirtRose else C.Dirt)
+		brick(m, Vector3.new(w + 2, 1.6, d + 2), c * CFrame.new(0, h + 0.8, 0), C.Grass, { Pattern = "StudsNoGrid" })
+	end
+	m.Parent = ground
+end
+
+-- Плато края карты: 2-3 уменьшающихся яруса, у каждого травяная шапка и «нос»
+local function plateau(parent: Instance, center: CFrame, length: number, depth: number, totalH: number, darkLower: boolean): number
+	local m = model("Plateau", parent)
+	local tiers = if totalH >= 22 then 3 else 2
+	local y = 0
+	local l, d = length, depth
+	for i = 1, tiers do
+		local h = totalH / tiers
+		local off = CFrame.new(rng:NextNumber(-l * 0.08, l * 0.08), 0, rng:NextNumber(-d * 0.1, d * 0.1))
+		local c = center * off
+		local tone = if i == 1 and darkLower then C.DirtDeep elseif i % 2 == 0 then C.DirtRose else C.Dirt
+		brick(m, Vector3.new(l, h, d), c * CFrame.new(0, y + h / 2, 0), tone)
+		brick(m, Vector3.new(l + 2, 1.4, d + 2), c * CFrame.new(0, y + h + 0.7, 0), C.Grass, { Pattern = "StudsNoGrid" })
+		-- нос: небольшой выступ, ломающий прямой край
+		brick(m, Vector3.new(4, h * 0.6, 3), c * CFrame.new(rng:NextNumber(-l / 3, l / 3), y + h * 0.3, -d / 2 - 1.4), tone)
+		y += h
+		l *= rng:NextNumber(0.6, 0.75)
+		d *= rng:NextNumber(0.6, 0.75)
+	end
+	m.Parent = ground
+	return y + 1.4
 end
 
 -- ===== Жила руды =====
 
 local function oreNode(parent: Instance, position: Vector3, oreId: string)
 	local ore = Config.Ores[oreId]
-	local m = model(oreId .. "Node", parent)
-	local size = rng:NextNumber(4.5, 6)
-	local rock = part(m, {
-		Name = "Rock",
-		Shape = Enum.PartType.Ball,
-		Size = Vector3.one * size,
-		CFrame = CFrame.new(position + Vector3.new(0, size * 0.3, 0)),
-		Material = M.Slate,
-		Color = Color3.fromRGB(92, 88, 86),
-	})
-	for _ = 1, 3 do
-		local offset = Vector3.new(rng:NextNumber(-1, 1), rng:NextNumber(0.2, 1), rng:NextNumber(-1, 1)).Unit
-			* (size * 0.42)
-		part(m, {
-			Name = "Vein",
-			Size = Vector3.new(rng:NextNumber(0.8, 1.4), rng:NextNumber(1.6, 2.6), rng:NextNumber(0.8, 1.4)),
-			CFrame = CFrame.new(rock.Position + offset)
-				* CFrame.Angles(rng:NextNumber(0, 6), rng:NextNumber(0, 6), rng:NextNumber(0, 6)),
-			Material = if oreId == "Moonsilver" then M.Neon elseif oreId == "Iron" then M.Metal else M.Foil,
-			Color = ore.Color,
-			CanCollide = false,
-		})
+	local tones = if oreId == "Moonsilver" then { C.StoneLight, C.Frost } else { C.Stone, C.StoneDark }
+	local m = rock(parent, position, 1.3, tones)
+	m.Name = oreId .. "Node"
+	local main = m.PrimaryPart :: BasePart
+	for i = 1, 3 do
+		local a = deg(120 * i + rng:NextInteger(0, 2) * 15)
+		local r = main.Size.X / 2
+		brick(
+			m,
+			Vector3.new(1.2, rng:NextNumber(1.4, 2.2), 1.2),
+			CFrame.new(main.Position + Vector3.new(math.cos(a) * r, rng:NextNumber(0, 1), math.sin(a) * r)) * CFrame.Angles(0, a, deg(15)),
+			ore.Color,
+			{ Neon = oreId == "Moonsilver", Pattern = "Studs", Collide = false }
+		)
 	end
-	m.PrimaryPart = rock
 	m:SetAttribute("OreId", oreId)
 	m:SetAttribute("AutoStyle", false)
 	CollectionService:AddTag(m, T.OreNode)
@@ -8355,301 +8634,288 @@ end
 
 -- ===== Город =====
 
-local function buildSmithy(parent: Instance, origin: Vector3)
-	local m = model("Smithy", parent)
-	local wood = Color3.fromRGB(120, 82, 52)
-	part(m, { Name = "Floor", Size = Vector3.new(26, 1, 20), CFrame = CFrame.new(origin + Vector3.new(0, 0.5, 0)), Material = M.WoodPlanks, Color = wood })
-	for _, offset in { Vector3.new(-12, 0, -9), Vector3.new(12, 0, -9), Vector3.new(-12, 0, 9), Vector3.new(12, 0, 9) } do
-		part(m, { Name = "Post", Size = Vector3.new(1.2, 13, 1.2), CFrame = CFrame.new(origin + offset + Vector3.new(0, 7, 0)), Material = M.Wood, Color = wood })
+local function lamp(parent: Instance, pos: Vector3)
+	local m = model("Lamp", parent)
+	brick(m, Vector3.new(1.6, 0.6, 1.6), CFrame.new(pos + Vector3.new(0, 0.3, 0)), C.StoneDark)
+	brick(m, Vector3.new(0.8, 8, 0.8), CFrame.new(pos + Vector3.new(0, 4.6, 0)), C.WoodDark, { Pattern = "Weld" })
+	brick(m, Vector3.new(1.4, 1.6, 1.4), CFrame.new(pos + Vector3.new(0, 9.4, 0)), C.Iron, { Pattern = "Weld" })
+	local core = brick(m, Vector3.new(1, 1, 1.5), CFrame.new(pos + Vector3.new(0, 9.4, 0)), Color3.fromRGB(255, 214, 150), { Neon = true, Collide = false })
+	brick(m, Vector3.new(1.8, 0.4, 1.8), CFrame.new(pos + Vector3.new(0, 10.4, 0)), C.Iron, { Pattern = "Weld" })
+	light(core, Color3.fromRGB(255, 200, 140), 18, 1.2)
+end
+
+local function crate(parent: Instance, cf: CFrame, size: number)
+	local m = model("Crate", parent)
+	brick(m, Vector3.new(size, size, size), cf, C.Gold, { Pattern = "Weld" })
+	local h = size / 2
+	for _, x in { -h, h } do
+		for _, z in { -h, h } do
+			brick(m, Vector3.new(0.4, size + 0.1, 0.4), cf * CFrame.new(x, 0, z), C.WoodDark, { Pattern = "Weld" })
+		end
 	end
-	local roofColor = Color3.fromRGB(110, 40, 35)
-	part(m, { Name = "Roof", Size = Vector3.new(28, 1, 12.5), CFrame = CFrame.new(origin + Vector3.new(0, 15.5, -4.6)) * CFrame.Angles(math.rad(25), 0, 0), Material = M.Slate, Color = roofColor })
-	part(m, { Name = "Roof", Size = Vector3.new(28, 1, 12.5), CFrame = CFrame.new(origin + Vector3.new(0, 15.5, 4.6)) * CFrame.Angles(math.rad(-25), 0, 0), Material = M.Slate, Color = roofColor })
-	part(m, { Name = "BackWall", Size = Vector3.new(26, 9, 1), CFrame = CFrame.new(origin + Vector3.new(0, 5.5, -9.5)), Material = M.Brick, Color = Color3.fromRGB(140, 90, 70) })
+	brick(m, Vector3.new(size + 0.1, 0.4, size + 0.1), cf * CFrame.new(0, h, 0), C.WoodDark, { Pattern = "Weld" })
+end
 
-	-- горн
-	part(m, { Name = "Furnace", Size = Vector3.new(6, 7, 5), CFrame = CFrame.new(origin + Vector3.new(-8, 4.5, -6)), Material = M.Brick, Color = Color3.fromRGB(95, 60, 50) })
-	local fire = part(m, { Name = "FurnaceFire", Size = Vector3.new(3, 2.4, 0.3), CFrame = CFrame.new(origin + Vector3.new(-8, 3, -3.4)), Material = M.Neon, Color = Color3.fromRGB(255, 120, 30), CanCollide = false })
-	light(fire, Color3.fromRGB(255, 140, 60), 18, 2.5)
-	local emitter = Instance.new("ParticleEmitter")
-	emitter.Rate = 12
-	emitter.Lifetime = NumberRange.new(0.5, 1)
-	emitter.Speed = NumberRange.new(2, 4)
-	emitter.Color = ColorSequence.new(Color3.fromRGB(255, 170, 60), Color3.fromRGB(255, 60, 20))
-	emitter.Size = NumberSequence.new(0.6, 0)
-	emitter.LightEmission = 1
-	emitter.Parent = fire
-	part(m, { Name = "Chimney", Size = Vector3.new(2.5, 12, 2.5), CFrame = CFrame.new(origin + Vector3.new(-8, 13, -7)), Material = M.Brick, Color = Color3.fromRGB(95, 60, 50) })
-
-	-- наковальня — кузня по тегу Forge
+local function buildSmithy(parent: Instance, pos: Vector3)
+	local m = model("Smithy", parent)
+	local b = facing(pos, Vector3.new(0, pos.Y, 0))
+	local function at(x: number, y: number, z: number): CFrame
+		return b * CFrame.new(x, y, z)
+	end
+	-- основание и ступень
+	brick(m, Vector3.new(24, 1, 18), at(0, 0.5, 0), C.StoneDark, { Pattern = "StudsNoGrid" })
+	brick(m, Vector3.new(10, 0.5, 2), at(0, 0.25, -10), C.Stone)
+	-- задняя стена с поясом и окном-нишей
+	brick(m, Vector3.new(24, 11, 1), at(0, 6.5, 8.5), C.Dirt, { Pattern = "Studs" })
+	brick(m, Vector3.new(24.4, 0.6, 1.4), at(0, 5, 8.5), C.DirtDeep, { Pattern = "Weld" })
+	-- боковые полустены
+	for _, x in { -11.5, 11.5 } do
+		brick(m, Vector3.new(1, 4, 16), at(x, 3, 0.5), C.Dirt, { Pattern = "Studs" })
+		brick(m, Vector3.new(1.4, 0.6, 16.4), at(x, 5.3, 0.5), C.DirtDeep, { Pattern = "Weld" })
+	end
+	-- столбы и балка фасада
+	for _, x in { -11.6, 11.6 } do
+		for _, z in { -8.6, 8.6 } do
+			brick(m, Vector3.new(1.2, 12, 1.2), at(x, 7, z), C.Wood, { Pattern = "Weld" })
+		end
+	end
+	brick(m, Vector3.new(24.6, 1, 1), at(0, 12.6, -8.6), C.WoodDark, { Pattern = "Weld" })
+	-- ступенчатая крыша
+	for i = 1, 5 do
+		local w = 27 - (i - 1) * 3
+		local d = 18 - (i - 1) * 3
+		brick(m, Vector3.new(w, 1.2, d), at(0, 13.7 + (i - 1) * 1.2, 0), if i % 2 == 0 then C.RoofDark else C.Roof, { Pattern = "StudsNoGrid" })
+	end
+	-- труба за задней стеной, тлеющая сверху
+	brick(m, Vector3.new(3, 22, 3), at(-7, 11, 10.5), C.DirtDeep, { Pattern = "Studs" })
+	brick(m, Vector3.new(3.6, 0.6, 3.6), at(-7, 22.3, 10.5), C.StoneDark, { Pattern = "Weld" })
+	local ember = brick(m, Vector3.new(2, 0.3, 2), at(-7, 22.7, 10.5), C.Ember, { Neon = true, Collide = false })
+	local smoke = Instance.new("ParticleEmitter")
+	smoke.Rate = 4
+	smoke.Lifetime = NumberRange.new(2, 3)
+	smoke.Speed = NumberRange.new(2, 3)
+	smoke.Size = NumberSequence.new(1.5, 4)
+	smoke.Transparency = NumberSequence.new(0.4, 1)
+	smoke.Color = ColorSequence.new(Color3.fromRGB(120, 120, 130))
+	smoke.Parent = ember
+	-- горн: главный «светящийся» момент сцены
+	brick(m, Vector3.new(7, 1, 5), at(-7, 1.5, 5.5), C.StoneDark)
+	brick(m, Vector3.new(6, 5, 4), at(-7, 4.5, 5.5), C.RoofDark, { Pattern = "Studs" })
+	brick(m, Vector3.new(6.6, 0.8, 4.6), at(-7, 7.4, 5.5), C.StoneDark, { Pattern = "Weld" })
+	local fire = brick(m, Vector3.new(3, 2, 0.6), at(-7, 3.6, 3.4), C.Ember, { Neon = true, Collide = false })
+	light(fire, Color3.fromRGB(255, 140, 60), 20, 2.5)
+	local sparks = Instance.new("ParticleEmitter")
+	sparks.Rate = 10
+	sparks.Lifetime = NumberRange.new(0.5, 1)
+	sparks.Speed = NumberRange.new(2, 4)
+	sparks.Color = ColorSequence.new(Color3.fromRGB(255, 190, 80), Color3.fromRGB(255, 80, 20))
+	sparks.Size = NumberSequence.new(0.4, 0)
+	sparks.LightEmission = 1
+	sparks.Parent = fire
+	-- наковальня (тег Forge)
 	local anvil = model("Anvil", m)
-	local metal = Color3.fromRGB(55, 58, 64)
-	part(anvil, { Name = "Base", Size = Vector3.new(2, 2.2, 1.6), CFrame = CFrame.new(origin + Vector3.new(2, 2.1, 0)), Material = M.Metal, Color = metal })
-	local top = part(anvil, { Name = "Top", Size = Vector3.new(4, 1, 1.8), CFrame = CFrame.new(origin + Vector3.new(2, 3.7, 0)), Material = M.Metal, Color = metal })
-	part(anvil, { Name = "Horn", Size = Vector3.new(1.4, 0.7, 1.1), CFrame = CFrame.new(origin + Vector3.new(4.6, 3.7, 0)), Material = M.Metal, Color = metal })
+	brick(anvil, Vector3.new(3, 0.6, 2.2), at(2, 1.3, -1), C.Iron, { Pattern = "Weld" })
+	brick(anvil, Vector3.new(1.6, 1.4, 1.2), at(2, 2.3, -1), C.Iron, { Pattern = "Weld" })
+	local top = brick(anvil, Vector3.new(4, 0.8, 1.8), at(2, 3.4, -1), C.Iron, { Pattern = "Weld", Name = "Top" })
+	brick(anvil, Vector3.new(1.2, 0.6, 1.2), at(4.6, 3.4, -1), C.Iron, { Pattern = "Weld" })
+	brick(anvil, Vector3.new(0.8, 0.4, 0.8), at(5.6, 3.4, -1), C.Iron)
 	anvil.PrimaryPart = top
 	anvil.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
 	CollectionService:AddTag(anvil, T.Forge)
 	sign(top, "UI_FORGE_TITLE", 6)
-
 	-- бочка для закалки
-	part(m, { Name = "Barrel", Shape = Enum.PartType.Cylinder, Size = Vector3.new(3, 3, 3), CFrame = CFrame.new(origin + Vector3.new(8, 2.5, 4)) * CFrame.Angles(0, 0, math.rad(90)), Material = M.Wood, Color = wood })
-end
-
-local function buildMerchant(parent: Instance, origin: Vector3)
-	local m = model("MerchantStall", parent)
-	local wood = Color3.fromRGB(140, 100, 60)
-	part(m, { Name = "Counter", Size = Vector3.new(12, 3, 3), CFrame = CFrame.new(origin + Vector3.new(0, 1.5, 4)), Material = M.WoodPlanks, Color = wood })
-	for _, x in { -6, 6 } do
-		for _, z in { -2, 5 } do
-			part(m, { Name = "Post", Size = Vector3.new(0.8, 9, 0.8), CFrame = CFrame.new(origin + Vector3.new(x, 4.5, z)), Material = M.Wood, Color = wood })
-		end
+	brick(m, Vector3.new(3, 2, 3), at(7, 2, 2), C.Wood, { Pattern = "Weld" })
+	brick(m, Vector3.new(3.4, 0.4, 3.4), at(7, 2.6, 2), C.WoodDark, { Pattern = "Weld" })
+	brick(m, Vector3.new(2.4, 0.2, 2.4), at(7, 3.05, 2), C.Water, { Collide = false })
+	-- стойка с инструментами на задней стене
+	brick(m, Vector3.new(7, 3, 0.4), at(5, 7, 7.8), C.Wood, { Pattern = "Weld" })
+	for i = 1, 3 do
+		local x = 2.6 + i * 1.6
+		brick(m, Vector3.new(0.3, 2.2, 0.3), at(x, 6.6, 7.4), C.WoodDark)
+		brick(m, Vector3.new(1, 0.6, 0.6), at(x, 7.8, 7.4), C.Iron, { Pattern = "Weld" })
 	end
-	for i = 0, 3 do
-		part(m, {
-			Name = "Awning",
-			Size = Vector3.new(3.5, 0.4, 9),
-			CFrame = CFrame.new(origin + Vector3.new(-5.25 + i * 3.5, 9.3, 1.5)) * CFrame.Angles(math.rad(-12), 0, 0),
-			Material = M.Fabric,
-			Color = if i % 2 == 0 then Color3.fromRGB(200, 60, 60) else Color3.fromRGB(240, 230, 210),
-		})
+	-- изобретение: вагонетка с рассыпанной медью у входа
+	local cart = model("OreCart", m)
+	brick(cart, Vector3.new(4, 2, 3), at(-9, 2, -12), C.Iron, { Pattern = "Weld" })
+	for _, x in { -1.4, 1.4 } do
+		brick(cart, Vector3.new(0.6, 1, 3.4), at(-9 + x, 0.6, -12), C.WoodDark, { Pattern = "Weld" })
+	end
+	for i = 1, 6 do
+		local cx = -9 + rng:NextNumber(-1.4, 1.4)
+		local cz = -12 + rng:NextNumber(-1, 1)
+		brick(cart, Vector3.new(0.8, 0.8, 0.8), at(cx, 3.2, cz) * CFrame.Angles(0, deg(15 * i), 0), Config.Ores.Copper.Color, { Collide = false })
 	end
 	for i = 1, 3 do
-		part(m, { Name = "Crate", Size = Vector3.one * 2.2, CFrame = CFrame.new(origin + Vector3.new(-4 + i * 2.6, 1.1, -1)) * CFrame.Angles(0, rng:NextNumber(-0.3, 0.3), 0), Material = M.WoodPlanks, Color = Color3.fromRGB(170, 125, 75) })
+		brick(cart, Vector3.new(0.7, 0.5, 0.7), at(-6.5 + i * 0.9, 0.25, -13.2 + i * 0.4) * CFrame.Angles(0, deg(30 * i), 0), Config.Ores.Copper.Color, { Collide = false })
 	end
+end
 
-	-- NPC торговца
+local function buildMerchant(parent: Instance, pos: Vector3)
+	local m = model("MerchantStall", parent)
+	local b = facing(pos, Vector3.new(0, pos.Y, 0))
+	local function at(x: number, y: number, z: number): CFrame
+		return b * CFrame.new(x, y, z)
+	end
+	brick(m, Vector3.new(14, 0.6, 10), at(0, 0.3, 0), C.Wood, { Pattern = "StudsNoGrid" })
+	for _, x in { -6.4, 6.4 } do
+		for _, z in { -4.4, 4.4 } do
+			brick(m, Vector3.new(0.9, 9, 0.9), at(x, 5.1, z), C.WoodDark, { Pattern = "Weld" })
+		end
+	end
+	-- прилавок
+	brick(m, Vector3.new(12, 3, 2), at(0, 2.1, -3.6), C.Wood, { Pattern = "Studs" })
+	brick(m, Vector3.new(12.6, 0.4, 2.6), at(0, 3.8, -3.6), C.WoodDark, { Pattern = "Weld" })
+	-- полки с товаром
+	brick(m, Vector3.new(12, 6, 0.8), at(0, 3.6, 4), C.WoodDark, { Pattern = "Weld" })
+	for row = 0, 1 do
+		brick(m, Vector3.new(11, 0.4, 1.6), at(0, 2.6 + row * 2.4, 3.2), C.Wood, { Pattern = "Weld" })
+		for i = 0, 4 do
+			local color = ({ C.Red, C.Blue, C.Gold, Config.Ores.Iron.Color, Config.Ores.Copper.Color })[i + 1]
+			brick(m, Vector3.new(1, 1.2, 1), at(-4 + i * 2, 3.4 + row * 2.4, 3.2), color, { Collide = false })
+		end
+	end
+	-- полосатый навес и бахрома
+	for i = 0, 6 do
+		local x = -6 + i * 2
+		local color = if i % 2 == 0 then C.Red else C.White
+		brick(m, Vector3.new(2, 0.4, 11), at(x, 9.8, 0) * CFrame.Angles(deg(-15), 0, 0), color, { Pattern = "StudsNoGrid" })
+		brick(m, Vector3.new(2, 1, 0.3), at(x, 8.6, -5.4), color, { Pattern = "Studs" })
+	end
+	-- продавец (тег Merchant): кубическая фигура, без шаров
 	local npc = model("Merchant", m)
-	local body = part(npc, { Name = "Body", Size = Vector3.new(2.6, 3.2, 1.5), CFrame = CFrame.new(origin + Vector3.new(0, 4.6, 1.5)), Material = M.Fabric, Color = Color3.fromRGB(70, 90, 150) })
-	part(npc, { Name = "Legs", Size = Vector3.new(2.2, 3, 1.3), CFrame = CFrame.new(origin + Vector3.new(0, 1.5, 1.5)), Material = M.Fabric, Color = Color3.fromRGB(60, 50, 45) })
-	part(npc, { Name = "Head", Shape = Enum.PartType.Ball, Size = Vector3.one * 2, CFrame = CFrame.new(origin + Vector3.new(0, 7.2, 1.5)), Material = M.SmoothPlastic, Color = Color3.fromRGB(240, 200, 160) })
-	part(npc, { Name = "Hat", Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.6, 3, 3), CFrame = CFrame.new(origin + Vector3.new(0, 8.3, 1.5)) * CFrame.Angles(0, 0, math.rad(90)), Material = M.Fabric, Color = Color3.fromRGB(150, 40, 40) })
+	brick(npc, Vector3.new(2, 3, 1.2), at(0, 2.1, 0.6), C.Blue, { Pattern = "Studs" })
+	local body = brick(npc, Vector3.new(2.6, 3, 1.4), at(0, 5.1, 0.6), C.White, { Pattern = "Studs", Name = "Body" })
+	brick(npc, Vector3.new(2.2, 2.4, 0.3), at(0, 4.8, -0.2), C.Gold, { Pattern = "Studs" })
+	for _, x in { -1.8, 1.8 } do
+		brick(npc, Vector3.new(0.9, 2.8, 0.9), at(x, 5, 0.6), C.White, { Pattern = "Studs" })
+	end
+	brick(npc, Vector3.new(2, 2, 2), at(0, 7.6, 0.6), Color3.fromRGB(240, 200, 160), { Pattern = "Studs" })
+	brick(npc, Vector3.new(2.6, 0.4, 2.6), at(0, 8.8, 0.6), C.Red, { Pattern = "Weld" })
+	brick(npc, Vector3.new(1.6, 1, 1.6), at(0, 9.5, 0.6), C.Red, { Pattern = "Weld" })
 	npc.PrimaryPart = body
 	npc.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
 	CollectionService:AddTag(npc, T.Merchant)
 	sign(body, "UI_MERCHANT_TITLE", 6)
+	-- ящики и бочка перед лавкой
+	crate(m, at(-8.6, 1.1, -2), 2.2)
+	crate(m, at(-8.6, 3.3, -2) * CFrame.Angles(0, deg(15), 0), 1.6)
+	brick(m, Vector3.new(2.2, 2.6, 2.2), at(8.6, 1.3, -2), C.Wood, { Pattern = "Weld" })
+	for _, y in { 0.6, 2 } do
+		brick(m, Vector3.new(2.5, 0.3, 2.5), at(8.6, y, -2), C.Iron, { Pattern = "Weld" })
+	end
 end
 
 local function buildLeaderboards(parent: Instance, origin: Vector3)
 	local m = model("Leaderboards", parent)
 	for i, board in { "Level", "Damage", "Gates" } do
-		local pos = origin + Vector3.new((i - 2) * 15, 7, (i - 2) * 6)
-		local p = part(m, {
-			Name = board .. "Board",
-			Size = Vector3.new(12, 13, 0.8),
-			-- лицевая сторона смотрит на центр площади
-			CFrame = CFrame.lookAt(pos, Vector3.new(0, pos.Y, 0)),
-			Material = M.Slate,
-			Color = Color3.fromRGB(28, 26, 24),
-		})
+		local pos = origin + Vector3.new((i - 2) * 15, 0, (i - 2) * 6)
+		local b = facing(pos, Vector3.new(0, 0, 0))
+		brick(m, Vector3.new(14, 0.6, 3), b * CFrame.new(0, 0.3, 0), C.StoneDark)
+		for _, x in { -6.6, 6.6 } do
+			brick(m, Vector3.new(1, 14, 1), b * CFrame.new(x, 7.6, 0), C.WoodDark, { Pattern = "Weld" })
+		end
+		local p = brick(m, Vector3.new(12, 12, 0.8), b * CFrame.new(0, 7.6, 0), Color3.fromRGB(38, 36, 33), { Pattern = "Studs", Name = board .. "Board" })
+		brick(m, Vector3.new(15, 0.6, 2.4), b * CFrame.new(0, 14.9, 0), C.Roof, { Pattern = "StudsNoGrid" })
+		brick(m, Vector3.new(12, 0.6, 1.6), b * CFrame.new(0, 15.5, 0), C.RoofDark, { Pattern = "StudsNoGrid" })
 		p:SetAttribute("Board", board)
 		CollectionService:AddTag(p, T.Leaderboard)
-		part(m, { Name = "Leg", Size = Vector3.new(1, 1, 1), CFrame = CFrame.new(pos - Vector3.new(0, 7, 0)), Material = M.Slate, Color = Color3.fromRGB(60, 60, 70) })
 	end
 	m.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 end
 
 local function buildTown(parent: Instance)
 	local town = model("Emberhold", parent)
-	local accent = Color3.fromRGB(70, 195, 255)
+	local floor = model("Plaza", ground)
+	disc(floor, 0, 0, PLAZA_R, 0, 0.4, C.StoneLight, { Pattern = "Universal" })
+	disc(floor, 0, 0, PLAZA_R - 6, 0, 0.5, C.Stone, { Pattern = "Universal" })
+	local top = 0.5
 
-	-- фонтан и Кристалл Системы
-	part(town, { Name = "FountainBase", Shape = Enum.PartType.Cylinder, Size = Vector3.new(2, 22, 22), CFrame = CFrame.new(0, 1, 0) * CFrame.Angles(0, 0, math.rad(90)), Material = M.Slate, Color = Color3.fromRGB(150, 150, 160) })
-	part(town, { Name = "FountainWater", Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.3, 19, 19), CFrame = CFrame.new(0, 2.05, 0) * CFrame.Angles(0, 0, math.rad(90)), Material = M.Glass, Color = Color3.fromRGB(60, 140, 220), Transparency = 0.35, CanCollide = false })
-	part(town, { Name = "Pillar", Size = Vector3.new(3, 8, 3), CFrame = CFrame.new(0, 6, 0), Material = M.Marble, Color = Color3.fromRGB(220, 225, 235) })
-	local core = part(town, {
-		Name = "SystemCrystal",
-		Size = Vector3.new(3.4, 6, 3.4),
-		CFrame = CFrame.new(0, 14, 0) * CFrame.Angles(0, math.rad(45), 0),
-		Material = M.Neon,
-		Color = accent,
-		CanCollide = false,
-	})
-	light(core, accent, 32, 2)
+	-- фонтан: ступенчатая квадратная чаша, вода, колонна, Кристалл Системы
+	local f = model("Fountain", town)
+	brick(f, Vector3.new(18, 0.6, 18), CFrame.new(0, top + 0.3, 0), C.StoneDark, { Pattern = "StudsNoGrid" })
+	for _, side in { { 0, 8.2, 18, 1.6 }, { 0, -8.2, 18, 1.6 }, { 8.2, 0, 1.6, 15 }, { -8.2, 0, 1.6, 15 } } do
+		brick(f, Vector3.new(side[3], 1.6, side[4]), CFrame.new(side[1], top + 1.4, side[2]), C.Stone, { Pattern = "Weld" })
+	end
+	brick(f, Vector3.new(14.9, 0.8, 14.9), CFrame.new(0, top + 1.2, 0), C.Water, { Transparency = 0.25, Collide = false })
+	brick(f, Vector3.new(4, 2, 4), CFrame.new(0, top + 1.6, 0), C.StoneLight, { Pattern = "Weld" })
+	brick(f, Vector3.new(3, 4, 3), CFrame.new(0, top + 4.6, 0), C.Stone, { Pattern = "Studs" })
+	brick(f, Vector3.new(4, 0.6, 4), CFrame.new(0, top + 6.9, 0), C.StoneDark, { Pattern = "Weld" })
+	local core = brick(f, Vector3.new(3.4, 6, 3.4), CFrame.new(0, top + 12, 0) * CFrame.Angles(0, deg(45), 0), C.SystemBlue, { Neon = true, Collide = false, Name = "SystemCrystal" })
+	light(core, C.SystemBlue, 32, 2)
 	CollectionService:AddTag(core, T.Spin)
 
 	-- точка появления
-	local spawn = Instance.new("SpawnLocation")
-	spawn.Name = "TownSpawn"
-	spawn.Size = Vector3.new(10, 1, 10)
-	spawn.CFrame = CFrame.new(0, 0.5, 26)
-	spawn.Anchored = true
-	spawn.Material = M.Slate
-	spawn.Color = Color3.fromRGB(60, 120, 180)
-	spawn.Duration = 0
-	spawn.Neutral = true
-	spawn.TopSurface = Enum.SurfaceType.Smooth
-	spawn.Parent = town
+	-- площадка утоплена в мощение: без щели над полом
+	local spawnPad = brick(town, Vector3.new(10, 1.2, 10), CFrame.new(0, 0.6, 26), C.Stone, { Class = "SpawnLocation", Name = "TownSpawn", Pattern = "StudsNoGrid" }) :: any
+	spawnPad.Duration = 0
+	spawnPad.Neutral = true
+	for _, side in { { 0, 5.3, 10.6, 0.6 }, { 0, -5.3, 10.6, 0.6 }, { 5.3, 0, 0.6, 10 }, { -5.3, 0, 0.6, 10 } } do
+		brick(town, Vector3.new(side[3], 0.4, side[4]), CFrame.new(side[1], 1.4, 26 + side[2]), C.Gold, { Pattern = "Weld" })
+	end
 
-	buildSmithy(town, Vector3.new(-32, 0, -20))
-	buildMerchant(town, Vector3.new(32, 0, -20))
-	buildLeaderboards(town, Vector3.new(34, 0, -54)) -- между дорогами, не перекрывает путь
+	reserve(0, 0, PLAZA_R)
+	reserve(-40, -26, 17)
+	reserve(40, -26, 11)
+	reserve(34, -54, 24)
+	buildSmithy(town, Vector3.new(-40, 0, -26))
+	buildMerchant(town, Vector3.new(40, 0, -26))
+	buildLeaderboards(town, Vector3.new(34, 0, -54))
 
-	-- фонари по кругу площади
+	-- фонари вокруг площади (на траве, за краем мощения)
 	for i = 0, 7 do
-		local angle = i / 8 * math.pi * 2 + math.pi / 8
-		local pos = Vector3.new(math.cos(angle) * 37, 0, math.sin(angle) * 37)
-		part(town, { Name = "LampPost", Size = Vector3.new(0.6, 9, 0.6), CFrame = CFrame.new(pos + Vector3.new(0, 4.5, 0)), Material = M.Metal, Color = Color3.fromRGB(40, 40, 45) })
-		local bulb = part(town, { Name = "Lamp", Shape = Enum.PartType.Ball, Size = Vector3.one * 1.6, CFrame = CFrame.new(pos + Vector3.new(0, 9.4, 0)), Material = M.Neon, Color = Color3.fromRGB(255, 215, 150), CanCollide = false })
-		light(bulb, Color3.fromRGB(255, 200, 140), 20, 1.2)
+		local a = i / 8 * math.pi * 2 + math.pi / 8
+		local x, z = math.cos(a) * (PLAZA_R + 4), math.sin(a) * (PLAZA_R + 4)
+		if claim(x, z, 2, 5) then
+			lamp(town, Vector3.new(x, 0, z))
+		end
 	end
 
-	-- деревья вокруг города
-	for i = 0, 13 do
-		local angle = i / 14 * math.pi * 2 + rng:NextNumber(-0.15, 0.15)
-		local r = rng:NextNumber(48, 66)
-		local x, z = math.cos(angle) * r, math.sin(angle) * r
-		-- не ставить на дороги
-		local onRoad = inMarket(x, z)
-		for _, zone in W.Zones do
-			if zone.Id ~= "Town" then
-				local dir = Vector3.new(zone.Center.X, 0, zone.Center.Z).Unit
-				local point = Vector3.new(x, 0, z)
-				local proj = point:Dot(dir)
-				if proj > 0 and (point - dir * proj).Magnitude < 9 then
-					onRoad = true
-				end
-			end
-		end
-		if not onRoad then
-			tree(town, groundPos(x, z), rng:NextNumber(0.9, 1.3), Color3.fromRGB(70, 140, 60))
+	-- деревья кольцом вокруг города (немного и крупные)
+	local zone = W.Zones.Town
+	for i = 0, 9 do
+		local a = i / 10 * math.pi * 2 + rng:NextNumber(-0.12, 0.12)
+		local r = rng:NextNumber(50, 64)
+		local x, z = math.cos(a) * r, math.sin(a) * r
+		if claim(x, z, 7, 9) then
+			blobTree(town, groundPos(x, z), rng:NextNumber(0.9, 1.15), C.Grass, C.GrassBright)
 		end
 	end
+	scatter(town, zone, PLAZA_R + 2, 66, 30, 14)
 end
 
--- ===== Зоны =====
+-- ===== Торговый ряд =====
 
-local function placeOres(parent: Instance)
-	for _, entry in W.OreNodes do
-		local zone = W.Zones[entry.Zone]
-		local placed: { Vector3 } = {}
-		local minR = if zone.Id == "Town" then 44 else 12
-		local maxR = if zone.Id == "Town" then 58 else zone.Radius * 0.75
-		local tries = 0
-		while #placed < entry.Count and tries < entry.Count * 20 do
-			tries += 1
-			local x, z = randomInZone(zone, minR, maxR)
-			local pos = groundPos(x, z)
-			local ok = pos.Y < 6 and not inMarket(x, z) -- не на вершинах холмов и не в Торговом ряду
-			for _, other in placed do
-				if (other - pos).Magnitude < 9 then
-					ok = false
-					break
-				end
-			end
-			if ok then
-				table.insert(placed, pos)
-				oreNode(parent, pos, entry.OreId)
-			end
-		end
-	end
-end
-
-local function buildZones(parent: Instance)
-	local Z = W.Zones
-
-	-- деревья на холмах
-	local hills = model("CopperHills", parent)
-	for _ = 1, 12 do
-		local x, z = randomInZone(Z.CopperHills, 10, Z.CopperHills.Radius)
-		tree(hills, groundPos(x, z), rng:NextNumber(0.8, 1.3), Color3.fromRGB(95, 150, 55))
-	end
-
-	-- кристаллы в гроте
-	local grotto = model("MoonGrotto", parent)
-	for _ = 1, 14 do
-		local x, z = randomInZone(Z.MoonGrotto, 10, Z.MoonGrotto.Radius * 0.9)
-		crystal(grotto, groundPos(x, z), rng:NextNumber(4, 9), Color3.fromRGB(150, 210, 255))
-	end
-	for _ = 1, 3 do
-		local x, z = randomInZone(Z.MoonGrotto, 0, 40)
-		local p = part(grotto, { Name = "Glow", Size = Vector3.one, CFrame = CFrame.new(groundPos(x, z) + Vector3.new(0, 4, 0)), Transparency = 1, CanCollide = false, CanQuery = false })
-		light(p, Color3.fromRGB(150, 200, 255), 40, 1.5)
-	end
-
-	-- карьер: брошенные вагонетки и опоры
-	local quarry = model("IronQuarry", parent)
-	for _ = 1, 5 do
-		local x, z = randomInZone(Z.IronQuarry, 15, Z.IronQuarry.Radius * 0.6)
-		local pos = groundPos(x, z)
-		part(quarry, { Name = "Beam", Size = Vector3.new(1, 10, 1), CFrame = CFrame.new(pos + Vector3.new(0, 5, 0)), Material = M.Wood, Color = Color3.fromRGB(100, 75, 50) })
-		part(quarry, { Name = "Cart", Size = Vector3.new(4, 2.5, 3), CFrame = CFrame.new(pos + Vector3.new(3, 1.25, 0)) * CFrame.Angles(0, rng:NextNumber(0, 3), 0), Material = M.Metal, Color = Color3.fromRGB(80, 70, 60) })
-	end
-
-	-- Равнина Врат: каменные круги = точки появления порталов
-	local plains = model("GatePlains", parent)
-	local c = Z.GatePlains.Center
-	for _, offset in { Vector3.new(-38, 0, -30), Vector3.new(38, 0, -30), Vector3.new(-38, 0, 32), Vector3.new(38, 0, 32) } do
-		local pos = groundPos(c.X + offset.X, c.Z + offset.Z)
-		part(plains, {
-			Name = "Circle",
-			Shape = Enum.PartType.Cylinder,
-			Size = Vector3.new(0.4, 16, 16),
-			CFrame = CFrame.new(pos + Vector3.new(0, 0.1, 0)) * CFrame.Angles(0, 0, math.rad(90)),
-			Material = M.Slate,
-			Color = Color3.fromRGB(90, 95, 110),
-		})
-		for i = 0, 3 do
-			local a = i / 4 * math.pi * 2
-			part(plains, { Name = "Pillar", Size = Vector3.new(1.6, 7, 1.6), CFrame = CFrame.new(pos + Vector3.new(math.cos(a) * 9.5, 3.5, math.sin(a) * 9.5)), Material = M.Slate, Color = Color3.fromRGB(110, 115, 130) })
-		end
-		local spawnPoint = part(plains, {
-			Name = "GateSpawn",
-			Size = Vector3.new(6, 1, 6),
-			CFrame = CFrame.new(pos + Vector3.new(0, 0.5, 0)),
-			Transparency = 1,
-			CanCollide = false,
-			CanQuery = false,
-		})
-		CollectionService:AddTag(spawnPoint, T.GateSpawn)
-	end
-end
+local STRIPES = {
+	{ C.Red, C.White },
+	{ C.Blue, C.White },
+	{ C.Gold, C.White },
+	{ C.Coral, C.White },
+}
 
 -- Прилавок игрока: тег ShopStall, атрибут Slot. ShopService назначает владельца,
--- пишет имя на вывеске (StallSign) и ставит до 3 предметов на подставки Pedestal1..3.
-local function buildStall(parent: Instance, origin: Vector3, facing: number, slot: number)
+-- пишет имя на вывеске (StallSign → Owner) и ставит до 3 предметов на подставки Pedestal1..3.
+local function buildStall(parent: Instance, origin: Vector3, yaw: number, slot: number)
 	local m = model("Stall" .. slot, parent)
-	local wood = Color3.fromRGB(120, 86, 56)
-	local look = CFrame.new(origin) * CFrame.Angles(0, facing, 0)
-	local function at(offset: Vector3): CFrame
-		return look * CFrame.new(offset)
+	local look = CFrame.new(origin) * CFrame.Angles(0, yaw, 0)
+	local function at(x: number, y: number, z: number): CFrame
+		return look * CFrame.new(x, y, z)
 	end
-	part(m, { Name = "Floor", Size = Vector3.new(12, 0.6, 9), CFrame = at(Vector3.new(0, 0.3, 0)), Material = M.WoodPlanks, Color = wood })
-	part(m, { Name = "Back", Size = Vector3.new(12, 8, 0.6), CFrame = at(Vector3.new(0, 4.6, 4.2)), Material = M.WoodPlanks, Color = Color3.fromRGB(100, 72, 48) })
+	local stripe = STRIPES[(slot - 1) % #STRIPES + 1]
+	brick(m, Vector3.new(12, 0.6, 9), at(0, 0.3, 0), C.Wood, { Pattern = "StudsNoGrid" })
+	brick(m, Vector3.new(12, 8, 0.6), at(0, 4.6, 4.2), C.WoodDark, { Pattern = "Weld" })
 	for _, x in { -5.6, 5.6 } do
-		part(m, { Name = "Post", Size = Vector3.new(0.6, 8, 0.6), CFrame = at(Vector3.new(x, 4.6, -4.2)), Material = M.Wood, Color = wood })
+		brick(m, Vector3.new(0.8, 8.4, 0.8), at(x, 4.8, -4.2), C.WoodDark, { Pattern = "Weld" })
 	end
-	part(m, {
-		Name = "Awning",
-		Size = Vector3.new(13, 0.4, 10),
-		CFrame = at(Vector3.new(0, 9, 0)) * CFrame.Angles(math.rad(10), 0, 0),
-		Material = M.Fabric,
-		Color = if slot % 2 == 0 then Color3.fromRGB(150, 70, 45) else Color3.fromRGB(70, 90, 110),
-	})
-	local counter = part(m, {
-		Name = "Counter",
-		Size = Vector3.new(10, 3, 2.4),
-		CFrame = at(Vector3.new(0, 2.1, -2.8)),
-		Material = M.WoodPlanks,
-		Color = wood,
-	})
+	for i = 0, 5 do
+		brick(m, Vector3.new(2.2, 0.4, 10), at(-5.5 + i * 2.2, 9.2, 0) * CFrame.Angles(deg(15), 0, 0), stripe[(i % 2) + 1], { Pattern = "StudsNoGrid" })
+		brick(m, Vector3.new(2.2, 0.8, 0.3), at(-5.5 + i * 2.2, 8.2, -5), stripe[(i % 2) + 1], { Pattern = "Studs" })
+	end
+	local counter = brick(m, Vector3.new(10, 3, 2.4), at(0, 2.1, -2.8), C.Wood, { Pattern = "Studs", Name = "Counter" })
+	brick(m, Vector3.new(10.6, 0.3, 3), at(0, 3.75, -2.8), C.WoodDark, { Pattern = "Weld" })
 	for i = 1, 3 do
-		part(m, {
-			Name = "Pedestal" .. i,
-			Size = Vector3.new(1.6, 0.4, 1.6),
-			CFrame = at(Vector3.new((i - 2) * 3.2, 3.8, -2.8)),
-			Material = M.Slate,
-			Color = Color3.fromRGB(60, 58, 55),
-		})
+		brick(m, Vector3.new(1.6, 0.4, 1.6), at((i - 2) * 3.2, 4.1, -2.8), C.StoneDark, { Name = "Pedestal" .. i })
 	end
-	local sign = part(m, {
-		Name = "StallSign",
-		Size = Vector3.new(1, 1, 1),
-		CFrame = at(Vector3.new(0, 7.6, -4.4)),
-		Transparency = 1,
-		CanCollide = false,
-		CanQuery = false,
-	})
+	local signPart = brick(m, Vector3.new(1, 1, 1), at(0, 7.6, -4.4), C.White, { Transparency = 1, Collide = false, Name = "StallSign" })
 	local gui = Instance.new("BillboardGui")
 	gui.Name = "OwnerGui"
 	gui.Size = UDim2.fromOffset(200, 32)
@@ -8660,14 +8926,14 @@ local function buildStall(parent: Instance, origin: Vector3, facing: number, slo
 	label.Size = UDim2.fromScale(1, 1)
 	label.BackgroundTransparency = 1
 	label.TextScaled = true
-	label.Font = Enum.Font.GothamMedium
-	label.TextColor3 = Color3.fromRGB(239, 233, 222)
-	label.TextStrokeColor3 = Color3.fromRGB(18, 17, 15)
-	label.TextStrokeTransparency = 0.4
+	label.Font = Enum.Font.GothamBold
+	label.TextColor3 = C.White
+	label.TextStrokeColor3 = Color3.fromRGB(40, 30, 30)
+	label.TextStrokeTransparency = 0.2
 	label.Text = "UI_STALL_FREE"
 	label:SetAttribute("LocKey", "UI_STALL_FREE")
 	label.Parent = gui
-	gui.Parent = sign
+	gui.Parent = signPart
 
 	m.PrimaryPart = counter
 	m:SetAttribute("Slot", slot)
@@ -8677,6 +8943,15 @@ end
 
 local function buildMarket(parent: Instance)
 	local market = model("MarketRow", parent)
+	-- улица: шахматка из плиток 8×8 (стиль «плиточные поля», края ступенчатые сами собой)
+	local street = model("MarketStreet", ground)
+	for ix = 0, 13 do
+		for iz = 0, 4 do
+			local x = MARKET_X0 - 6 + ix * 8 + 4
+			local z = MARKET_ROW_A - 4 + iz * 8 + 4
+			brick(street, Vector3.new(8, 0.3, 8), CFrame.new(x, 0.15, z), if (ix + iz) % 2 == 0 then C.Peach else C.PeachDark, { Pattern = "Universal" })
+		end
+	end
 	local perRow = math.ceil(W.MarketStalls / 2)
 	local slot = 0
 	for row = 1, 2 do
@@ -8687,32 +8962,365 @@ local function buildMarket(parent: Instance)
 			end
 			local x = MARKET_X0 + i * MARKET_STEP
 			local z = if row == 1 then MARKET_ROW_A else MARKET_ROW_B
-			-- задняя стенка дальше от улицы, прилавок — к улице
-			buildStall(market, Vector3.new(x, groundAt(x, z), z), if row == 1 then math.pi else 0, slot)
+			buildStall(market, Vector3.new(x, 0.3, z), if row == 1 then math.pi else 0, slot)
+		end
+	end
+	for _, x in { MARKET_X0 - 9, MARKET_X0 + MARKET_STEP * 7 + 9 } do
+		lamp(market, Vector3.new(x, 0.3, 60))
+	end
+end
+
+-- ===== Дорожки: поля плиток 4×4 вдоль линий =====
+
+local function buildPaths()
+	local paths = model("Paths", ground)
+	local used: { [string]: boolean } = {}
+	local function blocked(x: number, z: number): boolean
+		if inDisc(x, z, 0, 0, PLAZA_R - 1) or inMarket(x, z) then
+			return true
+		end
+		local Z = W.Zones
+		return inDisc(x, z, Z.IronQuarry.Center.X, Z.IronQuarry.Center.Z, 80)
+			or inDisc(x, z, Z.MoonGrotto.Center.X, Z.MoonGrotto.Center.Z, 80)
+	end
+	local function road(from: Vector3, to: Vector3, width: number)
+		local len = (to - from).Magnitude
+		local dir = (to - from).Unit
+		local side = Vector3.new(-dir.Z, 0, dir.X)
+		for t = 0, len, 2 do
+			for s = -width / 2, width / 2, 2 do
+				local sample = from + dir * t + side * s
+				local cx, cz = math.floor(sample.X / 4), math.floor(sample.Z / 4)
+				local key = cx .. ":" .. cz
+				local x, z = cx * 4 + 2, cz * 4 + 2
+				if not used[key] and not blocked(x, z) then
+					used[key] = true
+					brick(paths, Vector3.new(4, 0.3, 4), CFrame.new(x, 0.15, z), if (cx + cz) % 2 == 0 then C.Sand else C.Peach)
+				end
+			end
+		end
+	end
+	for _, zone in W.Zones do
+		if zone.Id ~= "Town" and zone.Id ~= "Market" then
+			local to = Vector3.new(zone.Center.X, 0, zone.Center.Z)
+			road(to.Unit * (PLAZA_R - 2), to - to.Unit * (zone.Radius * 0.55), 8)
+		end
+	end
+	road(Vector3.new(20, 0, 22), Vector3.new(MARKET_X0 - 8, 0, 60), 8)
+end
+
+-- ===== Зоны =====
+
+local function buildCopperHills(parent: Instance)
+	local zone = W.Zones.CopperHills
+	local m = model("CopperHills", parent)
+	for _ = 1, 7 do
+		local x, z = randomInZone(zone, 30, zone.Radius * 0.95)
+		if claim(x, z, 22, 22) then
+			hill(m, Vector3.new(x, 0, z))
+		end
+	end
+	-- вытоптанные земляные пятна
+	local patches = model("DirtPatches", ground)
+	for _ = 1, 5 do
+		local x, z = randomInZone(zone, 0, zone.Radius * 0.7)
+		for k = 1, 3 do
+			brick(patches, Vector3.new(rng:NextNumber(6, 12), 0.2, rng:NextNumber(5, 10)), CFrame.new(x + k * 2, 0.1, z + rng:NextNumber(-2, 2)), C.Dirt)
+		end
+	end
+	for _ = 1, 8 do
+		local x, z = randomInZone(zone, 15, zone.Radius * 0.9)
+		local pos = groundPos(x, z)
+		if pos.Y < 1 and claim(x, z, 7, 8) then
+			blobTree(m, pos, rng:NextNumber(0.85, 1.2), if rng:NextNumber() < 0.5 then C.Grass else C.GrassBright, C.GrassDark)
+		end
+	end
+	for _ = 1, 6 do
+		local x, z = randomInZone(zone, 10, zone.Radius * 0.9)
+		if claim(x, z, 3, 6) then
+			rock(m, groundPos(x, z), rng:NextNumber(0.8, 1.2), { C.Dirt, C.DirtRose })
+		end
+	end
+	scatter(m, zone, 5, zone.Radius * 0.95, 40, 16)
+end
+
+local function buildQuarry(parent: Instance)
+	local zone = W.Zones.IronQuarry
+	local m = model("IronQuarry", parent)
+	local c = zone.Center
+	disc(model("QuarryFloor", ground), c.X, c.Z, zone.Radius * 0.85, 0, 0.4, C.Stone)
+	-- каменное кольцо из масс с проходом в сторону города
+	local walls = model("QuarryWalls", parent)
+	local toTown = math.atan2(-c.Z, -c.X)
+	local n = 16
+	for i = 0, n - 1 do
+		local a = i / n * math.pi * 2
+		local diff = math.abs(math.atan2(math.sin(a - toTown), math.cos(a - toTown)))
+		if diff > 0.4 then
+			local r = zone.Radius * 0.85 + 6
+			local pos = Vector3.new(c.X + math.cos(a) * r, 0, c.Z + math.sin(a) * r)
+			local cf = facing(pos, Vector3.new(c.X, 0, c.Z))
+			local h = ({ 9, 13, 7, 11, 15, 8 })[i % 6 + 1]
+			local mass = model("RockMass", walls)
+			local y = 0
+			local len, dep = rng:NextNumber(22, 30), rng:NextNumber(10, 14)
+			for t = 1, 2 do
+				local th = h / 2
+				brick(mass, Vector3.new(len, th, dep), cf * CFrame.new(rng:NextNumber(-1, 1), y + th / 2, 0), if t == 1 then C.StoneDark else C.Stone)
+				brick(mass, Vector3.new(len + 1, 0.6, dep + 1), cf * CFrame.new(0, y + th + 0.3, 0), C.StoneLight, { Pattern = "StudsNoGrid" })
+				y += th
+				len *= 0.7
+				dep *= 0.75
+			end
+			mass.Parent = ground
+		end
+	end
+	-- каменные столбы внутри
+	for _ = 1, 5 do
+		local x, z = randomInZone(zone, 25, zone.Radius * 0.6)
+		if not claim(x, z, 5, 6) then
+			continue
+		end
+		local s = model("Spire", ground)
+		local y = 0.4
+		for k = 1, 3 do
+			local w = 6 - k * 1.4
+			local h = rng:NextNumber(3, 5)
+			brick(s, Vector3.new(w, h, w), CFrame.new(x, y + h / 2, z) * CFrame.Angles(0, deg(15 * k), 0), if k % 2 == 0 then C.Stone else C.StoneDark)
+			y += h
+		end
+	end
+	-- опоры шахты с фонарями и вагонетки
+	for _ = 1, 4 do
+		local x, z = randomInZone(zone, 18, zone.Radius * 0.55)
+		if not claim(x, z, 9, 6) then
+			continue
+		end
+		local pos = groundPos(x, z)
+		local cf = CFrame.new(pos) * CFrame.Angles(0, yaw15(), 0)
+		local f = model("MineFrame", m)
+		for _, dx in { -3, 3 } do
+			brick(f, Vector3.new(1, 9, 1), cf * CFrame.new(dx, 4.5, 0), C.Wood, { Pattern = "Weld" })
+		end
+		brick(f, Vector3.new(7.6, 1, 1.2), cf * CFrame.new(0, 9.4, 0), C.WoodDark, { Pattern = "Weld" })
+		local lanternCore = brick(f, Vector3.new(0.8, 1, 0.8), cf * CFrame.new(0, 8.3, 0), Color3.fromRGB(255, 214, 150), { Neon = true, Collide = false })
+		light(lanternCore, Color3.fromRGB(255, 200, 140), 16, 1)
+		local cart = model("Cart", m)
+		local cc = cf * CFrame.new(0, 0, 5)
+		brick(cart, Vector3.new(4, 2, 3), cc * CFrame.new(0, 1.6, 0), C.Iron, { Pattern = "Weld" })
+		for _, dx in { -1.4, 1.4 } do
+			brick(cart, Vector3.new(0.6, 0.8, 3.4), cc * CFrame.new(dx, 0.5, 0), C.WoodDark, { Pattern = "Weld" })
+		end
+		for k = 1, 4 do
+			brick(cart, Vector3.new(0.8, 0.8, 0.8), cc * CFrame.new(rng:NextNumber(-1.2, 1.2), 2.9, rng:NextNumber(-0.8, 0.8)) * CFrame.Angles(0, deg(15 * k), 0), Config.Ores.Iron.Color, { Collide = false })
+		end
+	end
+	for _ = 1, 8 do
+		local x, z = randomInZone(zone, 10, zone.Radius * 0.75)
+		if claim(x, z, 3, 6) then
+			rock(m, groundPos(x, z), rng:NextNumber(0.7, 1.1), { C.Stone, C.StoneDark, C.StoneLight })
 		end
 	end
 end
 
-local function buildBounds(parent: Instance)
-	local half = W.Size / 2 - 8
+local function buildGrotto(parent: Instance)
+	local zone = W.Zones.MoonGrotto
+	local m = model("MoonGrotto", parent)
+	local c = zone.Center
+	disc(model("SnowFloor", ground), c.X, c.Z, zone.Radius * 0.85, 0, 0.4, C.Snow)
+	for _ = 1, 10 do
+		local x, z = randomInZone(zone, 20, zone.Radius * 0.9)
+		local pos = groundPos(x, z)
+		if pos.Y < 1 and claim(x, z, 5, 6) then
+			pineTree(m, pos, rng:NextNumber(0.9, 1.3))
+		end
+	end
+	-- ледяные кристаллы: ступенчатые столбики с наклоном 15°
+	for _ = 1, 12 do
+		local x, z = randomInZone(zone, 12, zone.Radius * 0.85)
+		if not claim(x, z, 2.5, 6) then
+			continue
+		end
+		local pos = groundPos(x, z)
+		local cl = model("IceCrystal", m)
+		local base = CFrame.new(pos) * CFrame.Angles(0, yaw15(), deg(15 * rng:NextInteger(-1, 1)))
+		local y = 0
+		for k = 1, 3 do
+			local w = 2.4 - k * 0.5
+			local h = rng:NextNumber(2, 3.6)
+			brick(cl, Vector3.new(w, h, w), base * CFrame.new(0, y + h / 2, 0), if k % 2 == 0 then C.Ice else C.Frost, { Pattern = "Studs", Collide = k == 1 })
+			y += h
+		end
+	end
+	for _ = 1, 6 do
+		local x, z = randomInZone(zone, 10, zone.Radius * 0.8)
+		if claim(x, z, 3, 6) then
+			rock(m, groundPos(x, z), rng:NextNumber(0.8, 1.2), { C.Coral, C.CoralDark })
+		end
+	end
+	for _ = 1, 3 do
+		local x, z = randomInZone(zone, 0, 40)
+		local p = brick(m, Vector3.new(1, 1, 1), CFrame.new(x, 5, z), C.White, { Transparency = 1, Collide = false })
+		light(p, Color3.fromRGB(150, 200, 255), 40, 1.4)
+	end
+end
+
+local function buildGatePlains(parent: Instance)
+	local zone = W.Zones.GatePlains
+	local m = model("GatePlains", parent)
+	local c = zone.Center
+	local pads = model("GatePads", ground)
+	for _, offset in { Vector3.new(-38, 0, -30), Vector3.new(38, 0, -30), Vector3.new(-38, 0, 32), Vector3.new(38, 0, 32) } do
+		local x, z = c.X + offset.X, c.Z + offset.Z
+		reserve(x, z, 12)
+		brick(pads, Vector3.new(16, 0.6, 16), CFrame.new(x, 0.3, z), C.StoneDark, { Pattern = "StudsNoGrid" })
+		brick(pads, Vector3.new(12, 0.4, 12), CFrame.new(x, 0.8, z), C.Stone, { Pattern = "StudsNoGrid" })
+		-- тонкая светящаяся кромка: площадка важна для игры
+		for _, s in { { 0, 6.1, 12.4, 0.3 }, { 0, -6.1, 12.4, 0.3 }, { 6.1, 0, 0.3, 12 }, { -6.1, 0, 0.3, 12 } } do
+			brick(pads, Vector3.new(s[3], 0.2, s[4]), CFrame.new(x + s[1], 1.05, z + s[2]), C.SystemBlue, { Neon = true, Collide = false })
+		end
+		for _, px in { -7, 7 } do
+			for _, pz in { -7, 7 } do
+				brick(m, Vector3.new(1.6, 6, 1.6), CFrame.new(x + px, 3.6, z + pz), C.StoneLight, { Pattern = "Weld" })
+				brick(m, Vector3.new(2.2, 0.6, 2.2), CFrame.new(x + px, 6.9, z + pz), C.StoneDark, { Pattern = "Weld" })
+			end
+		end
+		local spawnPoint = brick(m, Vector3.new(6, 1, 6), CFrame.new(x, 1.5, z), C.White, { Transparency = 1, Collide = false, Name = "GateSpawn" })
+		CollectionService:AddTag(spawnPoint, T.GateSpawn)
+	end
+	for _ = 1, 5 do
+		local x, z = randomInZone(zone, 60, zone.Radius * 0.95)
+		if claim(x, z, 7, 8) then
+			blobTree(m, groundPos(x, z), rng:NextNumber(0.9, 1.2), C.GrassBright, C.Grass)
+		end
+	end
+	scatter(m, zone, 10, zone.Radius * 0.95, 30, 18)
+end
+
+local function buildLake(parent: Instance)
+	local m = model("Lake", parent)
+	local cx, cz = 130, 125
+	reserve(cx, cz, 34)
+	disc(model("LakeBed", ground), cx, cz, 32, 0, 0.2, C.Sand)
+	-- одна прозрачная плита воды поверх дна (дно видно — значит глубоко)
+	disc(m, cx, cz, 27, 0.2, 0.7, C.Water, { Transparency = 0.35, Collide = false })
+	for i = 0, 15 do
+		local a = i / 16 * math.pi * 2
+		rock(m, Vector3.new(cx + math.cos(a) * 29, 0.2, cz + math.sin(a) * 29), 0.6, { C.Stone, C.StoneLight })
+	end
+	-- кувшинки, рогоз и мостки
+	for i = 1, 5 do
+		local a = rng:NextNumber(0, math.pi * 2)
+		local r = rng:NextNumber(6, 20)
+		local padPos = Vector3.new(cx + math.cos(a) * r, 0.95, cz + math.sin(a) * r)
+		brick(m, Vector3.new(2, 0.1, 2), CFrame.new(padPos) * CFrame.Angles(0, deg(15 * i), 0), C.GrassDark, { Collide = false })
+		if i == 2 then
+			flower(m, padPos, Color3.fromRGB(240, 120, 200))
+		end
+	end
+	for i = 1, 6 do
+		local a = deg(200 + i * 8)
+		local p = Vector3.new(cx + math.cos(a) * 25, 0.2, cz + math.sin(a) * 25)
+		brick(m, Vector3.new(0.3, 2.4, 0.3), CFrame.new(p + Vector3.new(0, 1.2, 0)), C.Tuft, { Collide = false })
+		brick(m, Vector3.new(0.5, 0.8, 0.5), CFrame.new(p + Vector3.new(0, 2.6, 0)), C.WoodDark, { Collide = false })
+	end
+	local dock = model("Dock", m)
+	local dockCf = CFrame.new(cx - 28, 0, cz) * CFrame.Angles(0, deg(90), 0)
+	for i = 0, 5 do
+		brick(dock, Vector3.new(4, 0.4, 1.6), dockCf * CFrame.new(0, 1.4, -i * 1.8), if i % 2 == 0 then C.Wood else C.WoodDark, { Pattern = "Weld" })
+	end
+	for _, dx in { -2, 2 } do
+		for _, dz in { 0, -5, -9 } do
+			brick(dock, Vector3.new(0.6, 2, 0.6), dockCf * CFrame.new(dx, 0.6, dz), C.WoodDark, { Pattern = "Weld" })
+		end
+	end
+end
+
+-- ===== Плато по краю карты (барьер без щелей) =====
+
+local function buildBorder(parent: Instance)
+	local ring = model("Border", parent)
+	local half = W.Size / 2
+	local heights = { 16, 24, 19, 27, 17, 22, 26, 18 }
+	local k = 0
+	for side = 1, 4 do
+		local pos = -half
+		while pos < half do
+			k += 1
+			local length = rng:NextNumber(40, 75)
+			local depth = rng:NextNumber(18, 34)
+			local h = heights[k % #heights + 1]
+			local along = pos + length / 2
+			-- длинная ось вдоль края, глубина вглубь карты, масса «седлает» край
+			local center: CFrame
+			if side == 1 then
+				center = CFrame.new(along, 0, -half + depth * 0.3) * CFrame.Angles(0, math.pi, 0)
+			elseif side == 2 then
+				center = CFrame.new(along, 0, half - depth * 0.3)
+			elseif side == 3 then
+				center = CFrame.new(-half + depth * 0.3, 0, along) * CFrame.Angles(0, -math.pi / 2, 0)
+			else
+				center = CFrame.new(half - depth * 0.3, 0, along) * CFrame.Angles(0, math.pi / 2, 0)
+			end
+			local topY = plateau(ring, center, length, depth, h, k % 2 == 0)
+			if h >= 24 and k % 2 == 0 then
+				local treePos = (center * CFrame.new(0, topY, 0)).Position
+				blobTree(ring, treePos, 1, C.GrassBright, C.Grass)
+			end
+			pos += length * 0.8 -- перекрытие ~20%: щелей нет
+		end
+	end
+	-- невидимые стены поверх: страховка от выхода за карту
+	local inner = half - 8
 	for _, data in {
-		{ Vector3.new(0, 100, -half), Vector3.new(W.Size, 260, 2) },
-		{ Vector3.new(0, 100, half), Vector3.new(W.Size, 260, 2) },
-		{ Vector3.new(-half, 100, 0), Vector3.new(2, 260, W.Size) },
-		{ Vector3.new(half, 100, 0), Vector3.new(2, 260, W.Size) },
+		{ Vector3.new(0, 100, -inner), Vector3.new(W.Size, 260, 2) },
+		{ Vector3.new(0, 100, inner), Vector3.new(W.Size, 260, 2) },
+		{ Vector3.new(-inner, 100, 0), Vector3.new(2, 260, W.Size) },
+		{ Vector3.new(inner, 100, 0), Vector3.new(2, 260, W.Size) },
 	} do
-		part(parent, { Name = "Bound", Size = data[2], CFrame = CFrame.new(data[1]), Transparency = 1, CanQuery = false })
+		local p = Instance.new("Part")
+		p.Name = "Bound"
+		p.Size = data[2]
+		p.CFrame = CFrame.new(data[1])
+		p.Anchored = true
+		p.Transparency = 1
+		p.CanQuery = false
+		p.Parent = ring
+	end
+end
+
+local function placeOres(parent: Instance)
+	local m = model("Ores", parent)
+	for _, entry in W.OreNodes do
+		local zone = W.Zones[entry.Zone]
+		local placed: { Vector3 } = {}
+		local minR = if zone.Id == "Town" then 44 else 12
+		local maxR = if zone.Id == "Town" then 58 else zone.Radius * 0.75
+		local tries = 0
+		while #placed < entry.Count and tries < entry.Count * 30 do
+			tries += 1
+			local x, z = randomInZone(zone, minR, maxR)
+			local pos = groundPos(x, z)
+			if pos.Y < 1 and claim(x, z, 4.5, 6) then
+				table.insert(placed, pos)
+				oreNode(m, pos, entry.OreId)
+			end
+		end
 	end
 end
 
 local function setupLighting()
-	local L = W.Lighting
-	Lighting.ClockTime = L.ClockTime
-	Lighting.Brightness = L.Brightness
+	-- высокий ключ: солнечно, мягкие тени (стилизованный свет)
+	pcall(function()
+		Lighting.LightingStyle = Enum.LightingStyle.Soft
+	end)
+	Lighting.ClockTime = W.Lighting.ClockTime
+	Lighting.Brightness = 3
 	Lighting.GlobalShadows = true
-	Lighting.OutdoorAmbient = Color3.fromRGB(135, 135, 155)
-	Lighting.EnvironmentDiffuseScale = 0.5
-	Lighting.EnvironmentSpecularScale = 0.5
+	Lighting.Ambient = Color3.fromRGB(110, 110, 125)
+	Lighting.OutdoorAmbient = Color3.fromRGB(160, 160, 180)
+	Lighting.EnvironmentDiffuseScale = 0.6
+	Lighting.EnvironmentSpecularScale = 0.2
 	local function ensure(className: string, props: { [string]: any })
 		if Lighting:FindFirstChildOfClass(className) then
 			return
@@ -8723,13 +9331,10 @@ local function setupLighting()
 		end
 		inst.Parent = Lighting
 	end
-	ensure("Atmosphere", { Density = L.AtmosphereDensity, Offset = 0.15, Color = Color3.fromRGB(200, 205, 225), Decay = Color3.fromRGB(105, 112, 130), Glare = 0.2, Haze = 1.2 })
-	ensure("BloomEffect", { Intensity = 0.5, Size = 24, Threshold = 1.6 })
-	ensure("ColorCorrectionEffect", { Saturation = 0.12, Contrast = 0.05 })
-	ensure("SunRaysEffect", { Intensity = 0.04, Spread = 0.8 })
-	terrain.WaterColor = Color3.fromRGB(40, 120, 170)
-	terrain.WaterTransparency = 0.6
-	terrain.WaterWaveSize = 0.1
+	ensure("Atmosphere", { Density = 0.22, Offset = 0.1, Color = Color3.fromRGB(205, 225, 255), Decay = Color3.fromRGB(150, 180, 220), Glare = 0, Haze = 1 })
+	ensure("BloomEffect", { Intensity = 0.4, Size = 20, Threshold = 1.8 })
+	ensure("ColorCorrectionEffect", { Saturation = 0.18, Contrast = 0.04, Brightness = 0.02 })
+	ensure("SunRaysEffect", { Intensity = 0.03, Spread = 0.6 })
 end
 
 -- Строить ли мир: только если в карте нет своих жил руды
@@ -8742,14 +9347,37 @@ function WorldBuilder.Build()
 	root = Instance.new("Folder")
 	root.Name = "World"
 	root.Parent = workspace
+	ground = Instance.new("Folder")
+	ground.Name = "Ground"
+	ground.Parent = root
+	rayParams.FilterDescendantsInstances = { ground }
 
-	buildTerrain()
-	task.wait() -- не упереться в лимит времени выполнения скрипта
+	-- остров: травяная шапка над лососевой землёй
+	brick(ground, Vector3.new(W.Size, 2, W.Size), CFrame.new(0, -1, 0), C.Grass, { Name = "GrassCap" })
+	brick(ground, Vector3.new(W.Size, 10, W.Size), CFrame.new(0, -7, 0), C.DirtDeep, { Name = "DirtLayer" })
+	local checker = W.CheckerTextureId
+	if type(checker) == "string" and checker ~= "" then
+		local tex = Instance.new("Texture")
+		tex.Texture = checker
+		tex.Face = Enum.NormalId.Top
+		tex.StudsPerTileU = 8
+		tex.StudsPerTileV = 8
+		tex.Transparency = 0.8
+		tex.Parent = ground:FindFirstChild("GrassCap")
+	end
+
 	buildTown(root)
-	buildZones(root)
+	task.wait() -- не упереться в лимит времени выполнения скрипта
 	buildMarket(root)
+	buildPaths()
+	buildCopperHills(root)
+	buildQuarry(root)
+	task.wait()
+	buildGrotto(root)
+	buildGatePlains(root)
+	buildLake(root)
+	buildBorder(root)
 	placeOres(root)
-	buildBounds(root)
 	setupLighting()
 
 	-- шаблонный Baseplate убираем в самом конце, чтобы никто не успел упасть в пустоту
@@ -8763,7 +9391,13 @@ function WorldBuilder.Build()
 	end
 
 	WorldBuilder.Built = true
-	print(`[World] мир построен за {string.format("%.1f", os.clock() - started)} с`)
+	local count = 0
+	for _, d in root:GetDescendants() do
+		if d:IsA("BasePart") then
+			count += 1
+		end
+	end
+	print(`[World] стад-мир построен за {string.format("%.1f", os.clock() - started)} с, деталей: {count}, варианты материалов: {Stud.UsingVariants}`)
 end
 
 -- Точка на земле (для мобов): используется WorldMobService
@@ -8772,7 +9406,7 @@ function WorldBuilder.GroundAt(x: number, z: number): number
 end
 
 return WorldBuilder
-]]></ProtectedString></Properties></Item></Item></Item></Item><Item class="StarterPlayer" referent="RBX00000060"><Properties><string name="Name">StarterPlayer</string></Properties><Item class="StarterPlayerScripts" referent="RBX0000005F"><Properties><string name="Name">StarterPlayerScripts</string></Properties><Item class="LocalScript" referent="RBX0000005B"><Properties><string name="Name">Client</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item></Item></Item></Item><Item class="StarterPlayer" referent="RBX00000061"><Properties><string name="Name">StarterPlayer</string></Properties><Item class="StarterPlayerScripts" referent="RBX00000060"><Properties><string name="Name">StarterPlayerScripts</string></Properties><Item class="LocalScript" referent="RBX0000005C"><Properties><string name="Name">Client</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ТОЧКА ВХОДА КЛИЕНТА.
 	Клиент только рисует и шлёт запросы; вся игровая логика — на сервере.
@@ -8824,7 +9458,7 @@ for _, name in ORDER do
 		end
 	end
 end
-]]></ProtectedString></Properties><Item class="Folder" referent="RBX00000054"><Properties><string name="Name">Controllers</string></Properties><Item class="ModuleScript" referent="RBX00000043"><Properties><string name="Name">CombatController</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties><Item class="Folder" referent="RBX00000055"><Properties><string name="Name">Controllers</string></Properties><Item class="ModuleScript" referent="RBX00000044"><Properties><string name="Name">CombatController</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	БОЙ НА КЛИЕНТЕ: кнопки «Атака» и «Блок» (справа снизу, левее кнопки прыжка).
 	Удержание «Атаки» = автоатака с кулдауном оружия. ПК: ЛКМ — атака, F — блок.
@@ -9041,7 +9675,7 @@ function CombatController:Start()
 end
 
 return CombatController
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000044"><Properties><string name="Name">DataController</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000045"><Properties><string name="Name">DataController</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Копия данных игрока на клиенте (только для отображения — истина на сервере).
 	DataController.Changed:Connect(function(key) ... end) — key = изменившийся ключ или "*" (полная синхронизация).
@@ -9115,7 +9749,7 @@ function DataController:Start()
 end
 
 return DataController
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000045"><Properties><string name="Name">ForgeController</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000046"><Properties><string name="Name">ForgeController</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	КУЗНЯ: выбор оружия и руды → мини-игра из 3 шагов → результат.
 	Управление одной большой кнопкой (телефон) или пробелом (ПК):
@@ -9929,7 +10563,7 @@ function ForgeController:IsBusy(): boolean
 end
 
 return ForgeController
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000046"><Properties><string name="Name">FxController</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000047"><Properties><string name="Name">FxController</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ЭФФЕКТЫ: всплывающие цифры урона, «ПАРИРОВАНИЕ!», искры добычи, вспышка экрана при попадании.
 	Всё через пулы объектов (никаких Instance.new на каждый удар) — важно для слабых телефонов.
@@ -10128,7 +10762,7 @@ function FxController:Start()
 end
 
 return FxController
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000047"><Properties><string name="Name">GateController</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000048"><Properties><string name="Name">GateController</string><ProtectedString name="Source"><![CDATA[--!strict
 -- ВРАТА на клиенте: карточка группы (ожидание старта) и забега (волна, время, босс).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -10306,7 +10940,7 @@ function GateController:Start()
 end
 
 return GateController
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000048"><Properties><string name="Name">HudController</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000049"><Properties><string name="Name">HudController</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	HUD: ранг, уровень, опыт, золото, бонус опыта, язык (слева сверху);
 	кнопки «Меню» и «Инвентарь» справа по центру (не мешают стику и прыжку на телефоне);
@@ -10590,7 +11224,7 @@ function HudController:Start()
 end
 
 return HudController
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000049"><Properties><string name="Name">InputController</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000004A"><Properties><string name="Name">InputController</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ТИП УПРАВЛЕНИЯ: Touch (телефон/планшет) | KeyboardMouse (ПК) | Gamepad (консоль, геймпад на ПК).
 	Меняется на лету по последнему вводу: подключил геймпад к ПК — интерфейс сразу перестроится.
@@ -10671,7 +11305,7 @@ function InputController:IsGamepad(): boolean
 end
 
 return InputController
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000004A"><Properties><string name="Name">InventoryController</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000004B"><Properties><string name="Name">InventoryController</string><ProtectedString name="Source"><![CDATA[--!strict
 -- ИНВЕНТАРЬ: руда, кирки, оружие. Тап по карточке — надеть оружие.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -10862,7 +11496,7 @@ function InventoryController:Start()
 end
 
 return InventoryController
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000004B"><Properties><string name="Name">LocalizationController</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000004C"><Properties><string name="Name">LocalizationController</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Выбор языка: сохранённый в профиле → иначе язык аккаунта Roblox (RU для русскоязычных) → EN.
 	Переводит ProximityPrompt по атрибутам ActionKey/ObjectKey, которые ставит сервер.
@@ -10976,7 +11610,7 @@ function LocalizationController:Toggle()
 end
 
 return LocalizationController
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000004C"><Properties><string name="Name">MenuController</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000004D"><Properties><string name="Name">MenuController</string><ProtectedString name="Source"><![CDATA[--!strict
 -- МЕНЮ: ежедневные задания и серия входов, коды, настройки, статистика.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -11339,7 +11973,7 @@ function MenuController:Start()
 end
 
 return MenuController
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000004D"><Properties><string name="Name">MerchantController</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000004E"><Properties><string name="Name">MerchantController</string><ProtectedString name="Source"><![CDATA[--!strict
 -- ТОРГОВЕЦ: продать оружие (выбор нескольких + подтверждение), продать руду, купить кирки.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -11752,7 +12386,7 @@ function MerchantController:Start()
 end
 
 return MerchantController
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000004E"><Properties><string name="Name">QuestController</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000004F"><Properties><string name="Name">QuestController</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ТРЕКЕР КВЕСТА СИСТЕМЫ + луч-подсказка от персонажа к цели.
 	Во время обучения — текущий шаг обучения, после — первое невыполненное ежедневное задание.
@@ -11995,7 +12629,7 @@ function QuestController:Start()
 end
 
 return QuestController
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000004F"><Properties><string name="Name">ShopController</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000050"><Properties><string name="Name">ShopController</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ЛАВКА.
 	• Моя лавка (Инвентарь → «Моя лавка» или свой прилавок): выбрать оружие, указать цену, выставить;
@@ -12390,7 +13024,7 @@ function ShopController:Start()
 end
 
 return ShopController
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000050"><Properties><string name="Name">SystemWindowController</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000051"><Properties><string name="Name">SystemWindowController</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ОКНО СИСТЕМЫ — главная фишка. Синее окно в стиле маньхуа:
 	мерцание рамки → окно выезжает → текст «печатается» → само закрывается или по тапу.
@@ -12646,7 +13280,7 @@ function SystemWindowController:Start()
 end
 
 return SystemWindowController
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000051"><Properties><string name="Name">TradeController</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000052"><Properties><string name="Name">TradeController</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ОБМЕН НА КЛИЕНТЕ.
 	• Приглашение: карточка сверху «{имя} предлагает обмен» с кнопками «Принять»/«Отказать».
@@ -13063,7 +13697,7 @@ function TradeController:Start()
 end
 
 return TradeController
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000052"><Properties><string name="Name">UIController</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000053"><Properties><string name="Name">UIController</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Корневой ScreenGui, слои, окна (одно открытое за раз), тосты, обработка ответов сервера.
 	Окно регистрируется так:
@@ -13356,7 +13990,7 @@ function UIController:FlashHit(strength: number)
 end
 
 return UIController
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000053"><Properties><string name="Name">ZoneController</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000054"><Properties><string name="Name">ZoneController</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ЗОНЫ: баннер «Медные холмы · Рекомендуемый ур. 1+» при входе в зону, музыка зоны,
 	вращение Кристалла Системы (тег Spin), режим «слабая графика» для телефонов.
@@ -13526,7 +14160,7 @@ function ZoneController:Start()
 end
 
 return ZoneController
-]]></ProtectedString></Properties></Item></Item><Item class="Folder" referent="RBX0000005A"><Properties><string name="Name">UI</string></Properties><Item class="ModuleScript" referent="RBX00000055"><Properties><string name="Name">ClientSettings</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item></Item><Item class="Folder" referent="RBX0000005B"><Properties><string name="Name">UI</string></Properties><Item class="ModuleScript" referent="RBX00000056"><Properties><string name="Name">ClientSettings</string><ProtectedString name="Source"><![CDATA[--!strict
 -- Текущие настройки игрока на клиенте (звук, музыка, цифры урона, слабая графика).
 -- Берутся из профиля, меняются в Меню → Настройки.
 
@@ -13551,7 +14185,7 @@ function ClientSettings.Set(key: string, value: boolean)
 end
 
 return ClientSettings
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000056"><Properties><string name="Name">Components</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000057"><Properties><string name="Name">Components</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Строительные блоки интерфейса. Весь текст — через ключи локализации:
 		C.Text({ Key = "UI_LEVEL", Args = { level = 5 }, ... })
@@ -13878,7 +14512,7 @@ function C.TitleBar(panel: Frame, titleKey: string, onClose: () -> ()): TextLabe
 end
 
 return C
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000057"><Properties><string name="Name">Sound</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000058"><Properties><string name="Name">Sound</string><ProtectedString name="Source"><![CDATA[--!strict
 -- Звуки интерфейса и эффектов. ID задаются в Shared/Config/Audio (пусто = тишина).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -13911,7 +14545,7 @@ function Sound.Play(key: string, volume: number?, pitch: number?)
 end
 
 return Sound
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000058"><Properties><string name="Name">Theme</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000059"><Properties><string name="Name">Theme</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Направление: ночная кузня. Интерфейс — тихий тёплый графит (копоть, металл),
 	главное действие — цвет углей. Холодный синий свет есть только у Системы:
@@ -13981,7 +14615,7 @@ function Theme.S(n: number): number
 end
 
 return Theme
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000059"><Properties><string name="Name">WeaponCard</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000005A"><Properties><string name="Name">WeaponCard</string><ProtectedString name="Source"><![CDATA[--!strict
 -- Карточка оружия для инвентаря и торговца.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")

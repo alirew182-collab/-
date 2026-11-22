@@ -113,6 +113,10 @@ local World = {
 		MinDamageShare = 0.03, -- нанёс хотя бы 3% HP — получаешь награду
 	},
 
+	-- Шахматная текстура поверх травы (стад-стиль): rbxassetid картинки 2×2 в шашку.
+	-- Загрузи свою или возьми из Creator Store. Пусто = без текстуры.
+	CheckerTextureId = "",
+
 	Lighting = {
 		ClockTime = 14.5,
 		Brightness = 2.2,

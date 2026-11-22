@@ -110,6 +110,17 @@ local function sign(parent: BasePart, locKey: string, height: number)
 	gui.Parent = parent
 end
 
+-- Торговый ряд: два ряда прилавков вдоль улицы (Z = MARKET_STREET_Z)
+local MARKET_X0 = 48
+local MARKET_STEP = 14
+local MARKET_ROW_A = 44 -- прилавки смотрят на +Z
+local MARKET_ROW_B = 76 -- прилавки смотрят на −Z
+local MARKET_STREET_Z = 60
+
+local function inMarket(x: number, z: number): boolean
+	return x > MARKET_X0 - 14 and x < MARKET_X0 + MARKET_STEP * 8 + 6 and z > MARKET_ROW_A - 12 and z < MARKET_ROW_B + 12
+end
+
 local function randomInZone(zone: any, minR: number, maxR: number): (number, number)
 	local angle = rng:NextNumber(0, math.pi * 2)
 	local r = rng:NextNumber(minR, maxR)
@@ -136,6 +147,14 @@ local function buildTerrain()
 			terrain:FillBlock(CFrame.lookAt(mid, to), Vector3.new(10, 2, length), M.Ground)
 		end
 	end
+
+	-- Торговый ряд: мощёная улица и дорожка от площади
+	terrain:FillBlock(
+		CFrame.new((MARKET_X0 + MARKET_X0 + MARKET_STEP * 7) / 2, -1, MARKET_STREET_Z),
+		Vector3.new(MARKET_STEP * 8 + 12, 2, MARKET_ROW_B - MARKET_ROW_A + 16),
+		M.Cobblestone
+	)
+	terrain:FillBlock(CFrame.lookAt(Vector3.new(20, -1, 30), Vector3.new(MARKET_X0, -1, MARKET_STREET_Z)), Vector3.new(8, 2, 60), M.Cobblestone)
 
 	-- город: мощёная площадь
 	terrain:FillCylinder(CFrame.new(0, -1, 0), 2, 40, M.Cobblestone)
@@ -430,7 +449,7 @@ local function buildTown(parent: Instance)
 		local r = rng:NextNumber(48, 66)
 		local x, z = math.cos(angle) * r, math.sin(angle) * r
 		-- не ставить на дороги
-		local onRoad = false
+		local onRoad = inMarket(x, z)
 		for _, zone in W.Zones do
 			if zone.Id ~= "Town" then
 				local dir = Vector3.new(zone.Center.X, 0, zone.Center.Z).Unit
@@ -460,7 +479,7 @@ local function placeOres(parent: Instance)
 			tries += 1
 			local x, z = randomInZone(zone, minR, maxR)
 			local pos = groundPos(x, z)
-			local ok = pos.Y < 6 -- не на вершинах холмов
+			local ok = pos.Y < 6 and not inMarket(x, z) -- не на вершинах холмов и не в Торговом ряду
 			for _, other in placed do
 				if (other - pos).Magnitude < 9 then
 					ok = false
@@ -535,6 +554,94 @@ local function buildZones(parent: Instance)
 	end
 end
 
+-- Прилавок игрока: тег ShopStall, атрибут Slot. ShopService назначает владельца,
+-- пишет имя на вывеске (StallSign) и ставит до 3 предметов на подставки Pedestal1..3.
+local function buildStall(parent: Instance, origin: Vector3, facing: number, slot: number)
+	local m = model("Stall" .. slot, parent)
+	local wood = Color3.fromRGB(120, 86, 56)
+	local look = CFrame.new(origin) * CFrame.Angles(0, facing, 0)
+	local function at(offset: Vector3): CFrame
+		return look * CFrame.new(offset)
+	end
+	part(m, { Name = "Floor", Size = Vector3.new(12, 0.6, 9), CFrame = at(Vector3.new(0, 0.3, 0)), Material = M.WoodPlanks, Color = wood })
+	part(m, { Name = "Back", Size = Vector3.new(12, 8, 0.6), CFrame = at(Vector3.new(0, 4.6, 4.2)), Material = M.WoodPlanks, Color = Color3.fromRGB(100, 72, 48) })
+	for _, x in { -5.6, 5.6 } do
+		part(m, { Name = "Post", Size = Vector3.new(0.6, 8, 0.6), CFrame = at(Vector3.new(x, 4.6, -4.2)), Material = M.Wood, Color = wood })
+	end
+	part(m, {
+		Name = "Awning",
+		Size = Vector3.new(13, 0.4, 10),
+		CFrame = at(Vector3.new(0, 9, 0)) * CFrame.Angles(math.rad(10), 0, 0),
+		Material = M.Fabric,
+		Color = if slot % 2 == 0 then Color3.fromRGB(150, 70, 45) else Color3.fromRGB(70, 90, 110),
+	})
+	local counter = part(m, {
+		Name = "Counter",
+		Size = Vector3.new(10, 3, 2.4),
+		CFrame = at(Vector3.new(0, 2.1, -2.8)),
+		Material = M.WoodPlanks,
+		Color = wood,
+	})
+	for i = 1, 3 do
+		part(m, {
+			Name = "Pedestal" .. i,
+			Size = Vector3.new(1.6, 0.4, 1.6),
+			CFrame = at(Vector3.new((i - 2) * 3.2, 3.8, -2.8)),
+			Material = M.Slate,
+			Color = Color3.fromRGB(60, 58, 55),
+		})
+	end
+	local sign = part(m, {
+		Name = "StallSign",
+		Size = Vector3.new(1, 1, 1),
+		CFrame = at(Vector3.new(0, 7.6, -4.4)),
+		Transparency = 1,
+		CanCollide = false,
+		CanQuery = false,
+	})
+	local gui = Instance.new("BillboardGui")
+	gui.Name = "OwnerGui"
+	gui.Size = UDim2.fromOffset(200, 32)
+	gui.MaxDistance = 80
+	gui.LightInfluence = 0
+	local label = Instance.new("TextLabel")
+	label.Name = "Owner"
+	label.Size = UDim2.fromScale(1, 1)
+	label.BackgroundTransparency = 1
+	label.TextScaled = true
+	label.Font = Enum.Font.GothamMedium
+	label.TextColor3 = Color3.fromRGB(239, 233, 222)
+	label.TextStrokeColor3 = Color3.fromRGB(18, 17, 15)
+	label.TextStrokeTransparency = 0.4
+	label.Text = "UI_STALL_FREE"
+	label:SetAttribute("LocKey", "UI_STALL_FREE")
+	label.Parent = gui
+	gui.Parent = sign
+
+	m.PrimaryPart = counter
+	m:SetAttribute("Slot", slot)
+	m.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
+	CollectionService:AddTag(m, T.ShopStall)
+end
+
+local function buildMarket(parent: Instance)
+	local market = model("MarketRow", parent)
+	local perRow = math.ceil(W.MarketStalls / 2)
+	local slot = 0
+	for row = 1, 2 do
+		for i = 0, perRow - 1 do
+			slot += 1
+			if slot > W.MarketStalls then
+				break
+			end
+			local x = MARKET_X0 + i * MARKET_STEP
+			local z = if row == 1 then MARKET_ROW_A else MARKET_ROW_B
+			-- задняя стенка дальше от улицы, прилавок — к улице
+			buildStall(market, Vector3.new(x, groundAt(x, z), z), if row == 1 then math.pi else 0, slot)
+		end
+	end
+end
+
 local function buildBounds(parent: Instance)
 	local half = W.Size / 2 - 8
 	for _, data in {
@@ -589,6 +696,7 @@ function WorldBuilder.Build()
 	task.wait() -- не упереться в лимит времени выполнения скрипта
 	buildTown(root)
 	buildZones(root)
+	buildMarket(root)
 	placeOres(root)
 	buildBounds(root)
 	setupLighting()

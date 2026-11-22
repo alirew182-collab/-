@@ -79,6 +79,7 @@ function InventoryService:RemoveWeapon(player: Player, weaponId: string, silent:
 		return nil
 	end
 	data.Weapons[weaponId] = nil
+	data.Shop.Listings[weaponId] = nil
 	if data.EquippedWeapon == weaponId then
 		data.EquippedWeapon = ""
 		InventoryService:RefreshVisual(player)
@@ -89,6 +90,51 @@ function InventoryService:RemoveWeapon(player: Player, weaponId: string, silent:
 	return weapon
 end
 
+function InventoryService:IsListed(player: Player, weaponId: string): boolean
+	local data = DataService:Get(player)
+	return data ~= nil and data.Shop.Listings[weaponId] ~= nil
+end
+
+-- Можно ли отдать оружие другому игроку (обмен): своё, не надето, не в лавке
+function InventoryService:CanTransfer(player: Player, weaponId: string): boolean
+	local data = DataService:Get(player)
+	return data ~= nil
+		and data.Weapons[weaponId] ~= nil
+		and data.EquippedWeapon ~= weaponId
+		and data.Shop.Listings[weaponId] == nil
+end
+
+-- Передача между игроками: оружие переходит с тем же Id.
+-- Вызывается только из TradeService/ShopService внутри одного блока без yield.
+function InventoryService:TakeForTransfer(player: Player, weaponId: string): Types.WeaponData?
+	local data = DataService:Get(player)
+	if not data then
+		return nil
+	end
+	local weapon = data.Weapons[weaponId]
+	if not weapon then
+		return nil
+	end
+	data.Weapons[weaponId] = nil
+	data.Shop.Listings[weaponId] = nil
+	if data.EquippedWeapon == weaponId then
+		data.EquippedWeapon = ""
+		InventoryService:RefreshVisual(player)
+	end
+	return weapon
+end
+
+function InventoryService:GiveTransferred(player: Player, weapon: Types.WeaponData): boolean
+	local data = DataService:Get(player)
+	if not data or data.Weapons[weapon.Id] ~= nil then
+		-- тот же Id уже есть у получателя: это был бы дюп
+		warn(`[Inventory] отказ: {player.Name} уже владеет {weapon.Id}`)
+		return false
+	end
+	data.Weapons[weapon.Id] = table.clone(weapon)
+	return true
+end
+
 function InventoryService:GetEquipped(player: Player): Types.WeaponData?
 	local data = DataService:Get(player)
 	if not data or data.EquippedWeapon == "" then
@@ -97,7 +143,14 @@ function InventoryService:GetEquipped(player: Player): Types.WeaponData?
 	return data.Weapons[data.EquippedWeapon]
 end
 
-local function buildVisual(weapon: Types.WeaponData): (Instance?, BasePart?)
+local buildVisual: (weapon: Types.WeaponData) -> (Instance?, BasePart?)
+
+-- Модель оружия для витрины лавки (без сварки с рукой)
+function InventoryService:BuildWeaponVisual(weapon: Types.WeaponData): (Instance?, BasePart?)
+	return buildVisual(weapon)
+end
+
+function buildVisual(weapon: Types.WeaponData): (Instance?, BasePart?)
 	local def = Config.Weapons[weapon.Type]
 	if not def then
 		return nil, nil
@@ -223,6 +276,9 @@ function InventoryService:Equip(player: Player, weaponId: string): (boolean, str
 	local weapon = data.Weapons[weaponId]
 	if not weapon then
 		return false, "ERR_UNKNOWN_ITEM"
+	end
+	if data.Shop.Listings[weaponId] then
+		return false, "ERR_LISTED"
 	end
 	data.EquippedWeapon = weaponId
 	DataService:Replicate(player, "EquippedWeapon")

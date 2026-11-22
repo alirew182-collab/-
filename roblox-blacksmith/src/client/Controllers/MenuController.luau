@@ -48,6 +48,8 @@ local STATS = {
 	"GatesCleared",
 	"Parries",
 	"GoldEarned",
+	"Trades",
+	"ShopSales",
 }
 
 local function clear(frame: Instance)

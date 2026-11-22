@@ -89,13 +89,19 @@ local function refresh()
 	emptyLabel.Visible = #list == 0
 	for i, weapon in list do
 		local equipped = data.EquippedWeapon == weapon.Id
+		local listed = data.Shop.Listings[weapon.Id] ~= nil
 		WeaponCard.Create({
 			Weapon = weapon,
 			Equipped = equipped,
+			Listed = listed,
 			LayoutOrder = i,
 			Parent = grid,
 			OnClick = function()
 				if equipped then
+					return
+				end
+				if listed then
+					UIController:Toast("ERR_LISTED", nil, "error")
 					return
 				end
 				local result = UIController:Invoke("EquipWeapon", weapon.Id)
@@ -123,7 +129,7 @@ local function build()
 	})
 
 	sideList = C.Make("ScrollingFrame", {
-		Size = UDim2.new(0, S(172), 1, -S(60)),
+		Size = UDim2.new(0, S(172), 1, -S(112)),
 		Position = UDim2.fromOffset(S(12), S(48)),
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
@@ -133,6 +139,18 @@ local function build()
 		Parent = panel,
 	})
 	C.List(sideList, Enum.FillDirection.Vertical, 4)
+	C.Button({
+		Name = "MyShop",
+		Key = "UI_MY_SHOP",
+		TextSize = 15,
+		Size = UDim2.fromOffset(S(172), S(44)),
+		Position = UDim2.new(0, S(12), 1, -S(12)),
+		AnchorPoint = Vector2.new(0, 1),
+		OnClick = function()
+			UIController:OpenPanel("Shop", { Mode = "manage" })
+		end,
+		Parent = panel,
+	})
 
 	grid = WeaponCard.Grid(panel, UDim2.new(1, -S(204), 1, -S(60)), UDim2.fromOffset(S(192), S(48)))
 	emptyLabel = C.Text({
@@ -162,6 +180,7 @@ function InventoryController:Start()
 			or key == "Ores"
 			or key == "Pickaxe"
 			or key == "OwnedPickaxes"
+			or key == "Shop"
 		then
 			refresh()
 		end

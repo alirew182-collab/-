@@ -82,7 +82,12 @@ local function refreshWeapons(data: any)
 			selected[id] = nil
 		end
 	end
-	for i, weapon in WeaponCard.Sorted(data.Weapons) do
+	local i = 0
+	for _, weapon in WeaponCard.Sorted(data.Weapons) do
+		if data.Shop.Listings[weapon.Id] then
+			continue -- выставленное в лавке торговцу не продаётся
+		end
+		i += 1
 		local equipped = data.EquippedWeapon == weapon.Id
 		WeaponCard.Create({
 			Weapon = weapon,
@@ -327,7 +332,7 @@ local function build()
 				return
 			end
 			for id, w in data.Weapons do
-				if w.Rarity == "Common" and id ~= data.EquippedWeapon then
+				if w.Rarity == "Common" and id ~= data.EquippedWeapon and not data.Shop.Listings[id] then
 					selected[id] = true
 				end
 			end
@@ -397,6 +402,7 @@ function MerchantController:Start()
 			or key == "Gold"
 			or key == "Level"
 			or key == "OwnedPickaxes"
+			or key == "Shop"
 		then
 			refresh()
 		end

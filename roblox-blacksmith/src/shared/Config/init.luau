@@ -22,6 +22,7 @@ local Config = {
 	Codes = require(script.Codes),
 	Social = require(script.Social),
 	World = require(script.World),
+	Trading = require(script.Trading),
 	Network = require(script.Network),
 	Audio = require(script.Audio),
 
@@ -44,6 +45,7 @@ local Config = {
 		GateSpawn = "GateSpawn",
 		GatePortal = "GatePortal",
 		Leaderboard = "Leaderboard",
+		ShopStall = "ShopStall",
 		Spin = "Spin", -- клиент медленно вращает такие детали
 	},
 }

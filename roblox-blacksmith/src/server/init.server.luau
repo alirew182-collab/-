@@ -27,6 +27,8 @@ local ORDER = {
 	"CombatService",
 	"GateService",
 	"WorldMobService",
+	"ShopService",
+	"TradeService",
 	"CodesService",
 	"LeaderboardService",
 }

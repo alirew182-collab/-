@@ -21,6 +21,8 @@ local ORDER = {
 	"CombatController",
 	"GateController",
 	"FxController",
+	"ShopController",
+	"TradeController",
 	"MenuController",
 	"ZoneController",
 }

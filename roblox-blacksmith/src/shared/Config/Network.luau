@@ -26,6 +26,15 @@ local Network: { Default: Limit, Limits: { [string]: Limit } } = {
 		GateLeave = { PerSecond = 1, Burst = 2 },
 		RedeemCode = { PerSecond = 0.3, Burst = 3 },
 		SetSetting = { PerSecond = 2, Burst = 6 },
+		TradeRespond = { PerSecond = 1, Burst = 3 },
+		TradeSetOffer = { PerSecond = 4, Burst = 8 },
+		TradeReady = { PerSecond = 3, Burst = 6 },
+		TradeConfirm = { PerSecond = 2, Burst = 4 },
+		TradeCancel = { PerSecond = 1, Burst = 3 },
+		ShopList = { PerSecond = 2, Burst = 4 },
+		ShopUnlist = { PerSecond = 2, Burst = 4 },
+		ShopBuy = { PerSecond = 1, Burst = 3 },
+		ShopFetch = { PerSecond = 2, Burst = 4 },
 	},
 }
 

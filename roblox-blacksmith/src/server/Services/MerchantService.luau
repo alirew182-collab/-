@@ -41,8 +41,8 @@ local function sellWeapons(player: Player, ids: any)
 	for _, id in ids do
 		if not seen[id] then
 			seen[id] = true
-			if id == data.EquippedWeapon then
-				continue -- надетое не продаём
+			if id == data.EquippedWeapon or data.Shop.Listings[id] then
+				continue -- надетое и выставленное в лавке не продаём
 			end
 			-- сначала удаляем, потом платим: никакого дюпа даже при ошибке ниже
 			local weapon = InventoryService:RemoveWeapon(player, id, true)

@@ -37,6 +37,8 @@ local Template = {
 		BestDamage = 0,
 		EliteKills = 0,
 		MythicForged = 0,
+		Trades = 0,
+		ShopSales = 0,
 	} :: { [string]: number },
 	Settings = {
 		Language = "", -- "" = определить по языку Roblox
@@ -52,6 +54,11 @@ local Template = {
 		Quests = {} :: { any }, -- { { Id, Progress, Done } }
 	},
 	RedeemedCodes = {} :: { [string]: boolean },
+	Shop = {
+		Listings = {} :: { [string]: number }, -- id оружия → цена
+		Earned = 0,
+		LastOnlineAt = 0, -- для офлайн-продаж
+	},
 	ProcessedReceipts = {} :: { [string]: boolean }, -- для идемпотентного ProcessReceipt (Этап 3)
 	FirstJoinAt = 0,
 	LastJoinAt = 0,

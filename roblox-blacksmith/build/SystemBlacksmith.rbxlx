@@ -1,4 +1,4 @@
-<roblox version="4"><Item class="Workspace" referent="RBX00000056"><Properties><string name="Name">Workspace</string><bool name="StreamingEnabled">true</bool></Properties></Item><Item class="ReplicatedStorage" referent="RBX00000057"><Properties><string name="Name">ReplicatedStorage</string></Properties><Item class="Folder" referent="RBX0000001C"><Properties><string name="Name">Shared</string></Properties><Item class="ModuleScript" referent="RBX00000014"><Properties><string name="Name">Config</string><ProtectedString name="Source"><![CDATA[--!strict
+<roblox version="4"><Item class="Workspace" referent="RBX0000005C"><Properties><string name="Name">Workspace</string><bool name="StreamingEnabled">true</bool></Properties></Item><Item class="ReplicatedStorage" referent="RBX0000005D"><Properties><string name="Name">ReplicatedStorage</string></Properties><Item class="Folder" referent="RBX0000001D"><Properties><string name="Name">Shared</string></Properties><Item class="ModuleScript" referent="RBX00000015"><Properties><string name="Name">Config</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ЕДИНАЯ ТОЧКА ВХОДА В БАЛАНС.
 	Все числа игры — в соседних модулях этой папки. Код читает их только через Config.
@@ -22,6 +22,7 @@ local Config = {
 	Codes = require(script.Codes),
 	Social = require(script.Social),
 	World = require(script.World),
+	Trading = require(script.Trading),
 	Network = require(script.Network),
 	Audio = require(script.Audio),
 
@@ -44,6 +45,7 @@ local Config = {
 		GateSpawn = "GateSpawn",
 		GatePortal = "GatePortal",
 		Leaderboard = "Leaderboard",
+		ShopStall = "ShopStall",
 		Spin = "Spin", -- клиент медленно вращает такие детали
 	},
 }
@@ -630,6 +632,15 @@ local Network: { Default: Limit, Limits: { [string]: Limit } } = {
 		GateLeave = { PerSecond = 1, Burst = 2 },
 		RedeemCode = { PerSecond = 0.3, Burst = 3 },
 		SetSetting = { PerSecond = 2, Burst = 6 },
+		TradeRespond = { PerSecond = 1, Burst = 3 },
+		TradeSetOffer = { PerSecond = 4, Burst = 8 },
+		TradeReady = { PerSecond = 3, Burst = 6 },
+		TradeConfirm = { PerSecond = 2, Burst = 4 },
+		TradeCancel = { PerSecond = 1, Burst = 3 },
+		ShopList = { PerSecond = 2, Burst = 4 },
+		ShopUnlist = { PerSecond = 2, Burst = 4 },
+		ShopBuy = { PerSecond = 1, Burst = 3 },
+		ShopFetch = { PerSecond = 2, Burst = 4 },
 	},
 }
 
@@ -864,7 +875,52 @@ local Social = {
 }
 
 return Social
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000010"><Properties><string name="Name">Traits</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000010"><Properties><string name="Name">Trading</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	ОБМЕН МЕЖДУ ИГРОКАМИ И ЛАВКИ.
+
+	Обмен: подойди к игроку → подсказка «Обмен». Оба кладут оружие и золото.
+	Защита от скама: любое изменение сбрасывает готовность у обоих, «Подтвердить»
+	доступно через ConfirmDelaySeconds после того, как оба готовы, и сервер проверяет,
+	что игрок подтверждает именно ту версию предложения, которую видел.
+
+	Лавка: у каждого игрока на сервере свой прилавок в Торговом ряду (тег ShopStall).
+	Пока владелец не в игре, лавка продаёт NPC-покупателям, но ограниченно (Offline).
+]]
+
+local Trading = {
+	Trade = {
+		MinLevel = 2, -- обмен с 2-го уровня: защита от фарма на твинках
+		RequestTimeoutSeconds = 20,
+		PromptDistance = 10,
+		MaxItems = 6, -- предметов с одной стороны
+		MaxGold = 10000000,
+		ConfirmDelaySeconds = 3,
+	},
+
+	Shop = {
+		MaxListings = 6, -- второй слот лавки за геймпасс — позже (монетизация)
+		TaxRate = 0.05, -- комиссия рынка: золото уходит из экономики
+		MinPrice = 1,
+		MaxPrice = 10000000,
+		SuggestedPriceMult = 1.5, -- подсказка цены = цена у торговца × 1.5
+		InteractDistance = 16,
+
+		Offline = {
+			MinAwaySeconds = 600, -- меньше 10 минут не считается
+			MaxHours = 8, -- дольше не копится
+			SalesPerHour = 1,
+			MaxSales = 6,
+			-- NPC платят твою цену, но не больше цены у торговца × MaxPriceMult
+			MaxPriceMult = 1.5,
+		},
+	},
+
+	LogStoreName = "MarketLog_v1", -- DataStore с журналом сделок
+}
+
+return Trading
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000011"><Properties><string name="Name">Traits</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ЧЕРТЫ ОРУЖИЯ (случайные, число зависит от редкости).
 	Все эффекты считает сервер (CombatService / MiningService).
@@ -935,7 +991,7 @@ local Traits: { [string]: TraitDef } = {
 }
 
 return Traits
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000011"><Properties><string name="Name">Tutorial</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000012"><Properties><string name="Name">Tutorial</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ОБУЧЕНИЕ / КВЕСТЫ СИСТЕМЫ первого захода.
 	Event — событие, которое шлют сервисы (OreMined, WeaponForged, WeaponEquipped,
@@ -1014,7 +1070,7 @@ local Tutorial: { Steps: { TutorialStep } } = {
 }
 
 return Tutorial
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000012"><Properties><string name="Name">Weapons</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000013"><Properties><string name="Name">Weapons</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ТИПЫ ОРУЖИЯ.
 	Урон = BaseDamage * PowerMult руды * множитель качества * множитель редкости * бонус уровня.
@@ -1079,7 +1135,7 @@ local Weapons: { [string]: WeaponDef } = {
 }
 
 return Weapons
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000013"><Properties><string name="Name">World</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000014"><Properties><string name="Name">World</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	МИР. Если в карте нет ни одного объекта с тегом OreNode, сервер сам строит полный мир
 	(Terrain + постройки): город, 4 зоны, озеро, горы по краю. Как только поставишь свои
@@ -1143,6 +1199,15 @@ local World = {
 			Safe = false,
 			Music = "MusicWild",
 		},
+		Market = {
+			Id = "Market",
+			NameKey = "ZONE_MARKET",
+			Center = Vector3.new(96, 0, 60),
+			Radius = 52,
+			Level = 1,
+			Safe = true,
+			Music = "MusicTown",
+		},
 		GatePlains = {
 			Id = "GatePlains",
 			NameKey = "ZONE_PLAINS",
@@ -1171,6 +1236,7 @@ local World = {
 	-- Мобы открытого мира появляются только в автопостроенном мире (на своей карте зоны могут не совпасть).
 	-- Поставь true, если твоя карта повторяет координаты зон из этого файла.
 	MobsOnCustomMap = false,
+	MarketStalls = 16, -- прилавков в Торговом ряду (= сколько игроков получат лавку на сервере)
 	AggroRadius = 38,
 	LeashRadius = 70, -- дальше от точки появления моб не побежит
 
@@ -1192,7 +1258,7 @@ local World = {
 }
 
 return World
-]]></ProtectedString></Properties></Item></Item><Item class="ModuleScript" referent="RBX00000015"><Properties><string name="Name">Format</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item></Item><Item class="ModuleScript" referent="RBX00000016"><Properties><string name="Name">Format</string><ProtectedString name="Source"><![CDATA[--!strict
 
 local Format = {}
 
@@ -1216,7 +1282,7 @@ function Format.Time(seconds: number): string
 end
 
 return Format
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000017"><Properties><string name="Name">Localization</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000018"><Properties><string name="Name">Localization</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Локализатор. Используется на клиенте (весь текст интерфейса) и на сервере
 	(только чтобы проверить, что язык допустим).
@@ -1307,7 +1373,7 @@ function Localization.WeaponName(weaponType: string, oreId: string): string
 end
 
 return Localization
-]]></ProtectedString></Properties><Item class="ModuleScript" referent="RBX00000016"><Properties><string name="Name">Strings</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties><Item class="ModuleScript" referent="RBX00000017"><Properties><string name="Name">Strings</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ТАБЛИЦА ЛОКАЛИЗАЦИИ (EN + RU).
 	Подстановки: {name}. Если значение аргумента начинается с "@", оно само переводится по ключу.
@@ -1611,6 +1677,63 @@ local en: { [string]: string } = {
 	RANK_S = "S",
 	RANK_NATIONAL = "National",
 	RANK_UNKNOWN = "???",
+
+	-- ===== Этап 3: обмен и лавки =====
+	ZONE_MARKET = "Market Row",
+	PROMPT_TRADE_PLAYER = "Trade",
+	PROMPT_SHOP = "Shop",
+	UI_STALL_FREE = "Free stall",
+	UI_TRADE_TITLE = "Trade with {name}",
+	UI_TRADE_YOURS = "You give",
+	UI_TRADE_THEIRS = "{name} gives",
+	UI_TRADE_GOLD_LINE = "Gold: {gold}",
+	UI_TRADE_SET_GOLD = "Set gold",
+	UI_TRADE_READY = "Ready",
+	UI_TRADE_UNREADY = "Not ready",
+	UI_TRADE_CONFIRM = "Confirm trade",
+	UI_TRADE_WAIT = "Confirm in {sec} s",
+	UI_TRADE_WAITING = "Waiting for {name}",
+	UI_TRADE_HINT = "Tap your weapons to add or remove them. Any change resets both confirmations",
+	UI_TRADE_INVITE = "{name} wants to trade",
+	UI_ACCEPT = "Accept",
+	UI_DECLINE = "Decline",
+	UI_EMPTY_OFFER = "Nothing yet",
+	UI_SHOP_TITLE = "{name}'s shop",
+	UI_MY_SHOP = "My shop",
+	UI_SHOP_PRICE = "Price",
+	UI_SHOP_LIST = "List",
+	UI_SHOP_UNLIST = "Remove",
+	UI_SHOP_LISTINGS = "Listed {count}/{max} · fee {fee}%",
+	UI_SHOP_EARNED = "Earned in shop: {gold}",
+	UI_SHOP_EMPTY = "Nothing for sale",
+	UI_SHOP_PICK = "Pick a weapon, set the price and list it",
+	UI_SHOP_NO_STALL = "All stalls are taken. Listings still sell while you are offline",
+	UI_LISTED = "Listed",
+	UI_PRICE_LINE = "{gold} Gold",
+	SYS_KIND_TRADE = "Trade",
+	SYS_KIND_SHOP = "Shop",
+	SYS_SHOP_SOLD_TITLE = "{weapon} sold",
+	SYS_SHOP_SOLD_BODY = "{buyer} paid {price} Gold, you got {gold} after the fee",
+	SYS_SHOP_OFFLINE_TITLE = "Your shop sold items while you were away",
+	SYS_SHOP_OFFLINE_BODY = "Customers bought {count} items: +{gold} Gold",
+	TOAST_TRADE_SENT = "Trade request sent to {name}",
+	TOAST_TRADE_DECLINED = "{name} declined the trade",
+	TOAST_TRADE_CANCELLED = "Trade cancelled",
+	TOAST_TRADE_DONE = "Trade complete",
+	TOAST_LISTED = "Listed for {price} Gold",
+	ERR_TRADE_BUSY = "This player is already trading",
+	ERR_TRADE_EXPIRED = "Trade request expired",
+	ERR_TRADE_CHANGED = "The offer changed, check it again",
+	ERR_TRADE_FAILED = "Trade failed: items or gold changed",
+	ERR_TOO_MANY_ITEMS = "Too many items, max {max}",
+	ERR_LISTED = "This weapon is listed in your shop",
+	ERR_PRICE = "Price must be from {min} to {max}",
+	ERR_SHOP_FULL = "Shop is full, max {max} listings",
+	ERR_SHOP_GONE = "Already sold or the price changed",
+	ERR_OWNER_OFFLINE = "The shop owner left the server",
+	ERR_PLAYER_GONE = "Player not found",
+	STAT_TRADES = "Trades",
+	STAT_SHOPSALES = "Shop sales",
 }
 
 local ru: { [string]: string } = {
@@ -1898,13 +2021,70 @@ local ru: { [string]: string } = {
 	RANK_S = "S",
 	RANK_NATIONAL = "Национальный",
 	RANK_UNKNOWN = "???",
+
+	-- ===== Этап 3: обмен и лавки =====
+	ZONE_MARKET = "Торговый ряд",
+	PROMPT_TRADE_PLAYER = "Обмен",
+	PROMPT_SHOP = "Лавка",
+	UI_STALL_FREE = "Свободный прилавок",
+	UI_TRADE_TITLE = "Обмен с {name}",
+	UI_TRADE_YOURS = "Ты отдаёшь",
+	UI_TRADE_THEIRS = "{name} отдаёт",
+	UI_TRADE_GOLD_LINE = "Золото: {gold}",
+	UI_TRADE_SET_GOLD = "Указать",
+	UI_TRADE_READY = "Готов",
+	UI_TRADE_UNREADY = "Не готов",
+	UI_TRADE_CONFIRM = "Подтвердить обмен",
+	UI_TRADE_WAIT = "Подтвердить через {sec} с",
+	UI_TRADE_WAITING = "Ждём {name}",
+	UI_TRADE_HINT = "Нажимай на своё оружие, чтобы добавить или убрать его. Любое изменение сбрасывает подтверждения",
+	UI_TRADE_INVITE = "{name} предлагает обмен",
+	UI_ACCEPT = "Принять",
+	UI_DECLINE = "Отказать",
+	UI_EMPTY_OFFER = "Пока ничего",
+	UI_SHOP_TITLE = "Лавка: {name}",
+	UI_MY_SHOP = "Моя лавка",
+	UI_SHOP_PRICE = "Цена",
+	UI_SHOP_LIST = "Выставить",
+	UI_SHOP_UNLIST = "Снять",
+	UI_SHOP_LISTINGS = "Выставлено {count}/{max} · комиссия {fee}%",
+	UI_SHOP_EARNED = "Заработано в лавке: {gold}",
+	UI_SHOP_EMPTY = "Пока ничего не продаётся",
+	UI_SHOP_PICK = "Выбери оружие, укажи цену и выставь",
+	UI_SHOP_NO_STALL = "Все прилавки заняты. Выставленное всё равно продаётся, пока тебя нет",
+	UI_LISTED = "В лавке",
+	UI_PRICE_LINE = "{gold} золота",
+	SYS_KIND_TRADE = "Обмен",
+	SYS_KIND_SHOP = "Лавка",
+	SYS_SHOP_SOLD_TITLE = "Продано: {weapon}",
+	SYS_SHOP_SOLD_BODY = "{buyer} заплатил {price} золота, тебе после комиссии {gold}",
+	SYS_SHOP_OFFLINE_TITLE = "Лавка продавала, пока тебя не было",
+	SYS_SHOP_OFFLINE_BODY = "Покупатели купили предметов: {count}, +{gold} золота",
+	TOAST_TRADE_SENT = "Запрос обмена отправлен: {name}",
+	TOAST_TRADE_DECLINED = "{name} отказался от обмена",
+	TOAST_TRADE_CANCELLED = "Обмен отменён",
+	TOAST_TRADE_DONE = "Обмен завершён",
+	TOAST_LISTED = "Выставлено за {price} золота",
+	ERR_TRADE_BUSY = "Этот игрок уже в обмене",
+	ERR_TRADE_EXPIRED = "Запрос обмена устарел",
+	ERR_TRADE_CHANGED = "Предложение изменилось, проверь его ещё раз",
+	ERR_TRADE_FAILED = "Обмен не прошёл: предметы или золото изменились",
+	ERR_TOO_MANY_ITEMS = "Слишком много предметов, максимум {max}",
+	ERR_LISTED = "Это оружие выставлено в лавке",
+	ERR_PRICE = "Цена должна быть от {min} до {max}",
+	ERR_SHOP_FULL = "Лавка заполнена, максимум {max}",
+	ERR_SHOP_GONE = "Уже продано или цена изменилась",
+	ERR_OWNER_OFFLINE = "Владелец лавки вышел с сервера",
+	ERR_PLAYER_GONE = "Игрок не найден",
+	STAT_TRADES = "Обменов",
+	STAT_SHOPSALES = "Продаж в лавке",
 }
 
 return {
 	en = en,
 	ru = ru,
 }
-]]></ProtectedString></Properties></Item></Item><Item class="ModuleScript" referent="RBX00000018"><Properties><string name="Name">Net</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item></Item><Item class="ModuleScript" referent="RBX00000019"><Properties><string name="Name">Net</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Единый список Remote-ов. Сервер создаёт их в ReplicatedStorage/Remotes,
 	клиент ждёт. Имя, которого нет в списке, = ошибка (защита от опечаток).
@@ -1929,6 +2109,8 @@ Net.Events = {
 	Toast = true, -- короткое сообщение внизу экрана
 	OpenPanel = true, -- открыть окно (кузня, торговец)
 	GateState = true, -- состояние группы/забега во Вратах
+	TradeInvite = true, -- кто-то предлагает обмен
+	TradeState = true, -- состояние окна обмена
 	-- клиент → сервер
 	CombatAttack = true,
 	CombatBlock = true,
@@ -1937,6 +2119,10 @@ Net.Events = {
 	SetSetting = true,
 	GateStart = true,
 	GateLeave = true,
+	TradeRespond = true,
+	TradeReady = true,
+	TradeConfirm = true,
+	TradeCancel = true,
 }
 
 -- UnreliableRemoteEvent (косметика, можно потерять)
@@ -1955,6 +2141,11 @@ Net.Functions = {
 	SellOres = true,
 	BuyPickaxe = true,
 	RedeemCode = true,
+	TradeSetOffer = true,
+	ShopList = true,
+	ShopUnlist = true,
+	ShopBuy = true,
+	ShopFetch = true,
 }
 
 local function getFolder(): Instance
@@ -2015,7 +2206,7 @@ function Net.Function(name: string): RemoteFunction
 end
 
 return Net
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000019"><Properties><string name="Name">Signal</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000001A"><Properties><string name="Name">Signal</string><ProtectedString name="Source"><![CDATA[--!strict
 -- Минимальный Signal без BindableEvent (быстрее и не копирует таблицы).
 
 export type Connection = {
@@ -2077,7 +2268,7 @@ function Signal.new(): Signal
 end
 
 return Signal
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000001A"><Properties><string name="Name">Types</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000001B"><Properties><string name="Name">Types</string><ProtectedString name="Source"><![CDATA[--!strict
 -- Общие типы данных клиента и сервера.
 
 export type WeaponData = {
@@ -2131,7 +2322,7 @@ export type Response = {
 }
 
 return {}
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000001B"><Properties><string name="Name">WeaponMath</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000001C"><Properties><string name="Name">WeaponMath</string><ProtectedString name="Source"><![CDATA[--!strict
 -- Формулы оружия, редкостей, рангов: одинаковые на клиенте (превью, шансы) и сервере (истина).
 
 local Config = require(script.Parent.Config)
@@ -2285,7 +2476,7 @@ function WeaponMath.MaxHealth(level: number): number
 end
 
 return WeaponMath
-]]></ProtectedString></Properties></Item></Item></Item><Item class="ServerScriptService" referent="RBX00000058"><Properties><string name="Name">ServerScriptService</string></Properties><Item class="Script" referent="RBX0000003E"><Properties><string name="Name">Server</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item></Item></Item><Item class="ServerScriptService" referent="RBX0000005E"><Properties><string name="Name">ServerScriptService</string></Properties><Item class="Script" referent="RBX00000042"><Properties><string name="Name">Server</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ТОЧКА ВХОДА СЕРВЕРА.
 	Порядок: все сервисы → :Init() (создают свои папки/Remote) → :Start() (подписки, циклы).
@@ -2314,6 +2505,8 @@ local ORDER = {
 	"CombatService",
 	"GateService",
 	"WorldMobService",
+	"ShopService",
+	"TradeService",
 	"CodesService",
 	"LeaderboardService",
 }
@@ -2353,7 +2546,7 @@ end
 services.DataService:BeginLoading()
 
 print("[SystemBlacksmith] сервер запущен")
-]]></ProtectedString></Properties><Item class="Folder" referent="RBX00000020"><Properties><string name="Name">Data</string></Properties><Item class="ModuleScript" referent="RBX0000001D"><Properties><string name="Name">FallbackStore</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties><Item class="Folder" referent="RBX00000021"><Properties><string name="Name">Data</string></Properties><Item class="ModuleScript" referent="RBX0000001E"><Properties><string name="Name">FallbackStore</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ЗАГЛУШКА ProfileStore — ТОЛЬКО ДЛЯ ТЕСТА В STUDIO, ДАННЫЕ НЕ СОХРАНЯЮТСЯ.
 	Используется, если в ServerStorage нет модуля ProfileStore.
@@ -2405,6 +2598,7 @@ function FallbackStore.New(_name: string, template: any)
 		function profile:IsActive(): boolean
 			return active
 		end
+		function profile:Save() end
 		function profile:EndSession()
 			if active then
 				active = false
@@ -2418,7 +2612,7 @@ function FallbackStore.New(_name: string, template: any)
 end
 
 return FallbackStore
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000001E"><Properties><string name="Name">Migrations</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000001F"><Properties><string name="Name">Migrations</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	МИГРАЦИИ СХЕМЫ ДАННЫХ.
 	Steps[N] переводит данные из версии N в версию N+1. Вызываются по цепочке при загрузке.
@@ -2456,7 +2650,7 @@ function Migrations.Apply(data: any): boolean
 end
 
 return Migrations
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000001F"><Properties><string name="Name">Template</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000020"><Properties><string name="Name">Template</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ШАБЛОН ДАННЫХ ИГРОКА (схема v1).
 	Новое поле: просто добавь сюда — ProfileStore:Reconcile() допишет его старым профилям.
@@ -2495,6 +2689,8 @@ local Template = {
 		BestDamage = 0,
 		EliteKills = 0,
 		MythicForged = 0,
+		Trades = 0,
+		ShopSales = 0,
 	} :: { [string]: number },
 	Settings = {
 		Language = "", -- "" = определить по языку Roblox
@@ -2510,13 +2706,18 @@ local Template = {
 		Quests = {} :: { any }, -- { { Id, Progress, Done } }
 	},
 	RedeemedCodes = {} :: { [string]: boolean },
+	Shop = {
+		Listings = {} :: { [string]: number }, -- id оружия → цена
+		Earned = 0,
+		LastOnlineAt = 0, -- для офлайн-продаж
+	},
 	ProcessedReceipts = {} :: { [string]: boolean }, -- для идемпотентного ProcessReceipt (Этап 3)
 	FirstJoinAt = 0,
 	LastJoinAt = 0,
 }
 
 return Template
-]]></ProtectedString></Properties></Item></Item><Item class="Folder" referent="RBX00000035"><Properties><string name="Name">Services</string></Properties><Item class="ModuleScript" referent="RBX00000021"><Properties><string name="Name">CodesService</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item></Item><Item class="Folder" referent="RBX00000038"><Properties><string name="Name">Services</string></Properties><Item class="ModuleScript" referent="RBX00000022"><Properties><string name="Name">CodesService</string><ProtectedString name="Source"><![CDATA[--!strict
 -- КОДЫ: игрок вводит код из соцсетей → разовая награда. Список кодов — Config/Codes.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -2570,7 +2771,7 @@ function CodesService:Start()
 end
 
 return CodesService
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000022"><Properties><string name="Name">CombatService</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000023"><Properties><string name="Name">CombatService</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	БОЙ ИГРОКА. Клиент шлёт только «я ударил» / «я держу блок».
 	Сервер сам решает: кулдаун оружия, кого задело (дистанция + угол перед игроком), сколько урона.
@@ -2699,7 +2900,7 @@ function CombatService:Start()
 end
 
 return CombatService
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000023"><Properties><string name="Name">CombatState</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000024"><Properties><string name="Name">CombatState</string><ProtectedString name="Source"><![CDATA[--!strict
 -- Состояние блока/парирования игроков. Используется MobService (входящий урон) и CombatService.
 
 local Players = game:GetService("Players")
@@ -2775,7 +2976,7 @@ function CombatState:Start()
 end
 
 return CombatState
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000024"><Properties><string name="Name">DailyService</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000025"><Properties><string name="Name">DailyService</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ЕЖЕДНЕВНОЕ: награда за вход с серией (7-дневный цикл) и 3 задания Системы на день.
 	Невыполненные вчера задания → шуточный «штраф» Системы (без настоящего наказания).
@@ -2923,7 +3124,7 @@ function DailyService:Start()
 end
 
 return DailyService
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000025"><Properties><string name="Name">DataService</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000026"><Properties><string name="Name">DataService</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ДАННЫЕ ИГРОКА через ProfileStore (session locking → защита от дюпа между серверами).
 
@@ -3120,6 +3321,17 @@ function DataService:Replicate(player: Player, ...: string)
 	end
 end
 
+-- Немедленное сохранение (после обмена и покупки): сужает окно, в котором сбой сервера
+-- мог бы сохранить одну сторону сделки без другой.
+function DataService:SaveNow(player: Player)
+	local profile = profiles[player]
+	if profile and type(profile.Save) == "function" then
+		pcall(function()
+			profile:Save()
+		end)
+	end
+end
+
 function DataService:AddStat(player: Player, stat: string, amount: number)
 	local data = DataService:Get(player)
 	if data then
@@ -3129,7 +3341,7 @@ function DataService:AddStat(player: Player, stat: string, amount: number)
 end
 
 return DataService
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000026"><Properties><string name="Name">EconomyService</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000027"><Properties><string name="Name">EconomyService</string><ProtectedString name="Source"><![CDATA[--!strict
 -- Золото и руда. Единственное место, где они меняются.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -3158,6 +3370,21 @@ function EconomyService:TrySpendGold(player: Player, amount: number): boolean
 	data.Gold -= math.floor(amount)
 	DataService:Replicate(player, "Gold")
 	return true
+end
+
+-- Перевод золота между игроками (обмен, покупка в лавке). Не считается «заработком».
+-- tax — доля, которая сгорает (комиссия рынка). Возвращает сумму, дошедшую получателю.
+function EconomyService:TransferGold(from: Player, to: Player, amount: number, tax: number?): number?
+	local a = DataService:Get(from)
+	local b = DataService:Get(to)
+	amount = math.floor(amount)
+	if not a or not b or amount < 0 or a.Gold < amount then
+		return nil
+	end
+	local received = amount - math.floor(amount * (tax or 0) + 0.5)
+	a.Gold -= amount
+	b.Gold += received
+	return received
 end
 
 function EconomyService:GetOre(player: Player, oreId: string): number
@@ -3192,7 +3419,7 @@ function EconomyService:TrySpendOre(player: Player, oreId: string, count: number
 end
 
 return EconomyService
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000027"><Properties><string name="Name">ForgeService</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000028"><Properties><string name="Name">ForgeService</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	КОВКА. Наковальня = Part/Model с тегом "Forge".
 
@@ -3532,7 +3759,7 @@ function ForgeService:Start()
 end
 
 return ForgeService
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000028"><Properties><string name="Name">GateService</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000029"><Properties><string name="Name">GateService</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ВРАТА (ДАНЖИ).
 	1. По таймеру на точке с тегом "GateSpawn" открывается портал (объявление на весь сервер).
@@ -4398,7 +4625,7 @@ function GateService:Start()
 end
 
 return GateService
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000029"><Properties><string name="Name">InventoryService</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000002A"><Properties><string name="Name">InventoryService</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ИНВЕНТАРЬ: оружие (по уникальному GUID), надетое оружие и его модель в руке, кирки.
 	Модель оружия: ServerStorage/WeaponModels/<Type> (Model или BasePart).
@@ -4479,6 +4706,7 @@ function InventoryService:RemoveWeapon(player: Player, weaponId: string, silent:
 		return nil
 	end
 	data.Weapons[weaponId] = nil
+	data.Shop.Listings[weaponId] = nil
 	if data.EquippedWeapon == weaponId then
 		data.EquippedWeapon = ""
 		InventoryService:RefreshVisual(player)
@@ -4489,6 +4717,51 @@ function InventoryService:RemoveWeapon(player: Player, weaponId: string, silent:
 	return weapon
 end
 
+function InventoryService:IsListed(player: Player, weaponId: string): boolean
+	local data = DataService:Get(player)
+	return data ~= nil and data.Shop.Listings[weaponId] ~= nil
+end
+
+-- Можно ли отдать оружие другому игроку (обмен): своё, не надето, не в лавке
+function InventoryService:CanTransfer(player: Player, weaponId: string): boolean
+	local data = DataService:Get(player)
+	return data ~= nil
+		and data.Weapons[weaponId] ~= nil
+		and data.EquippedWeapon ~= weaponId
+		and data.Shop.Listings[weaponId] == nil
+end
+
+-- Передача между игроками: оружие переходит с тем же Id.
+-- Вызывается только из TradeService/ShopService внутри одного блока без yield.
+function InventoryService:TakeForTransfer(player: Player, weaponId: string): Types.WeaponData?
+	local data = DataService:Get(player)
+	if not data then
+		return nil
+	end
+	local weapon = data.Weapons[weaponId]
+	if not weapon then
+		return nil
+	end
+	data.Weapons[weaponId] = nil
+	data.Shop.Listings[weaponId] = nil
+	if data.EquippedWeapon == weaponId then
+		data.EquippedWeapon = ""
+		InventoryService:RefreshVisual(player)
+	end
+	return weapon
+end
+
+function InventoryService:GiveTransferred(player: Player, weapon: Types.WeaponData): boolean
+	local data = DataService:Get(player)
+	if not data or data.Weapons[weapon.Id] ~= nil then
+		-- тот же Id уже есть у получателя: это был бы дюп
+		warn(`[Inventory] отказ: {player.Name} уже владеет {weapon.Id}`)
+		return false
+	end
+	data.Weapons[weapon.Id] = table.clone(weapon)
+	return true
+end
+
 function InventoryService:GetEquipped(player: Player): Types.WeaponData?
 	local data = DataService:Get(player)
 	if not data or data.EquippedWeapon == "" then
@@ -4497,7 +4770,14 @@ function InventoryService:GetEquipped(player: Player): Types.WeaponData?
 	return data.Weapons[data.EquippedWeapon]
 end
 
-local function buildVisual(weapon: Types.WeaponData): (Instance?, BasePart?)
+local buildVisual: (weapon: Types.WeaponData) -> (Instance?, BasePart?)
+
+-- Модель оружия для витрины лавки (без сварки с рукой)
+function InventoryService:BuildWeaponVisual(weapon: Types.WeaponData): (Instance?, BasePart?)
+	return buildVisual(weapon)
+end
+
+function buildVisual(weapon: Types.WeaponData): (Instance?, BasePart?)
 	local def = Config.Weapons[weapon.Type]
 	if not def then
 		return nil, nil
@@ -4624,6 +4904,9 @@ function InventoryService:Equip(player: Player, weaponId: string): (boolean, str
 	if not weapon then
 		return false, "ERR_UNKNOWN_ITEM"
 	end
+	if data.Shop.Listings[weaponId] then
+		return false, "ERR_LISTED"
+	end
 	data.EquippedWeapon = weaponId
 	DataService:Replicate(player, "EquippedWeapon")
 	InventoryService:RefreshVisual(player)
@@ -4668,7 +4951,7 @@ function InventoryService:Start()
 end
 
 return InventoryService
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000002A"><Properties><string name="Name">LeaderboardService</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000002B"><Properties><string name="Name">LeaderboardService</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ГЛОБАЛЬНЫЕ ЛИДЕРБОРДЫ (OrderedDataStore): уровень, сильнейшее оружие, зачищенные Врата.
 	Доски — Part с тегом "Leaderboard" и атрибутом Board = "Level" | "Damage" | "Gates".
@@ -4906,7 +5189,7 @@ function LeaderboardService:Start()
 end
 
 return LeaderboardService
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000002B"><Properties><string name="Name">LevelService</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000002C"><Properties><string name="Name">LevelService</string><ProtectedString name="Source"><![CDATA[--!strict
 -- Опыт, уровни, здоровье персонажа от уровня.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -5015,7 +5298,7 @@ function LevelService:Start()
 end
 
 return LevelService
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000002C"><Properties><string name="Name">MerchantService</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000002D"><Properties><string name="Name">MerchantService</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ТОРГОВЕЦ (NPC). Part/Model с тегом "Merchant".
 	Продажа оружия и руды, покупка кирок. Каждое действие проверяет, что игрок рядом с торговцем.
@@ -5058,8 +5341,8 @@ local function sellWeapons(player: Player, ids: any)
 	for _, id in ids do
 		if not seen[id] then
 			seen[id] = true
-			if id == data.EquippedWeapon then
-				continue -- надетое не продаём
+			if id == data.EquippedWeapon or data.Shop.Listings[id] then
+				continue -- надетое и выставленное в лавке не продаём
 			end
 			-- сначала удаляем, потом платим: никакого дюпа даже при ошибке ниже
 			local weapon = InventoryService:RemoveWeapon(player, id, true)
@@ -5154,7 +5437,7 @@ function MerchantService:Start()
 end
 
 return MerchantService
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000002D"><Properties><string name="Name">MiningService</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000002E"><Properties><string name="Name">MiningService</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ДОБЫЧА. Жила = BasePart (или Model) с тегом "OreNode" и атрибутом OreId ("Copper" | "Iron" | ...).
 	Атрибут AutoStyle = false → не перекрашивать твою модель в цвет руды.
@@ -5358,7 +5641,7 @@ function MiningService:Start()
 end
 
 return MiningService
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000002E"><Properties><string name="Name">MobService</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000002F"><Properties><string name="Name">MobService</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	МОБЫ: спавн из пула объектов, простой ИИ на сервере (догнать → замах → удар),
 	у боссов — удар по площади с красным кругом-предупреждением.
@@ -5985,7 +6268,7 @@ function MobService:Start()
 end
 
 return MobService
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000002F"><Properties><string name="Name">NetService</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000030"><Properties><string name="Name">NetService</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Обёртка над Remote: rate-limit (token bucket на игрока и Remote), pcall вокруг обработчиков,
 	единый формат ответа для RemoteFunction.
@@ -6103,7 +6386,7 @@ function NetService:FxTo(player: Player, payload: { [string]: any })
 end
 
 return NetService
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000030"><Properties><string name="Name">ProgressService</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000031"><Properties><string name="Name">ProgressService</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ЕДИНАЯ ТОЧКА ДЛЯ ИГРОВЫХ СОБЫТИЙ. Сервисы сообщают сюда, что произошло,
 	а ProgressService раздаёт это обучению и ежедневным заданиям (позже — достижениям, аналитике).
@@ -6123,7 +6406,413 @@ function ProgressService:Record(player: Player, event: string, info: { OreId: st
 end
 
 return ProgressService
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000031"><Properties><string name="Name">SocialService</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000032"><Properties><string name="Name">ShopService</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	ЛАВКИ ИГРОКОВ.
+	• Каждому игроку на сервере — свой прилавок (тег ShopStall) в Торговом ряду.
+	• Владелец выставляет оружие с ценой (откуда угодно: Инвентарь → «Моя лавка»).
+	• Покупатель подходит к прилавку → «Лавка» → покупает. Сервер проверяет дистанцию,
+	  что цена не изменилась, место в инвентаре и золото, затем переносит оружие (тот же Id)
+	  и золото одним блоком без yield, сохраняет оба профиля и пишет запись в журнал.
+	• Пока владелец не в игре, лавка продаёт NPC-покупателям (ограниченно, Config.Trading.Shop.Offline).
+	Выставленное оружие нельзя надеть, продать торговцу или отдать в обмен.
+]]
+
+local CollectionService = game:GetService("CollectionService")
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Config = require(ReplicatedStorage.Shared.Config)
+local WeaponMath = require(ReplicatedStorage.Shared.WeaponMath)
+local Guards = require(script.Parent.Parent.Util.Guards)
+local MarketLog = require(script.Parent.Parent.Util.MarketLog)
+local Prompts = require(script.Parent.Parent.Util.Prompts)
+local Proximity = require(script.Parent.Parent.Util.Proximity)
+local DataService = require(script.Parent.DataService)
+local EconomyService = require(script.Parent.EconomyService)
+local InventoryService = require(script.Parent.InventoryService)
+local NetService = require(script.Parent.NetService)
+local SystemService = require(script.Parent.SystemService)
+
+local ShopService = {}
+
+local SH = Config.Trading.Shop
+local rng = Random.new()
+
+local stallOwner: { [Model]: Player } = {}
+local playerStall: { [Player]: Model } = {}
+
+-- ===== Прилавки =====
+
+local function stalls(): { Model }
+	local list = {}
+	for _, inst in CollectionService:GetTagged(Config.Tags.ShopStall) do
+		if inst:IsA("Model") and inst:IsDescendantOf(workspace) then
+			table.insert(list, inst)
+		end
+	end
+	table.sort(list, function(a, b)
+		return (a:GetAttribute("Slot") or 0) < (b:GetAttribute("Slot") or 0)
+	end)
+	return list
+end
+
+local function ownerLabel(stall: Model): TextLabel?
+	return stall:FindFirstChild("Owner", true) :: TextLabel?
+end
+
+local function listingsOf(data: any): { { Weapon: any, Price: number } }
+	local list = {}
+	for id, price in data.Shop.Listings do
+		local weapon = data.Weapons[id]
+		if weapon then
+			table.insert(list, { Weapon = weapon, Price = price })
+		end
+	end
+	table.sort(list, function(a, b)
+		return a.Price > b.Price
+	end)
+	return list
+end
+
+-- Витрина: 3 самых дорогих предмета на подставках
+local function refreshDisplay(stall: Model)
+	local old = stall:FindFirstChild("Display")
+	if old then
+		old:Destroy()
+	end
+	local owner = stallOwner[stall]
+	local label = ownerLabel(stall)
+	if label then
+		if owner then
+			label:SetAttribute("LocKey", nil)
+			label.Text = owner.DisplayName
+		else
+			label.Text = "UI_STALL_FREE"
+			label:SetAttribute("LocKey", "UI_STALL_FREE")
+		end
+	end
+	local data = owner and DataService:Get(owner)
+	if not data then
+		return
+	end
+	local folder = Instance.new("Folder")
+	folder.Name = "Display"
+	for i, entry in listingsOf(data) do
+		if i > 3 then
+			break
+		end
+		local pedestal = stall:FindFirstChild("Pedestal" .. i, true) :: BasePart?
+		local visual, primary = InventoryService:BuildWeaponVisual(entry.Weapon)
+		if pedestal and visual and primary then
+			primary.Anchored = true
+			-- клинок вертикально над подставкой
+			primary.CFrame = pedestal.CFrame
+				* CFrame.new(0, pedestal.Size.Y / 2 + primary.Size.Z / 2 + 0.2, 0)
+				* CFrame.Angles(math.rad(90), 0, 0)
+			visual.Parent = folder
+		elseif visual then
+			visual:Destroy()
+		end
+	end
+	folder.Parent = stall
+end
+
+local function assignStall(player: Player)
+	if playerStall[player] then
+		return
+	end
+	for _, stall in stalls() do
+		if not stallOwner[stall] then
+			stallOwner[stall] = player
+			playerStall[player] = stall
+			player:SetAttribute("HasStall", true) -- клиент показывает подсказку, если прилавка нет
+			refreshDisplay(stall)
+			return
+		end
+	end
+end
+
+local function releaseStall(player: Player)
+	local stall = playerStall[player]
+	if stall then
+		playerStall[player] = nil
+		stallOwner[stall] = nil
+		player:SetAttribute("HasStall", nil)
+		refreshDisplay(stall)
+	end
+end
+
+local function refreshPlayerStall(player: Player)
+	local stall = playerStall[player]
+	if stall then
+		refreshDisplay(stall)
+	end
+end
+
+local function browsePayload(owner: Player): { [string]: any }
+	local data = DataService:Get(owner)
+	local listings = {}
+	if data then
+		for _, entry in listingsOf(data) do
+			table.insert(listings, { Weapon = entry.Weapon, Price = entry.Price })
+		end
+	end
+	return {
+		Panel = "Shop",
+		Mode = "browse",
+		OwnerUserId = owner.UserId,
+		OwnerName = owner.DisplayName,
+		Listings = listings,
+	}
+end
+
+local function onStallTriggered(player: Player, stall: Model)
+	if not DataService:IsLoaded(player) then
+		return
+	end
+	local owner = stallOwner[stall]
+	if owner == player then
+		NetService:Fire(player, "OpenPanel", { Panel = "Shop", Mode = "manage" })
+	elseif owner then
+		NetService:Fire(player, "OpenPanel", browsePayload(owner))
+	else
+		SystemService:Toast(player, "UI_STALL_FREE")
+	end
+end
+
+local function setupStall(stall: Instance)
+	if not stall:IsA("Model") then
+		return
+	end
+	local anchor = stall.PrimaryPart
+	if not anchor or anchor:FindFirstChild("GamePrompt") then
+		return
+	end
+	local prompt = Prompts.Create(anchor, "PROMPT_SHOP", { Distance = 12 })
+	prompt.Triggered:Connect(function(player: Player)
+		onStallTriggered(player, stall)
+	end)
+end
+
+-- ===== Выставление =====
+
+local function listWeapon(player: Player, weaponId: any, price: any)
+	local data = DataService:Get(player)
+	if not data then
+		return { ok = false, err = "ERR_NOT_LOADED" }
+	end
+	if not Guards.String(weaponId, 64) then
+		return { ok = false, err = "ERR_BAD_REQUEST" }
+	end
+	if not Guards.Integer(price, SH.MinPrice, SH.MaxPrice) then
+		return { ok = false, err = "ERR_PRICE", args = { min = SH.MinPrice, max = SH.MaxPrice } }
+	end
+	if not data.Weapons[weaponId] then
+		return { ok = false, err = "ERR_UNKNOWN_ITEM" }
+	end
+	if data.EquippedWeapon == weaponId then
+		return { ok = false, err = "ERR_EQUIPPED" }
+	end
+	local count = 0
+	for _ in data.Shop.Listings do
+		count += 1
+	end
+	if not data.Shop.Listings[weaponId] and count >= SH.MaxListings then
+		return { ok = false, err = "ERR_SHOP_FULL", args = { max = SH.MaxListings } }
+	end
+	data.Shop.Listings[weaponId] = price
+	DataService:Replicate(player, "Shop")
+	refreshPlayerStall(player)
+	return { ok = true }
+end
+
+local function unlistWeapon(player: Player, weaponId: any)
+	local data = DataService:Get(player)
+	if not data then
+		return { ok = false, err = "ERR_NOT_LOADED" }
+	end
+	if not Guards.String(weaponId, 64) or not data.Shop.Listings[weaponId] then
+		return { ok = false, err = "ERR_UNKNOWN_ITEM" }
+	end
+	data.Shop.Listings[weaponId] = nil
+	DataService:Replicate(player, "Shop")
+	refreshPlayerStall(player)
+	return { ok = true }
+end
+
+-- ===== Покупка у игрока на этом сервере =====
+
+local function buy(player: Player, ownerUserId: any, weaponId: any, expectedPrice: any)
+	local buyerData = DataService:Get(player)
+	if not buyerData then
+		return { ok = false, err = "ERR_NOT_LOADED" }
+	end
+	if not Guards.Integer(ownerUserId, 1, 1e15) or not Guards.String(weaponId, 64) or not Guards.Integer(expectedPrice, 0, 1e9) then
+		return { ok = false, err = "ERR_BAD_REQUEST" }
+	end
+	local owner = Players:GetPlayerByUserId(ownerUserId)
+	local ownerData = owner and DataService:Get(owner)
+	if not owner or not ownerData then
+		return { ok = false, err = "ERR_OWNER_OFFLINE" }
+	end
+	if owner == player then
+		return { ok = false, err = "ERR_BAD_REQUEST" }
+	end
+	local stall = playerStall[owner]
+	local anchor = stall and stall.PrimaryPart
+	if not anchor or Proximity.DistanceTo(player, anchor.Position) > SH.InteractDistance then
+		return { ok = false, err = "ERR_TOO_FAR" }
+	end
+	-- цена должна совпадать с той, что видел покупатель: продавец не подменит её в последний момент
+	local price = ownerData.Shop.Listings[weaponId]
+	local weapon = ownerData.Weapons[weaponId]
+	if not price or not weapon or price ~= expectedPrice then
+		return { ok = false, err = "ERR_SHOP_GONE" }
+	end
+	if InventoryService:IsFull(player) then
+		return { ok = false, err = "ERR_INVENTORY_FULL" }
+	end
+	if buyerData.Gold < price then
+		return { ok = false, err = "ERR_NOT_ENOUGH_GOLD" }
+	end
+	if buyerData.Weapons[weaponId] then
+		return { ok = false, err = "ERR_SHOP_GONE" } -- такой Id уже есть: защита от дюпа
+	end
+
+	-- ===== перенос одним блоком, без yield =====
+	local received = EconomyService:TransferGold(player, owner, price, SH.TaxRate)
+	if not received then
+		return { ok = false, err = "ERR_NOT_ENOUGH_GOLD" }
+	end
+	local taken = InventoryService:TakeForTransfer(owner, weaponId) :: any
+	InventoryService:GiveTransferred(player, taken)
+	ownerData.Shop.Earned += received
+	ownerData.Stats.ShopSales = (ownerData.Stats.ShopSales or 0) + 1
+	-- ============================================
+
+	DataService:Replicate(player, "Gold", "Weapons")
+	DataService:Replicate(owner, "Gold", "Weapons", "EquippedWeapon", "Shop", "Stats")
+	refreshPlayerStall(owner)
+
+	MarketLog.Write("shop", {
+		Seller = owner.UserId,
+		Buyer = player.UserId,
+		Price = price,
+		Received = received,
+		Weapon = MarketLog.Weapon(taken),
+	})
+	SystemService:Notify(owner, "Shop", "SYS_SHOP_SOLD_TITLE", "SYS_SHOP_SOLD_BODY", {
+		weapon = `@WEAPON:{taken.Type}:{taken.Ore}`,
+		buyer = player.DisplayName,
+		price = price,
+		gold = received,
+	})
+	task.spawn(DataService.SaveNow, DataService, player)
+	task.spawn(DataService.SaveNow, DataService, owner)
+	return { ok = true, weapon = taken, price = price }
+end
+
+local function fetch(_player: Player, ownerUserId: any)
+	if not Guards.Integer(ownerUserId, 1, 1e15) then
+		return { ok = false, err = "ERR_BAD_REQUEST" }
+	end
+	local owner = Players:GetPlayerByUserId(ownerUserId)
+	if not owner or not DataService:IsLoaded(owner) then
+		return { ok = false, err = "ERR_OWNER_OFFLINE" }
+	end
+	local payload = browsePayload(owner)
+	payload.ok = true
+	return payload
+end
+
+-- ===== Офлайн-продажи =====
+
+local function processOffline(player: Player, data: any)
+	local O = SH.Offline
+	local last = data.Shop.LastOnlineAt
+	local away = os.time() - last
+	if last <= 0 or away < O.MinAwaySeconds then
+		return
+	end
+	local hours = math.min(away / 3600, O.MaxHours)
+	local sales = math.min(O.MaxSales, math.floor(hours * O.SalesPerHour))
+	local sold, gold = 0, 0
+	for _ = 1, sales do
+		local ids = {}
+		for id in data.Shop.Listings do
+			if data.Weapons[id] then
+				table.insert(ids, id)
+			end
+		end
+		if #ids == 0 then
+			break
+		end
+		local id = ids[rng:NextInteger(1, #ids)]
+		local weapon = data.Weapons[id]
+		local cap = math.floor(WeaponMath.SellPrice(weapon) * O.MaxPriceMult)
+		local price = math.min(data.Shop.Listings[id], cap)
+		local received = price - math.floor(price * SH.TaxRate + 0.5)
+		InventoryService:RemoveWeapon(player, id, true)
+		data.Gold += received
+		data.Shop.Earned += received
+		data.Stats.ShopSales = (data.Stats.ShopSales or 0) + 1
+		sold += 1
+		gold += received
+		MarketLog.Write("offline", { Seller = player.UserId, Price = price, Received = received, Weapon = MarketLog.Weapon(weapon) })
+	end
+	if sold > 0 then
+		DataService:Replicate(player, "Gold", "Weapons", "EquippedWeapon", "Shop", "Stats")
+		task.delay(4, function()
+			if DataService:IsLoaded(player) then
+				SystemService:Notify(player, "Shop", "SYS_SHOP_OFFLINE_TITLE", "SYS_SHOP_OFFLINE_BODY", { count = sold, gold = gold })
+			end
+		end)
+	end
+end
+
+function ShopService:Start()
+	NetService:OnInvoke("ShopList", listWeapon)
+	NetService:OnInvoke("ShopUnlist", unlistWeapon)
+	NetService:OnInvoke("ShopBuy", buy)
+	NetService:OnInvoke("ShopFetch", fetch)
+
+	for _, stall in CollectionService:GetTagged(Config.Tags.ShopStall) do
+		setupStall(stall)
+	end
+	CollectionService:GetInstanceAddedSignal(Config.Tags.ShopStall):Connect(setupStall)
+
+	DataService.Loaded:Connect(function(player: Player, data: any)
+		processOffline(player, data)
+		data.Shop.LastOnlineAt = os.time()
+		assignStall(player)
+	end)
+	DataService.Releasing:Connect(function(player: Player, data: any)
+		data.Shop.LastOnlineAt = os.time()
+		releaseStall(player)
+	end)
+	Players.PlayerRemoving:Connect(releaseStall)
+
+	-- отметка «был в игре» на случай падения сервера
+	task.spawn(function()
+		while true do
+			task.wait(60)
+			for _, player in Players:GetPlayers() do
+				local data = DataService:Get(player)
+				if data then
+					data.Shop.LastOnlineAt = os.time()
+				end
+			end
+		end
+	end)
+end
+
+function ShopService:HasStall(player: Player): boolean
+	return playerStall[player] ~= nil
+end
+
+return ShopService
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000033"><Properties><string name="Name">SocialService</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	СОЦИАЛЬНЫЕ БОНУСЫ К ОПЫТУ: друзья на сервере и участие в группе Roblox.
 	Итоговый бонус кладётся в атрибут игрока XpBonus (0.15 = +15%) — его показывает HUD.
@@ -6217,7 +6906,7 @@ function SocialService:Start()
 end
 
 return SocialService
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000032"><Properties><string name="Name">SystemService</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000034"><Properties><string name="Name">SystemService</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	«СИСТЕМА» — окна в стиле маньхуа. Сервер решает, ЧТО показать (ключи локализации),
 	клиент — КАК (анимация, звук, язык).
@@ -6264,7 +6953,382 @@ function SystemService:Error(player: Player, key: string, args: { [string]: any 
 end
 
 return SystemService
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000033"><Properties><string name="Name">TutorialService</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000035"><Properties><string name="Name">TradeService</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	ОБМЕН МЕЖДУ ИГРОКАМИ.
+	1. Подойди к игроку → подсказка «Обмен» → ему приходит приглашение (20 с).
+	2. Оба кладут оружие и золото. Каждый видит настоящие характеристики предметов другого.
+	3. «Готов» у обоих → через ConfirmDelaySeconds можно нажать «Подтвердить обмен».
+	4. Подтвердили оба → сервер ещё раз всё проверяет и меняет предметы одним блоком без yield.
+
+	Защита от скама:
+	• любое изменение предложения увеличивает Version и сбрасывает «Готов»/«Подтвердить» у обоих;
+	• подтверждение принимается только для той Version, которую видел игрок;
+	• задержка перед подтверждением не даёт подменить предмет в последнюю секунду.
+	Защита от дюпа: передача внутри одного потока, Id предметов сохраняются, оба профиля
+	сохраняются сразу после сделки, запись в журнал (MarketLog).
+]]
+
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Config = require(ReplicatedStorage.Shared.Config)
+local Char = require(script.Parent.Parent.Util.Char)
+local Guards = require(script.Parent.Parent.Util.Guards)
+local MarketLog = require(script.Parent.Parent.Util.MarketLog)
+local Prompts = require(script.Parent.Parent.Util.Prompts)
+local DataService = require(script.Parent.DataService)
+local InventoryService = require(script.Parent.InventoryService)
+local NetService = require(script.Parent.NetService)
+local SystemService = require(script.Parent.SystemService)
+
+local TradeService = {}
+
+local TR = Config.Trading.Trade
+
+type Offer = { Weapons: { string }, Gold: number }
+type Session = {
+	Id: string,
+	A: Player,
+	B: Player,
+	Offers: { [Player]: Offer },
+	Ready: { [Player]: boolean },
+	Confirmed: { [Player]: boolean },
+	Version: number,
+	Phase: string, -- open | confirm
+	ConfirmAt: number,
+}
+
+local sessions: { [Player]: Session } = {}
+local pending: { [Player]: { From: Player, ExpiresAt: number } } = {} -- ключ — кого пригласили
+
+local function other(s: Session, player: Player): Player
+	return if s.A == player then s.B else s.A
+end
+
+local function sideView(s: Session, player: Player): { [string]: any }
+	local data = DataService:Get(player)
+	local offer = s.Offers[player]
+	local weapons = {}
+	if data then
+		for _, id in offer.Weapons do
+			local w = data.Weapons[id]
+			if w then
+				table.insert(weapons, w)
+			end
+		end
+	end
+	return {
+		Weapons = weapons,
+		Gold = offer.Gold,
+		Ready = s.Ready[player] == true,
+		Confirmed = s.Confirmed[player] == true,
+	}
+end
+
+local function push(s: Session)
+	local now = os.clock()
+	for _, player in { s.A, s.B } do
+		local partner = other(s, player)
+		NetService:Fire(player, "TradeState", {
+			Id = s.Id,
+			Phase = s.Phase,
+			Version = s.Version,
+			PartnerName = partner.DisplayName,
+			ConfirmIn = math.max(0, s.ConfirmAt - now),
+			You = sideView(s, player),
+			Them = sideView(s, partner),
+		})
+	end
+end
+
+local function finish(s: Session, phase: string, toastKey: string?)
+	for _, player in { s.A, s.B } do
+		if sessions[player] == s then
+			sessions[player] = nil
+		end
+		if player.Parent == Players then
+			NetService:Fire(player, "TradeState", { Id = s.Id, Phase = phase })
+			if toastKey then
+				SystemService:Toast(player, toastKey, nil, if phase == "done" then "success" else "error")
+			end
+		end
+	end
+end
+
+local function resetConfirmations(s: Session)
+	s.Version += 1
+	s.Ready = {}
+	s.Confirmed = {}
+	s.Phase = "open"
+	s.ConfirmAt = 0
+end
+
+-- ===== Приглашение =====
+
+local function request(from: Player, to: Player)
+	if from == to or not DataService:IsLoaded(from) or not DataService:IsLoaded(to) then
+		return
+	end
+	for _, player in { from, to } do
+		local data = DataService:Get(player)
+		if data.Level < TR.MinLevel then
+			SystemService:Error(from, "ERR_LEVEL_LOW", { level = TR.MinLevel })
+			return
+		end
+	end
+	if sessions[from] or sessions[to] then
+		SystemService:Error(from, "ERR_TRADE_BUSY")
+		return
+	end
+	pending[to] = { From = from, ExpiresAt = os.clock() + TR.RequestTimeoutSeconds }
+	NetService:Fire(to, "TradeInvite", {
+		FromUserId = from.UserId,
+		FromName = from.DisplayName,
+		Timeout = TR.RequestTimeoutSeconds,
+	})
+	SystemService:Toast(from, "TOAST_TRADE_SENT", { name = to.DisplayName })
+end
+
+local function respond(to: Player, fromUserId: any, accept: any)
+	if not Guards.Integer(fromUserId, 1, 1e15) or not Guards.Boolean(accept) then
+		return
+	end
+	local invite = pending[to]
+	if not invite or invite.From.UserId ~= fromUserId then
+		return
+	end
+	pending[to] = nil
+	local from = invite.From
+	if os.clock() > invite.ExpiresAt or from.Parent ~= Players then
+		SystemService:Error(to, "ERR_TRADE_EXPIRED")
+		return
+	end
+	if not accept then
+		SystemService:Toast(from, "TOAST_TRADE_DECLINED", { name = to.DisplayName }, "error")
+		return
+	end
+	if sessions[from] or sessions[to] or not DataService:IsLoaded(from) or not DataService:IsLoaded(to) then
+		SystemService:Error(to, "ERR_TRADE_BUSY")
+		return
+	end
+	local s: Session = {
+		Id = HttpService:GenerateGUID(false),
+		A = from,
+		B = to,
+		Offers = { [from] = { Weapons = {}, Gold = 0 }, [to] = { Weapons = {}, Gold = 0 } },
+		Ready = {},
+		Confirmed = {},
+		Version = 1,
+		Phase = "open",
+		ConfirmAt = 0,
+	}
+	sessions[from] = s
+	sessions[to] = s
+	push(s)
+end
+
+-- ===== Предложение и подтверждения =====
+
+local function sessionFor(player: Player, sessionId: any): Session?
+	local s = sessions[player]
+	if s and s.Id == sessionId then
+		return s
+	end
+	return nil
+end
+
+local function setOffer(player: Player, sessionId: any, ids: any, gold: any)
+	local s = sessionFor(player, sessionId)
+	local data = DataService:Get(player)
+	if not s or not data then
+		return { ok = false, err = "ERR_TRADE_EXPIRED" }
+	end
+	if not Guards.StringArray(ids, TR.MaxItems, 64) then
+		return { ok = false, err = "ERR_TOO_MANY_ITEMS", args = { max = TR.MaxItems } }
+	end
+	if not Guards.Integer(gold, 0, TR.MaxGold) or gold > data.Gold then
+		return { ok = false, err = "ERR_NOT_ENOUGH_GOLD" }
+	end
+	local unique: { string } = {}
+	local seen: { [string]: boolean } = {}
+	for _, id in ids do
+		if not seen[id] then
+			seen[id] = true
+			if not InventoryService:CanTransfer(player, id) then
+				return { ok = false, err = if InventoryService:IsListed(player, id) then "ERR_LISTED" else "ERR_UNKNOWN_ITEM" }
+			end
+			table.insert(unique, id)
+		end
+	end
+	s.Offers[player] = { Weapons = unique, Gold = gold }
+	resetConfirmations(s)
+	push(s)
+	return { ok = true }
+end
+
+local function execute(s: Session)
+	local A, B = s.A, s.B
+	local dataA, dataB = DataService:Get(A), DataService:Get(B)
+	local offerA, offerB = s.Offers[A], s.Offers[B]
+	local valid = dataA ~= nil and dataB ~= nil
+	if valid then
+		for _, side in { { A, offerA, B }, { B, offerB, A } } do
+			local giver, offer, receiver = side[1], side[2], side[3]
+			local receiverData = DataService:Get(receiver)
+			for _, id in offer.Weapons do
+				if not InventoryService:CanTransfer(giver, id) or receiverData.Weapons[id] ~= nil then
+					valid = false
+				end
+			end
+			if DataService:Get(giver).Gold < offer.Gold then
+				valid = false
+			end
+		end
+		local countA = InventoryService:Count(A) - #offerA.Weapons + #offerB.Weapons
+		local countB = InventoryService:Count(B) - #offerB.Weapons + #offerA.Weapons
+		if countA > InventoryService:Capacity(A) or countB > InventoryService:Capacity(B) then
+			valid = false
+		end
+	end
+	if not valid then
+		finish(s, "cancelled", "ERR_TRADE_FAILED")
+		return
+	end
+
+	-- ===== перенос одним блоком, без yield =====
+	local movedA, movedB = {}, {}
+	for _, id in offerA.Weapons do
+		local w = InventoryService:TakeForTransfer(A, id)
+		if w then
+			InventoryService:GiveTransferred(B, w)
+			table.insert(movedA, MarketLog.Weapon(w))
+		end
+	end
+	for _, id in offerB.Weapons do
+		local w = InventoryService:TakeForTransfer(B, id)
+		if w then
+			InventoryService:GiveTransferred(A, w)
+			table.insert(movedB, MarketLog.Weapon(w))
+		end
+	end
+	dataA.Gold += offerB.Gold - offerA.Gold
+	dataB.Gold += offerA.Gold - offerB.Gold
+	dataA.Stats.Trades = (dataA.Stats.Trades or 0) + 1
+	dataB.Stats.Trades = (dataB.Stats.Trades or 0) + 1
+	-- ============================================
+
+	for _, player in { A, B } do
+		DataService:Replicate(player, "Gold", "Weapons", "EquippedWeapon", "Shop", "Stats")
+	end
+	MarketLog.Write("trade", {
+		TradeId = s.Id,
+		A = A.UserId,
+		B = B.UserId,
+		AGave = movedA,
+		BGave = movedB,
+		AGold = offerA.Gold,
+		BGold = offerB.Gold,
+	})
+	finish(s, "done", "TOAST_TRADE_DONE")
+	task.spawn(DataService.SaveNow, DataService, A)
+	task.spawn(DataService.SaveNow, DataService, B)
+end
+
+local function ready(player: Player, sessionId: any, version: any, flag: any)
+	local s = sessionFor(player, sessionId)
+	if not s or not Guards.Boolean(flag) then
+		return
+	end
+	if version ~= s.Version then
+		push(s) -- клиент видел старое предложение — показать актуальное
+		return
+	end
+	s.Ready[player] = flag
+	s.Confirmed = {}
+	if s.Ready[s.A] and s.Ready[s.B] then
+		s.Phase = "confirm"
+		s.ConfirmAt = os.clock() + TR.ConfirmDelaySeconds
+	else
+		s.Phase = "open"
+		s.ConfirmAt = 0
+	end
+	push(s)
+end
+
+local function confirm(player: Player, sessionId: any, version: any)
+	local s = sessionFor(player, sessionId)
+	if not s then
+		return
+	end
+	if s.Phase ~= "confirm" or version ~= s.Version or os.clock() < s.ConfirmAt then
+		SystemService:Error(player, "ERR_TRADE_CHANGED")
+		push(s)
+		return
+	end
+	s.Confirmed[player] = true
+	if s.Confirmed[s.A] and s.Confirmed[s.B] then
+		execute(s)
+	else
+		push(s)
+	end
+end
+
+local function cancel(player: Player, sessionId: any)
+	local s = sessionFor(player, sessionId)
+	if s then
+		finish(s, "cancelled", "TOAST_TRADE_CANCELLED")
+	end
+end
+
+-- ===== Подсказка «Обмен» над каждым игроком =====
+
+local function addPrompt(player: Player, character: Model)
+	local root = character:WaitForChild("HumanoidRootPart", 10)
+	if not root or not root:IsA("BasePart") then
+		return
+	end
+	local prompt = Prompts.Create(root, "PROMPT_TRADE_PLAYER", { Distance = TR.PromptDistance, HoldDuration = 0.25, KeyCode = Enum.KeyCode.T })
+	prompt.Name = "TradePrompt"
+	prompt.ObjectText = player.DisplayName
+	prompt.Triggered:Connect(function(requester: Player)
+		if requester ~= player and Char.IsAlive(requester) then
+			request(requester, player)
+		end
+	end)
+end
+
+function TradeService:Start()
+	NetService:OnEvent("TradeRespond", respond)
+	NetService:OnInvoke("TradeSetOffer", setOffer)
+	NetService:OnEvent("TradeReady", ready)
+	NetService:OnEvent("TradeConfirm", confirm)
+	NetService:OnEvent("TradeCancel", cancel)
+
+	local function hook(player: Player)
+		player.CharacterAdded:Connect(function(character)
+			addPrompt(player, character)
+		end)
+		if player.Character then
+			task.spawn(addPrompt, player, player.Character)
+		end
+	end
+	Players.PlayerAdded:Connect(hook)
+	for _, player in Players:GetPlayers() do
+		hook(player)
+	end
+	Players.PlayerRemoving:Connect(function(player)
+		pending[player] = nil
+		local s = sessions[player]
+		if s then
+			finish(s, "cancelled", "TOAST_TRADE_CANCELLED")
+		end
+	end)
+end
+
+return TradeService
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000036"><Properties><string name="Name">TutorialService</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ОБУЧЕНИЕ = цепочка квестов Системы (Config.Tutorial).
 	Цель: за первые ~60 секунд игрок добывает руду, куёт первое оружие и видит окно Системы.
@@ -6374,7 +7438,7 @@ function TutorialService:Start()
 end
 
 return TutorialService
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000034"><Properties><string name="Name">WorldMobService</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000037"><Properties><string name="Name">WorldMobService</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	МОБЫ ОТКРЫТОГО МИРА: держат заданное число мобов в каждой зоне (Config.World.MobSpawns),
 	возрождают их по таймеру, выдают награды (опыт, золото, руда).
@@ -6607,7 +7671,7 @@ function WorldMobService:Start()
 end
 
 return WorldMobService
-]]></ProtectedString></Properties></Item></Item><Item class="Folder" referent="RBX0000003B"><Properties><string name="Name">Util</string></Properties><Item class="ModuleScript" referent="RBX00000036"><Properties><string name="Name">Char</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item></Item><Item class="Folder" referent="RBX0000003F"><Properties><string name="Name">Util</string></Properties><Item class="ModuleScript" referent="RBX00000039"><Properties><string name="Name">Char</string><ProtectedString name="Source"><![CDATA[--!strict
 -- Быстрый доступ к персонажу игрока.
 
 local Char = {}
@@ -6634,7 +7698,7 @@ function Char.IsAlive(player: Player): boolean
 end
 
 return Char
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000037"><Properties><string name="Name">DevMap</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000003A"><Properties><string name="Name">DevMap</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ТЕСТОВАЯ КАРТА-ЗАГЛУШКА.
 	Если в карте ещё нет ни одного объекта с тегами OreNode / Forge / Merchant / GateSpawn,
@@ -6755,7 +7819,7 @@ function DevMap.BuildIfEmpty()
 end
 
 return DevMap
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000038"><Properties><string name="Name">Guards</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000003B"><Properties><string name="Name">Guards</string><ProtectedString name="Source"><![CDATA[--!strict
 -- Проверка аргументов, пришедших от клиента. Клиенту НЕ доверяем ничего.
 
 local Guards = {}
@@ -6828,7 +7892,64 @@ function Guards.NumberArray(v: any, maxCount: number, min: number?, max: number?
 end
 
 return Guards
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000039"><Properties><string name="Name">Prompts</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000003C"><Properties><string name="Name">MarketLog</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	ЖУРНАЛ СДЕЛОК (обмены и покупки в лавках).
+	Каждая запись — в Output сервера и в DataStore Config.Trading.LogStoreName (ключ = Id сделки),
+	чтобы при жалобе на скам или дюп можно было найти, кто кому что отдал.
+	Посмотреть записи: Studio → View → Data Stores, или DataStoreService в командной строке.
+]]
+
+local DataStoreService = game:GetService("DataStoreService")
+local HttpService = game:GetService("HttpService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Config = require(ReplicatedStorage.Shared.Config)
+
+local MarketLog = {}
+
+local store: DataStore? = nil
+local ok = pcall(function()
+	store = DataStoreService:GetDataStore(Config.Trading.LogStoreName)
+end)
+if not ok then
+	store = nil -- Studio без доступа к API: пишем только в Output
+end
+
+-- kind: "trade" | "shop" | "offline"
+function MarketLog.Write(kind: string, record: { [string]: any }): string
+	local id = HttpService:GenerateGUID(false)
+	record.Kind = kind
+	record.Time = os.time()
+	record.Id = id
+	local okJson, json = pcall(function()
+		return HttpService:JSONEncode(record)
+	end)
+	print(`[Market] {if okJson then json else kind}`)
+	local s = store
+	if s then
+		task.spawn(function()
+			pcall(function()
+				s:SetAsync(id, record)
+			end)
+		end)
+	end
+	return id
+end
+
+-- Краткое описание оружия для журнала
+function MarketLog.Weapon(weapon: any): { [string]: any }
+	return {
+		Id = weapon.Id,
+		Type = weapon.Type,
+		Ore = weapon.Ore,
+		Rarity = weapon.Rarity,
+		Quality = weapon.Quality,
+	}
+end
+
+return MarketLog
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000003D"><Properties><string name="Name">Prompts</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Создание ProximityPrompt. Текст ставится по-английски, а ключи локализации
 	кладутся в атрибуты ActionKey/ObjectKey — клиент сам переводит подсказку на свой язык.
@@ -6866,7 +7987,7 @@ function Prompts.Create(parent: Instance, actionKey: string, options: PromptOpti
 end
 
 return Prompts
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000003A"><Properties><string name="Name">Proximity</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000003E"><Properties><string name="Name">Proximity</string><ProtectedString name="Source"><![CDATA[--!strict
 -- Серверная проверка дистанции до объектов карты (кузня, торговец, жила).
 
 local CollectionService = game:GetService("CollectionService")
@@ -6928,7 +8049,7 @@ function Proximity.AnchorPart(instance: Instance): BasePart?
 end
 
 return Proximity
-]]></ProtectedString></Properties></Item></Item><Item class="Folder" referent="RBX0000003D"><Properties><string name="Name">World</string></Properties><Item class="ModuleScript" referent="RBX0000003C"><Properties><string name="Name">WorldBuilder</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item></Item><Item class="Folder" referent="RBX00000041"><Properties><string name="Name">World</string></Properties><Item class="ModuleScript" referent="RBX00000040"><Properties><string name="Name">WorldBuilder</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ГЕНЕРАТОР МИРА (Terrain + постройки из Part).
 	Строится один раз при старте сервера, если в карте нет своих объектов с тегом OreNode.
@@ -7040,6 +8161,17 @@ local function sign(parent: BasePart, locKey: string, height: number)
 	gui.Parent = parent
 end
 
+-- Торговый ряд: два ряда прилавков вдоль улицы (Z = MARKET_STREET_Z)
+local MARKET_X0 = 48
+local MARKET_STEP = 14
+local MARKET_ROW_A = 44 -- прилавки смотрят на +Z
+local MARKET_ROW_B = 76 -- прилавки смотрят на −Z
+local MARKET_STREET_Z = 60
+
+local function inMarket(x: number, z: number): boolean
+	return x > MARKET_X0 - 14 and x < MARKET_X0 + MARKET_STEP * 8 + 6 and z > MARKET_ROW_A - 12 and z < MARKET_ROW_B + 12
+end
+
 local function randomInZone(zone: any, minR: number, maxR: number): (number, number)
 	local angle = rng:NextNumber(0, math.pi * 2)
 	local r = rng:NextNumber(minR, maxR)
@@ -7066,6 +8198,14 @@ local function buildTerrain()
 			terrain:FillBlock(CFrame.lookAt(mid, to), Vector3.new(10, 2, length), M.Ground)
 		end
 	end
+
+	-- Торговый ряд: мощёная улица и дорожка от площади
+	terrain:FillBlock(
+		CFrame.new((MARKET_X0 + MARKET_X0 + MARKET_STEP * 7) / 2, -1, MARKET_STREET_Z),
+		Vector3.new(MARKET_STEP * 8 + 12, 2, MARKET_ROW_B - MARKET_ROW_A + 16),
+		M.Cobblestone
+	)
+	terrain:FillBlock(CFrame.lookAt(Vector3.new(20, -1, 30), Vector3.new(MARKET_X0, -1, MARKET_STREET_Z)), Vector3.new(8, 2, 60), M.Cobblestone)
 
 	-- город: мощёная площадь
 	terrain:FillCylinder(CFrame.new(0, -1, 0), 2, 40, M.Cobblestone)
@@ -7360,7 +8500,7 @@ local function buildTown(parent: Instance)
 		local r = rng:NextNumber(48, 66)
 		local x, z = math.cos(angle) * r, math.sin(angle) * r
 		-- не ставить на дороги
-		local onRoad = false
+		local onRoad = inMarket(x, z)
 		for _, zone in W.Zones do
 			if zone.Id ~= "Town" then
 				local dir = Vector3.new(zone.Center.X, 0, zone.Center.Z).Unit
@@ -7390,7 +8530,7 @@ local function placeOres(parent: Instance)
 			tries += 1
 			local x, z = randomInZone(zone, minR, maxR)
 			local pos = groundPos(x, z)
-			local ok = pos.Y < 6 -- не на вершинах холмов
+			local ok = pos.Y < 6 and not inMarket(x, z) -- не на вершинах холмов и не в Торговом ряду
 			for _, other in placed do
 				if (other - pos).Magnitude < 9 then
 					ok = false
@@ -7465,6 +8605,94 @@ local function buildZones(parent: Instance)
 	end
 end
 
+-- Прилавок игрока: тег ShopStall, атрибут Slot. ShopService назначает владельца,
+-- пишет имя на вывеске (StallSign) и ставит до 3 предметов на подставки Pedestal1..3.
+local function buildStall(parent: Instance, origin: Vector3, facing: number, slot: number)
+	local m = model("Stall" .. slot, parent)
+	local wood = Color3.fromRGB(120, 86, 56)
+	local look = CFrame.new(origin) * CFrame.Angles(0, facing, 0)
+	local function at(offset: Vector3): CFrame
+		return look * CFrame.new(offset)
+	end
+	part(m, { Name = "Floor", Size = Vector3.new(12, 0.6, 9), CFrame = at(Vector3.new(0, 0.3, 0)), Material = M.WoodPlanks, Color = wood })
+	part(m, { Name = "Back", Size = Vector3.new(12, 8, 0.6), CFrame = at(Vector3.new(0, 4.6, 4.2)), Material = M.WoodPlanks, Color = Color3.fromRGB(100, 72, 48) })
+	for _, x in { -5.6, 5.6 } do
+		part(m, { Name = "Post", Size = Vector3.new(0.6, 8, 0.6), CFrame = at(Vector3.new(x, 4.6, -4.2)), Material = M.Wood, Color = wood })
+	end
+	part(m, {
+		Name = "Awning",
+		Size = Vector3.new(13, 0.4, 10),
+		CFrame = at(Vector3.new(0, 9, 0)) * CFrame.Angles(math.rad(10), 0, 0),
+		Material = M.Fabric,
+		Color = if slot % 2 == 0 then Color3.fromRGB(150, 70, 45) else Color3.fromRGB(70, 90, 110),
+	})
+	local counter = part(m, {
+		Name = "Counter",
+		Size = Vector3.new(10, 3, 2.4),
+		CFrame = at(Vector3.new(0, 2.1, -2.8)),
+		Material = M.WoodPlanks,
+		Color = wood,
+	})
+	for i = 1, 3 do
+		part(m, {
+			Name = "Pedestal" .. i,
+			Size = Vector3.new(1.6, 0.4, 1.6),
+			CFrame = at(Vector3.new((i - 2) * 3.2, 3.8, -2.8)),
+			Material = M.Slate,
+			Color = Color3.fromRGB(60, 58, 55),
+		})
+	end
+	local sign = part(m, {
+		Name = "StallSign",
+		Size = Vector3.new(1, 1, 1),
+		CFrame = at(Vector3.new(0, 7.6, -4.4)),
+		Transparency = 1,
+		CanCollide = false,
+		CanQuery = false,
+	})
+	local gui = Instance.new("BillboardGui")
+	gui.Name = "OwnerGui"
+	gui.Size = UDim2.fromOffset(200, 32)
+	gui.MaxDistance = 80
+	gui.LightInfluence = 0
+	local label = Instance.new("TextLabel")
+	label.Name = "Owner"
+	label.Size = UDim2.fromScale(1, 1)
+	label.BackgroundTransparency = 1
+	label.TextScaled = true
+	label.Font = Enum.Font.GothamMedium
+	label.TextColor3 = Color3.fromRGB(239, 233, 222)
+	label.TextStrokeColor3 = Color3.fromRGB(18, 17, 15)
+	label.TextStrokeTransparency = 0.4
+	label.Text = "UI_STALL_FREE"
+	label:SetAttribute("LocKey", "UI_STALL_FREE")
+	label.Parent = gui
+	gui.Parent = sign
+
+	m.PrimaryPart = counter
+	m:SetAttribute("Slot", slot)
+	m.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
+	CollectionService:AddTag(m, T.ShopStall)
+end
+
+local function buildMarket(parent: Instance)
+	local market = model("MarketRow", parent)
+	local perRow = math.ceil(W.MarketStalls / 2)
+	local slot = 0
+	for row = 1, 2 do
+		for i = 0, perRow - 1 do
+			slot += 1
+			if slot > W.MarketStalls then
+				break
+			end
+			local x = MARKET_X0 + i * MARKET_STEP
+			local z = if row == 1 then MARKET_ROW_A else MARKET_ROW_B
+			-- задняя стенка дальше от улицы, прилавок — к улице
+			buildStall(market, Vector3.new(x, groundAt(x, z), z), if row == 1 then math.pi else 0, slot)
+		end
+	end
+end
+
 local function buildBounds(parent: Instance)
 	local half = W.Size / 2 - 8
 	for _, data in {
@@ -7519,6 +8747,7 @@ function WorldBuilder.Build()
 	task.wait() -- не упереться в лимит времени выполнения скрипта
 	buildTown(root)
 	buildZones(root)
+	buildMarket(root)
 	placeOres(root)
 	buildBounds(root)
 	setupLighting()
@@ -7543,7 +8772,7 @@ function WorldBuilder.GroundAt(x: number, z: number): number
 end
 
 return WorldBuilder
-]]></ProtectedString></Properties></Item></Item></Item></Item><Item class="StarterPlayer" referent="RBX0000005A"><Properties><string name="Name">StarterPlayer</string></Properties><Item class="StarterPlayerScripts" referent="RBX00000059"><Properties><string name="Name">StarterPlayerScripts</string></Properties><Item class="LocalScript" referent="RBX00000055"><Properties><string name="Name">Client</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item></Item></Item></Item><Item class="StarterPlayer" referent="RBX00000060"><Properties><string name="Name">StarterPlayer</string></Properties><Item class="StarterPlayerScripts" referent="RBX0000005F"><Properties><string name="Name">StarterPlayerScripts</string></Properties><Item class="LocalScript" referent="RBX0000005B"><Properties><string name="Name">Client</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ТОЧКА ВХОДА КЛИЕНТА.
 	Клиент только рисует и шлёт запросы; вся игровая логика — на сервере.
@@ -7566,6 +8795,8 @@ local ORDER = {
 	"CombatController",
 	"GateController",
 	"FxController",
+	"ShopController",
+	"TradeController",
 	"MenuController",
 	"ZoneController",
 }
@@ -7593,7 +8824,7 @@ for _, name in ORDER do
 		end
 	end
 end
-]]></ProtectedString></Properties><Item class="Folder" referent="RBX0000004E"><Properties><string name="Name">Controllers</string></Properties><Item class="ModuleScript" referent="RBX0000003F"><Properties><string name="Name">CombatController</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties><Item class="Folder" referent="RBX00000054"><Properties><string name="Name">Controllers</string></Properties><Item class="ModuleScript" referent="RBX00000043"><Properties><string name="Name">CombatController</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	БОЙ НА КЛИЕНТЕ: кнопки «Атака» и «Блок» (справа снизу, левее кнопки прыжка).
 	Удержание «Атаки» = автоатака с кулдауном оружия. ПК: ЛКМ — атака, F — блок.
@@ -7810,7 +9041,7 @@ function CombatController:Start()
 end
 
 return CombatController
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000040"><Properties><string name="Name">DataController</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000044"><Properties><string name="Name">DataController</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Копия данных игрока на клиенте (только для отображения — истина на сервере).
 	DataController.Changed:Connect(function(key) ... end) — key = изменившийся ключ или "*" (полная синхронизация).
@@ -7884,7 +9115,7 @@ function DataController:Start()
 end
 
 return DataController
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000041"><Properties><string name="Name">ForgeController</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000045"><Properties><string name="Name">ForgeController</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	КУЗНЯ: выбор оружия и руды → мини-игра из 3 шагов → результат.
 	Управление одной большой кнопкой (телефон) или пробелом (ПК):
@@ -8698,7 +9929,7 @@ function ForgeController:IsBusy(): boolean
 end
 
 return ForgeController
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000042"><Properties><string name="Name">FxController</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000046"><Properties><string name="Name">FxController</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ЭФФЕКТЫ: всплывающие цифры урона, «ПАРИРОВАНИЕ!», искры добычи, вспышка экрана при попадании.
 	Всё через пулы объектов (никаких Instance.new на каждый удар) — важно для слабых телефонов.
@@ -8897,7 +10128,7 @@ function FxController:Start()
 end
 
 return FxController
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000043"><Properties><string name="Name">GateController</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000047"><Properties><string name="Name">GateController</string><ProtectedString name="Source"><![CDATA[--!strict
 -- ВРАТА на клиенте: карточка группы (ожидание старта) и забега (волна, время, босс).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -9075,7 +10306,7 @@ function GateController:Start()
 end
 
 return GateController
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000044"><Properties><string name="Name">HudController</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000048"><Properties><string name="Name">HudController</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	HUD: ранг, уровень, опыт, золото, бонус опыта, язык (слева сверху);
 	кнопки «Меню» и «Инвентарь» справа по центру (не мешают стику и прыжку на телефоне);
@@ -9359,7 +10590,7 @@ function HudController:Start()
 end
 
 return HudController
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000045"><Properties><string name="Name">InputController</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000049"><Properties><string name="Name">InputController</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ТИП УПРАВЛЕНИЯ: Touch (телефон/планшет) | KeyboardMouse (ПК) | Gamepad (консоль, геймпад на ПК).
 	Меняется на лету по последнему вводу: подключил геймпад к ПК — интерфейс сразу перестроится.
@@ -9440,7 +10671,7 @@ function InputController:IsGamepad(): boolean
 end
 
 return InputController
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000046"><Properties><string name="Name">InventoryController</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000004A"><Properties><string name="Name">InventoryController</string><ProtectedString name="Source"><![CDATA[--!strict
 -- ИНВЕНТАРЬ: руда, кирки, оружие. Тап по карточке — надеть оружие.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -9531,13 +10762,19 @@ local function refresh()
 	emptyLabel.Visible = #list == 0
 	for i, weapon in list do
 		local equipped = data.EquippedWeapon == weapon.Id
+		local listed = data.Shop.Listings[weapon.Id] ~= nil
 		WeaponCard.Create({
 			Weapon = weapon,
 			Equipped = equipped,
+			Listed = listed,
 			LayoutOrder = i,
 			Parent = grid,
 			OnClick = function()
 				if equipped then
+					return
+				end
+				if listed then
+					UIController:Toast("ERR_LISTED", nil, "error")
 					return
 				end
 				local result = UIController:Invoke("EquipWeapon", weapon.Id)
@@ -9565,7 +10802,7 @@ local function build()
 	})
 
 	sideList = C.Make("ScrollingFrame", {
-		Size = UDim2.new(0, S(172), 1, -S(60)),
+		Size = UDim2.new(0, S(172), 1, -S(112)),
 		Position = UDim2.fromOffset(S(12), S(48)),
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
@@ -9575,6 +10812,18 @@ local function build()
 		Parent = panel,
 	})
 	C.List(sideList, Enum.FillDirection.Vertical, 4)
+	C.Button({
+		Name = "MyShop",
+		Key = "UI_MY_SHOP",
+		TextSize = 15,
+		Size = UDim2.fromOffset(S(172), S(44)),
+		Position = UDim2.new(0, S(12), 1, -S(12)),
+		AnchorPoint = Vector2.new(0, 1),
+		OnClick = function()
+			UIController:OpenPanel("Shop", { Mode = "manage" })
+		end,
+		Parent = panel,
+	})
 
 	grid = WeaponCard.Grid(panel, UDim2.new(1, -S(204), 1, -S(60)), UDim2.fromOffset(S(192), S(48)))
 	emptyLabel = C.Text({
@@ -9604,6 +10853,7 @@ function InventoryController:Start()
 			or key == "Ores"
 			or key == "Pickaxe"
 			or key == "OwnedPickaxes"
+			or key == "Shop"
 		then
 			refresh()
 		end
@@ -9612,7 +10862,7 @@ function InventoryController:Start()
 end
 
 return InventoryController
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000047"><Properties><string name="Name">LocalizationController</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000004B"><Properties><string name="Name">LocalizationController</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Выбор языка: сохранённый в профиле → иначе язык аккаунта Roblox (RU для русскоязычных) → EN.
 	Переводит ProximityPrompt по атрибутам ActionKey/ObjectKey, которые ставит сервер.
@@ -9726,7 +10976,7 @@ function LocalizationController:Toggle()
 end
 
 return LocalizationController
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000048"><Properties><string name="Name">MenuController</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000004C"><Properties><string name="Name">MenuController</string><ProtectedString name="Source"><![CDATA[--!strict
 -- МЕНЮ: ежедневные задания и серия входов, коды, настройки, статистика.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -9776,6 +11026,8 @@ local STATS = {
 	"GatesCleared",
 	"Parries",
 	"GoldEarned",
+	"Trades",
+	"ShopSales",
 }
 
 local function clear(frame: Instance)
@@ -10087,7 +11339,7 @@ function MenuController:Start()
 end
 
 return MenuController
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000049"><Properties><string name="Name">MerchantController</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000004D"><Properties><string name="Name">MerchantController</string><ProtectedString name="Source"><![CDATA[--!strict
 -- ТОРГОВЕЦ: продать оружие (выбор нескольких + подтверждение), продать руду, купить кирки.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -10171,7 +11423,12 @@ local function refreshWeapons(data: any)
 			selected[id] = nil
 		end
 	end
-	for i, weapon in WeaponCard.Sorted(data.Weapons) do
+	local i = 0
+	for _, weapon in WeaponCard.Sorted(data.Weapons) do
+		if data.Shop.Listings[weapon.Id] then
+			continue -- выставленное в лавке торговцу не продаётся
+		end
+		i += 1
 		local equipped = data.EquippedWeapon == weapon.Id
 		WeaponCard.Create({
 			Weapon = weapon,
@@ -10416,7 +11673,7 @@ local function build()
 				return
 			end
 			for id, w in data.Weapons do
-				if w.Rarity == "Common" and id ~= data.EquippedWeapon then
+				if w.Rarity == "Common" and id ~= data.EquippedWeapon and not data.Shop.Listings[id] then
 					selected[id] = true
 				end
 			end
@@ -10486,6 +11743,7 @@ function MerchantController:Start()
 			or key == "Gold"
 			or key == "Level"
 			or key == "OwnedPickaxes"
+			or key == "Shop"
 		then
 			refresh()
 		end
@@ -10494,7 +11752,7 @@ function MerchantController:Start()
 end
 
 return MerchantController
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000004A"><Properties><string name="Name">QuestController</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000004E"><Properties><string name="Name">QuestController</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ТРЕКЕР КВЕСТА СИСТЕМЫ + луч-подсказка от персонажа к цели.
 	Во время обучения — текущий шаг обучения, после — первое невыполненное ежедневное задание.
@@ -10737,7 +11995,402 @@ function QuestController:Start()
 end
 
 return QuestController
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000004B"><Properties><string name="Name">SystemWindowController</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000004F"><Properties><string name="Name">ShopController</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	ЛАВКА.
+	• Моя лавка (Инвентарь → «Моя лавка» или свой прилавок): выбрать оружие, указать цену, выставить;
+	  справа — выставленное, кнопка «Снять».
+	• Чужая лавка (подойти к прилавку → «Лавка»): выбрать предмет и купить (второе нажатие подтверждает).
+]]
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Config = require(ReplicatedStorage.Shared.Config)
+local Format = require(ReplicatedStorage.Shared.Format)
+local Localization = require(ReplicatedStorage.Shared.Localization)
+local WeaponMath = require(ReplicatedStorage.Shared.WeaponMath)
+local C = require(script.Parent.Parent.UI.Components)
+local Sound = require(script.Parent.Parent.UI.Sound)
+local Theme = require(script.Parent.Parent.UI.Theme)
+local WeaponCard = require(script.Parent.Parent.UI.WeaponCard)
+local DataController = require(script.Parent.DataController)
+local UIController = require(script.Parent.UIController)
+
+local S = Theme.S
+local SH = Config.Trading.Shop
+local player = Players.LocalPlayer
+
+local ShopController = {}
+
+local panel: Frame
+local title: TextLabel
+local manageFrame: Frame
+local browseFrame: Frame
+-- моя лавка
+local summaryLabel: TextLabel
+local noStallLabel: TextLabel
+local ownGrid: ScrollingFrame
+local priceBox: TextBox
+local listButton: TextButton
+local listedList: ScrollingFrame
+local pickedId: string? = nil
+-- чужая лавка
+local browseGrid: ScrollingFrame
+local emptyLabel: TextLabel
+local buyButton: TextButton
+local browse: { [string]: any } = {}
+local browsePick: { Weapon: any, Price: number }? = nil
+local confirmUntil = 0
+
+local mode = "manage"
+
+local function clear(frame: Instance)
+	for _, child in frame:GetChildren() do
+		if child:IsA("GuiObject") then
+			child:Destroy()
+		end
+	end
+end
+
+local function suggestedPrice(weapon: any): number
+	return math.max(SH.MinPrice, math.floor(WeaponMath.SellPrice(weapon) * SH.SuggestedPriceMult))
+end
+
+-- ===== Моя лавка =====
+
+local function refreshManage()
+	local data = DataController:Get()
+	if not data then
+		return
+	end
+	local count = 0
+	for _ in data.Shop.Listings do
+		count += 1
+	end
+	C.Bind(summaryLabel, "UI_SHOP_LISTINGS", {
+		count = count,
+		max = SH.MaxListings,
+		fee = math.floor(SH.TaxRate * 100 + 0.5),
+	})
+	noStallLabel.Visible = player:GetAttribute("HasStall") ~= true
+
+	-- оружие, которое можно выставить
+	WeaponCard.Clear(ownGrid)
+	if pickedId and (not data.Weapons[pickedId] or data.Shop.Listings[pickedId]) then
+		pickedId = nil
+	end
+	local order = 0
+	for _, weapon in WeaponCard.Sorted(data.Weapons) do
+		if weapon.Id ~= data.EquippedWeapon and not data.Shop.Listings[weapon.Id] then
+			order += 1
+			WeaponCard.Create({
+				Weapon = weapon,
+				Selected = pickedId == weapon.Id,
+				LayoutOrder = order,
+				Parent = ownGrid,
+				OnClick = function()
+					pickedId = weapon.Id
+					priceBox.Text = tostring(suggestedPrice(weapon))
+					refreshManage()
+				end,
+			})
+		end
+	end
+	listButton.BackgroundColor3 = if pickedId then Theme.Accent else Theme.Disabled
+	listButton.TextColor3 = if pickedId then Theme.Bg else Theme.Muted
+
+	-- выставленное
+	clear(listedList)
+	local rows = {}
+	for id, price in data.Shop.Listings do
+		local weapon = data.Weapons[id]
+		if weapon then
+			table.insert(rows, { Weapon = weapon, Price = price })
+		end
+	end
+	table.sort(rows, function(a, b)
+		return a.Price > b.Price
+	end)
+	for i, entry in rows do
+		local row = C.Make("Frame", {
+			Size = UDim2.new(1, -S(8), 0, S(48)),
+			BackgroundColor3 = Theme.PanelLight,
+			LayoutOrder = i,
+			Parent = listedList,
+		})
+		C.Corner(row, 6)
+		C.Text({
+			Text = Localization.WeaponName(entry.Weapon.Type, entry.Weapon.Ore),
+			Font = Theme.FontBold,
+			TextSize = 13,
+			Size = UDim2.new(1, -S(96), 0, S(20)),
+			Position = UDim2.fromOffset(S(8), S(4)),
+			Parent = row,
+		})
+		C.Text({
+			Key = "UI_PRICE_LINE",
+			Args = { gold = Format.Short(entry.Price) },
+			TextSize = 12,
+			Color = Theme.Gold,
+			Size = UDim2.new(1, -S(96), 0, S(16)),
+			Position = UDim2.fromOffset(S(8), S(24)),
+			Parent = row,
+		})
+		C.Button({
+			Key = "UI_SHOP_UNLIST",
+			TextSize = 12,
+			Size = UDim2.fromOffset(S(80), S(32)),
+			Position = UDim2.new(1, -S(8), 0.5, 0),
+			AnchorPoint = Vector2.new(1, 0.5),
+			OnClick = function()
+				UIController:Handle(UIController:Invoke("ShopUnlist", entry.Weapon.Id))
+			end,
+			Parent = row,
+		})
+	end
+end
+
+local function listPicked()
+	local id = pickedId
+	if not id then
+		return
+	end
+	local price = tonumber(priceBox.Text)
+	if not price or price ~= math.floor(price) or price < SH.MinPrice or price > SH.MaxPrice then
+		UIController:Toast("ERR_PRICE", { min = SH.MinPrice, max = SH.MaxPrice }, "error")
+		return
+	end
+	local result = UIController:Invoke("ShopList", id, price)
+	if UIController:Handle(result) then
+		pickedId = nil
+		UIController:Toast("TOAST_LISTED", { price = price }, "success")
+	end
+end
+
+-- ===== Чужая лавка =====
+
+local function refreshBuyButton()
+	local pick = browsePick
+	if not pick then
+		C.Bind(buyButton, "UI_SHOP_PICK")
+		buyButton.BackgroundColor3 = Theme.Disabled
+		buyButton.TextColor3 = Theme.Muted
+	elseif os.clock() < confirmUntil then
+		C.Bind(buyButton, "UI_CONFIRM")
+		buyButton.BackgroundColor3 = Theme.Danger
+		buyButton.TextColor3 = Theme.Text
+	else
+		C.Bind(buyButton, "UI_BUY", { price = Format.Short(pick.Price) })
+		buyButton.BackgroundColor3 = Theme.Accent
+		buyButton.TextColor3 = Theme.Bg
+	end
+end
+
+local function refreshBrowse()
+	C.Bind(title, "UI_SHOP_TITLE", { name = browse.OwnerName or "" })
+	WeaponCard.Clear(browseGrid)
+	local listings = browse.Listings or {}
+	emptyLabel.Visible = #listings == 0
+	local pickStillThere = false
+	for i, entry in listings do
+		local selected = browsePick ~= nil and browsePick.Weapon.Id == entry.Weapon.Id
+		if selected then
+			pickStillThere = true
+		end
+		WeaponCard.Create({
+			Weapon = entry.Weapon,
+			Selected = selected,
+			PriceText = Format.Short(entry.Price),
+			LayoutOrder = i,
+			Parent = browseGrid,
+			OnClick = function()
+				browsePick = entry
+				confirmUntil = 0
+				refreshBrowse()
+			end,
+		})
+	end
+	if not pickStillThere then
+		browsePick = nil
+	end
+	refreshBuyButton()
+end
+
+local function reloadBrowse()
+	local result = UIController:Invoke("ShopFetch", browse.OwnerUserId)
+	if type(result) == "table" and result.ok then
+		browse = result
+	else
+		UIController:Handle(result)
+		browse.Listings = {}
+	end
+	refreshBrowse()
+end
+
+local function buyPicked()
+	local pick = browsePick
+	if not pick then
+		return
+	end
+	if os.clock() > confirmUntil then
+		confirmUntil = os.clock() + 3
+		refreshBuyButton()
+		task.delay(3.05, function()
+			if panel.Visible and mode == "browse" then
+				refreshBuyButton()
+			end
+		end)
+		return
+	end
+	confirmUntil = 0
+	local result = UIController:Invoke("ShopBuy", browse.OwnerUserId, pick.Weapon.Id, pick.Price)
+	if UIController:Handle(result) then
+		Sound.Play("Coins")
+		UIController:Toast("TOAST_BOUGHT", { item = `@WEAPON:{pick.Weapon.Type}:{pick.Weapon.Ore}` }, "success")
+	end
+	browsePick = nil
+	reloadBrowse()
+end
+
+-- ===== Окно =====
+
+local function build()
+	panel = C.Panel({ Name = "ShopPanel", Size = UDim2.fromOffset(S(540), S(332)) })
+	title = C.TitleBar(panel, "UI_MY_SHOP", function()
+		UIController:ClosePanel()
+	end)
+	local contentSize = UDim2.new(1, -S(32), 1, -S(64))
+	local contentPos = UDim2.fromOffset(S(16), S(52))
+
+	-- моя лавка
+	manageFrame = C.Make("Frame", { Size = contentSize, Position = contentPos, BackgroundTransparency = 1, Parent = panel })
+	summaryLabel = C.Text({ TextSize = 13, Color = Theme.TextDim, Size = UDim2.new(1, 0, 0, S(16)), Parent = manageFrame })
+	noStallLabel = C.Text({
+		Key = "UI_SHOP_NO_STALL",
+		TextSize = 12,
+		Color = Theme.Muted,
+		Wrapped = true,
+		Size = UDim2.new(1, 0, 0, S(16)),
+		Position = UDim2.fromOffset(0, S(16)),
+		Visible = false,
+		Parent = manageFrame,
+	})
+	local left = C.Make("Frame", {
+		Size = UDim2.new(0.5, -S(8), 1, -S(36)),
+		Position = UDim2.fromOffset(0, S(36)),
+		BackgroundTransparency = 1,
+		Parent = manageFrame,
+	})
+	ownGrid = WeaponCard.Grid(left, UDim2.new(1, 0, 1, -S(52)), UDim2.new())
+	priceBox = C.Make("TextBox", {
+		Size = UDim2.new(1, -S(104), 0, S(44)),
+		Position = UDim2.fromScale(0, 1),
+		AnchorPoint = Vector2.new(0, 1),
+		BackgroundColor3 = Theme.Bg,
+		Font = Theme.FontBold,
+		TextSize = S(16),
+		TextColor3 = Theme.Text,
+		PlaceholderColor3 = Theme.Muted,
+		ClearTextOnFocus = false,
+		Text = "",
+		Parent = left,
+	})
+	C.Corner(priceBox, 8)
+	C.Stroke(priceBox)
+	listButton = C.Button({
+		Key = "UI_SHOP_LIST",
+		TextSize = 14,
+		Size = UDim2.fromOffset(S(96), S(44)),
+		Position = UDim2.fromScale(1, 1),
+		AnchorPoint = Vector2.new(1, 1),
+		Color = Theme.Disabled,
+		OnClick = listPicked,
+		Parent = left,
+	})
+	listedList = C.Make("ScrollingFrame", {
+		Size = UDim2.new(0.5, -S(8), 1, -S(36)),
+		Position = UDim2.new(0.5, S(8), 0, S(36)),
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		ScrollBarThickness = S(4),
+		CanvasSize = UDim2.new(),
+		AutomaticCanvasSize = Enum.AutomaticSize.Y,
+		Parent = manageFrame,
+	})
+	C.List(listedList, Enum.FillDirection.Vertical, 8)
+
+	-- чужая лавка
+	browseFrame = C.Make("Frame", { Size = contentSize, Position = contentPos, BackgroundTransparency = 1, Visible = false, Parent = panel })
+	browseGrid = WeaponCard.Grid(browseFrame, UDim2.new(1, 0, 1, -S(56)), UDim2.new())
+	emptyLabel = C.Text({
+		Key = "UI_SHOP_EMPTY",
+		TextSize = 15,
+		Color = Theme.TextDim,
+		AlignX = Enum.TextXAlignment.Center,
+		Size = UDim2.new(1, 0, 0, S(40)),
+		Position = UDim2.fromOffset(0, S(64)),
+		Visible = false,
+		Parent = browseFrame,
+	})
+	buyButton = C.Button({
+		Font = Theme.FontTitle,
+		TextSize = 16,
+		Size = UDim2.new(1, 0, 0, S(48)),
+		Position = UDim2.fromScale(0, 1),
+		AnchorPoint = Vector2.new(0, 1),
+		OnClick = buyPicked,
+		Parent = browseFrame,
+	})
+end
+
+function ShopController:Start()
+	build()
+	priceBox.PlaceholderText = Localization.Get("UI_SHOP_PRICE")
+	Localization.Changed:Connect(function()
+		priceBox.PlaceholderText = Localization.Get("UI_SHOP_PRICE")
+		if panel.Visible and mode == "manage" then
+			refreshManage()
+		end
+	end)
+
+	UIController:RegisterPanel("Shop", {
+		Frame = panel,
+		OnOpen = function(payload: any)
+			mode = if type(payload) == "table" and payload.Mode == "browse" then "browse" else "manage"
+			manageFrame.Visible = mode == "manage"
+			browseFrame.Visible = mode == "browse"
+			if mode == "browse" then
+				browse = payload
+				browsePick = nil
+				confirmUntil = 0
+				refreshBrowse()
+			else
+				C.Bind(title, "UI_MY_SHOP")
+				pickedId = nil
+				priceBox.Text = ""
+				refreshManage()
+			end
+		end,
+	})
+
+	DataController.Changed:Connect(function(key: string)
+		if not panel.Visible then
+			return
+		end
+		if mode == "manage" and (key == "*" or key == "Weapons" or key == "Shop" or key == "EquippedWeapon") then
+			refreshManage()
+		end
+	end)
+	player:GetAttributeChangedSignal("HasStall"):Connect(function()
+		if panel.Visible and mode == "manage" then
+			refreshManage()
+		end
+	end)
+end
+
+return ShopController
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000050"><Properties><string name="Name">SystemWindowController</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ОКНО СИСТЕМЫ — главная фишка. Синее окно в стиле маньхуа:
 	мерцание рамки → окно выезжает → текст «печатается» → само закрывается или по тапу.
@@ -10779,6 +12432,8 @@ local KIND_STYLE: { [string]: { Color: Color3, Sound: string, Duration: number }
 	Legendary = { Color = Color3.fromRGB(255, 80, 110), Sound = "Celebrate", Duration = 5 },
 	Elite = { Color = Theme.Danger, Sound = "EliteAlarm", Duration = 5 },
 	Penalty = { Color = Theme.Danger, Sound = "SystemWarning", Duration = 4 },
+	Trade = { Color = Theme.System, Sound = "SystemOpen", Duration = 3.5 },
+	Shop = { Color = Theme.Gold, Sound = "Coins", Duration = 4 },
 }
 
 -- элементы окна
@@ -10991,7 +12646,424 @@ function SystemWindowController:Start()
 end
 
 return SystemWindowController
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000004C"><Properties><string name="Name">UIController</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000051"><Properties><string name="Name">TradeController</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	ОБМЕН НА КЛИЕНТЕ.
+	• Приглашение: карточка сверху «{имя} предлагает обмен» с кнопками «Принять»/«Отказать».
+	• Окно обмена: слева твоё оружие (нажатие добавляет/убирает из предложения) и золото,
+	  справа — что отдаёт другой игрок, с настоящими характеристиками.
+	• Кнопка внизу: «Готов» → после готовности обоих отсчёт → «Подтвердить обмен».
+	Всё решает сервер; клиент только показывает состояние и шлёт намерения.
+]]
+
+local GuiService = game:GetService("GuiService")
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+
+local Format = require(ReplicatedStorage.Shared.Format)
+local Localization = require(ReplicatedStorage.Shared.Localization)
+local Net = require(ReplicatedStorage.Shared.Net)
+local C = require(script.Parent.Parent.UI.Components)
+local Theme = require(script.Parent.Parent.UI.Theme)
+local WeaponCard = require(script.Parent.Parent.UI.WeaponCard)
+local DataController = require(script.Parent.DataController)
+local InputController = require(script.Parent.InputController)
+local UIController = require(script.Parent.UIController)
+
+local S = Theme.S
+local player = Players.LocalPlayer
+
+local TradeController = {}
+
+-- приглашение
+local invite: Frame
+local inviteText: TextLabel
+local inviteFrom = 0
+local inviteToken = 0
+
+-- окно
+local panel: Frame
+local title: TextLabel
+local theirHeader: TextLabel
+local yourGrid: ScrollingFrame
+local theirGrid: ScrollingFrame
+local goldBox: TextBox
+local theirGold: TextLabel
+local theirStatus: TextLabel
+local actionButton: TextButton
+
+local state: { [string]: any }? = nil
+local confirmDeadline = 0 -- os.clock(), когда станет можно подтвердить
+local closingByServer = false
+
+-- ===== Приглашение =====
+
+local function hideInvite()
+	invite.Visible = false
+	inviteFrom = 0
+end
+
+local function showInvite(payload: { [string]: any })
+	inviteFrom = payload.FromUserId
+	C.Bind(inviteText, "UI_TRADE_INVITE", { name = payload.FromName })
+	invite.Visible = true
+	if InputController:IsGamepad() then
+		GuiService.SelectedObject = invite:FindFirstChild("Accept") :: GuiObject?
+	end
+	inviteToken += 1
+	local token = inviteToken
+	task.delay(payload.Timeout or 20, function()
+		if token == inviteToken then
+			hideInvite()
+		end
+	end)
+end
+
+local function answer(accept: boolean)
+	if inviteFrom ~= 0 then
+		Net.Event("TradeRespond"):FireServer(inviteFrom, accept)
+	end
+	hideInvite()
+end
+
+-- ===== Окно обмена =====
+
+local function offeredIds(): { string }
+	local ids = {}
+	if state then
+		for _, w in state.You.Weapons do
+			table.insert(ids, w.Id)
+		end
+	end
+	return ids
+end
+
+local function sendOffer(ids: { string }, gold: number)
+	local s = state
+	if not s then
+		return
+	end
+	UIController:Handle(UIController:Invoke("TradeSetOffer", s.Id, ids, gold))
+end
+
+local function toggleWeapon(id: string)
+	local s = state
+	if not s then
+		return
+	end
+	local ids = offeredIds()
+	local index = table.find(ids, id)
+	if index then
+		table.remove(ids, index)
+	else
+		table.insert(ids, id)
+	end
+	sendOffer(ids, s.You.Gold)
+end
+
+local function refreshButton()
+	local s = state
+	if not s then
+		return
+	end
+	local left = confirmDeadline - os.clock()
+	local function set(key: string, args: { [string]: any }?, active: boolean)
+		C.Bind(actionButton, key, args)
+		actionButton.BackgroundColor3 = if active then Theme.Accent else Theme.PanelLight
+		actionButton.TextColor3 = if active then Theme.Bg else Theme.TextDim
+	end
+	if s.Phase == "confirm" then
+		if s.You.Confirmed then
+			set("UI_TRADE_WAITING", { name = s.PartnerName }, false)
+		elseif left > 0 then
+			set("UI_TRADE_WAIT", { sec = math.ceil(left) }, false)
+		else
+			set("UI_TRADE_CONFIRM", nil, true)
+		end
+	elseif s.You.Ready then
+		set("UI_TRADE_WAITING", { name = s.PartnerName }, false)
+	else
+		set("UI_TRADE_READY", nil, true)
+	end
+end
+
+local function render()
+	local s = state
+	local data = DataController:Get()
+	if not s or not data then
+		return
+	end
+	C.Bind(title, "UI_TRADE_TITLE", { name = s.PartnerName })
+	C.Bind(theirHeader, "UI_TRADE_THEIRS", { name = s.PartnerName })
+
+	-- моё оружие: всё, что можно отдать (не надето, не в лавке); выбранное — в предложении
+	local offered: { [string]: boolean } = {}
+	for _, w in s.You.Weapons do
+		offered[w.Id] = true
+	end
+	WeaponCard.Clear(yourGrid)
+	local order = 0
+	for _, weapon in WeaponCard.Sorted(data.Weapons) do
+		if weapon.Id ~= data.EquippedWeapon and not data.Shop.Listings[weapon.Id] then
+			order += 1
+			WeaponCard.Create({
+				Weapon = weapon,
+				Selected = offered[weapon.Id] == true,
+				LayoutOrder = order,
+				Parent = yourGrid,
+				OnClick = function()
+					toggleWeapon(weapon.Id)
+				end,
+			})
+		end
+	end
+	if not goldBox:IsFocused() then
+		goldBox.Text = if s.You.Gold > 0 then tostring(s.You.Gold) else ""
+	end
+
+	-- их предложение
+	WeaponCard.Clear(theirGrid)
+	for i, weapon in s.Them.Weapons do
+		WeaponCard.Create({ Weapon = weapon, LayoutOrder = i, Parent = theirGrid })
+	end
+	C.Bind(theirGold, "UI_TRADE_GOLD_LINE", { gold = Format.Short(s.Them.Gold) })
+	local themReady = s.Them.Ready or s.Them.Confirmed
+	C.Bind(theirStatus, if themReady then "UI_TRADE_READY" else "UI_TRADE_UNREADY")
+	theirStatus.TextColor3 = if themReady then Theme.Success else Theme.Muted
+	refreshButton()
+end
+
+local function onAction()
+	local s = state
+	if not s then
+		return
+	end
+	if s.Phase == "confirm" then
+		if not s.You.Confirmed and os.clock() >= confirmDeadline then
+			Net.Event("TradeConfirm"):FireServer(s.Id, s.Version)
+		end
+	else
+		Net.Event("TradeReady"):FireServer(s.Id, s.Version, not s.You.Ready)
+	end
+end
+
+local function applyGold()
+	local s = state
+	if not s then
+		return
+	end
+	local gold = tonumber(goldBox.Text) or 0
+	gold = math.max(0, math.floor(gold))
+	if gold ~= s.You.Gold then
+		sendOffer(offeredIds(), gold)
+	end
+end
+
+local function build()
+	-- приглашение
+	invite = C.Panel({
+		Name = "TradeInvite",
+		Size = UDim2.fromOffset(S(320), S(96)),
+		Position = UDim2.new(0.5, 0, 0, S(160)),
+		AnchorPoint = Vector2.new(0.5, 0),
+		Visible = false,
+		Adaptive = true,
+		Parent = UIController.Layers.Overlay,
+	})
+	inviteText = C.Text({
+		Font = Theme.FontBold,
+		TextSize = 15,
+		AlignX = Enum.TextXAlignment.Center,
+		Size = UDim2.new(1, -S(24), 0, S(24)),
+		Position = UDim2.fromOffset(S(12), S(12)),
+		Parent = invite,
+	})
+	C.Button({
+		Name = "Accept",
+		Key = "UI_ACCEPT",
+		TextSize = 14,
+		Size = UDim2.new(0.5, -S(16), 0, S(40)),
+		Position = UDim2.new(0, S(12), 1, -S(12)),
+		AnchorPoint = Vector2.new(0, 1),
+		Color = Theme.Accent,
+		TextColor = Theme.Bg,
+		OnClick = function()
+			answer(true)
+		end,
+		Parent = invite,
+	})
+	C.Button({
+		Name = "Decline",
+		Key = "UI_DECLINE",
+		TextSize = 14,
+		Size = UDim2.new(0.5, -S(16), 0, S(40)),
+		Position = UDim2.new(1, -S(12), 1, -S(12)),
+		AnchorPoint = Vector2.new(1, 1),
+		OnClick = function()
+			answer(false)
+		end,
+		Parent = invite,
+	})
+
+	-- окно обмена
+	panel = C.Panel({ Name = "TradePanel", Size = UDim2.fromOffset(S(540), S(332)) })
+	title = C.TitleBar(panel, "UI_TRADE_TITLE", function()
+		UIController:ClosePanel()
+	end)
+	local top = S(48)
+	local bottom = S(92)
+	C.Text({
+		Key = "UI_TRADE_YOURS",
+		Font = Theme.FontBold,
+		TextSize = 13,
+		Color = Theme.TextDim,
+		Size = UDim2.new(0.5, -S(24), 0, S(16)),
+		Position = UDim2.fromOffset(S(16), top),
+		Parent = panel,
+	})
+	yourGrid = WeaponCard.Grid(panel, UDim2.new(0.5, -S(24), 1, -(top + S(20) + bottom)), UDim2.fromOffset(S(16), top + S(20)))
+	goldBox = C.Make("TextBox", {
+		Size = UDim2.new(0.5, -S(24), 0, S(32)),
+		Position = UDim2.new(0, S(16), 1, -(bottom - S(4))),
+		BackgroundColor3 = Theme.Bg,
+		Font = Theme.FontBold,
+		TextSize = S(14),
+		TextColor3 = Theme.Gold,
+		PlaceholderColor3 = Theme.Muted,
+		ClearTextOnFocus = false,
+		Text = "",
+		Parent = panel,
+	})
+	C.Corner(goldBox, 8)
+	C.Stroke(goldBox)
+	goldBox.FocusLost:Connect(applyGold)
+
+	theirHeader = C.Text({
+		Font = Theme.FontBold,
+		TextSize = 13,
+		Color = Theme.TextDim,
+		Size = UDim2.new(0.5, -S(24), 0, S(16)),
+		Position = UDim2.new(0.5, S(8), 0, top),
+		Parent = panel,
+	})
+	theirGrid = WeaponCard.Grid(panel, UDim2.new(0.5, -S(24), 1, -(top + S(20) + bottom)), UDim2.new(0.5, S(8), 0, top + S(20)))
+	theirGold = C.Text({
+		Font = Theme.FontBold,
+		TextSize = 14,
+		Color = Theme.Gold,
+		Size = UDim2.new(0.25, 0, 0, S(32)),
+		Position = UDim2.new(0.5, S(8), 1, -(bottom - S(4))),
+		Parent = panel,
+	})
+	theirStatus = C.Text({
+		Font = Theme.FontBold,
+		TextSize = 13,
+		AlignX = Enum.TextXAlignment.Right,
+		Size = UDim2.new(0.25, -S(16), 0, S(32)),
+		Position = UDim2.new(0.75, 0, 1, -(bottom - S(4))),
+		Parent = panel,
+	})
+	C.Text({
+		Key = "UI_TRADE_HINT",
+		TextSize = 11,
+		Color = Theme.Muted,
+		Wrapped = true,
+		Size = UDim2.new(0.5, -S(24), 0, S(44)),
+		Position = UDim2.new(0, S(16), 1, -S(56)),
+		Parent = panel,
+	})
+	actionButton = C.Button({
+		Key = "UI_TRADE_READY",
+		Font = Theme.FontTitle,
+		TextSize = 16,
+		Size = UDim2.new(0.5, -S(24), 0, S(44)),
+		Position = UDim2.new(1, -S(16), 1, -S(12)),
+		AnchorPoint = Vector2.new(1, 1),
+		Color = Theme.Accent,
+		TextColor = Theme.Bg,
+		OnClick = onAction,
+		Parent = panel,
+	})
+end
+
+-- своя подсказка «Обмен» над собственным персонажем не нужна
+local function hideOwnPrompt(character: Model)
+	local root = character:WaitForChild("HumanoidRootPart", 10)
+	local prompt = root and root:WaitForChild("TradePrompt", 10)
+	if prompt and prompt:IsA("ProximityPrompt") then
+		prompt.Enabled = false
+	end
+end
+
+function TradeController:Start()
+	build()
+	goldBox.PlaceholderText = Localization.Get("UI_TRADE_GOLD_LINE", { gold = 0 })
+	Localization.Changed:Connect(function()
+		goldBox.PlaceholderText = Localization.Get("UI_TRADE_GOLD_LINE", { gold = 0 })
+		render()
+	end)
+
+	UIController:RegisterPanel("Trade", {
+		Frame = panel,
+		OnOpen = function()
+			render()
+		end,
+		OnClose = function()
+			-- окно закрыл сам игрок → отменить обмен на сервере
+			local s = state
+			if s and not closingByServer then
+				Net.Event("TradeCancel"):FireServer(s.Id)
+			end
+			state = nil
+		end,
+	})
+
+	Net.Event("TradeInvite").OnClientEvent:Connect(showInvite)
+	Net.Event("TradeState").OnClientEvent:Connect(function(payload: { [string]: any })
+		if payload.Phase == "open" or payload.Phase == "confirm" then
+			state = payload
+			confirmDeadline = os.clock() + (payload.ConfirmIn or 0)
+			hideInvite()
+			if UIController:GetOpenPanel() ~= "Trade" then
+				UIController:OpenPanel("Trade")
+			else
+				render()
+			end
+		else
+			if UIController:GetOpenPanel() == "Trade" then
+				closingByServer = true
+				UIController:ClosePanel()
+				closingByServer = false
+			end
+			state = nil
+		end
+	end)
+
+	DataController.Changed:Connect(function(key: string)
+		if state and (key == "Weapons" or key == "Shop" or key == "EquippedWeapon") then
+			render()
+		end
+	end)
+
+	-- обратный отсчёт до «Подтвердить»
+	local acc = 0
+	RunService.Heartbeat:Connect(function(dt)
+		acc += dt
+		if acc >= 0.2 and state and state.Phase == "confirm" then
+			acc = 0
+			refreshButton()
+		end
+	end)
+
+	player.CharacterAdded:Connect(hideOwnPrompt)
+	if player.Character then
+		task.spawn(hideOwnPrompt, player.Character)
+	end
+end
+
+return TradeController
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000052"><Properties><string name="Name">UIController</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Корневой ScreenGui, слои, окна (одно открытое за раз), тосты, обработка ответов сервера.
 	Окно регистрируется так:
@@ -11284,7 +13356,7 @@ function UIController:FlashHit(strength: number)
 end
 
 return UIController
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX0000004D"><Properties><string name="Name">ZoneController</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000053"><Properties><string name="Name">ZoneController</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ЗОНЫ: баннер «Медные холмы · Рекомендуемый ур. 1+» при входе в зону, музыка зоны,
 	вращение Кристалла Системы (тег Spin), режим «слабая графика» для телефонов.
@@ -11454,7 +13526,7 @@ function ZoneController:Start()
 end
 
 return ZoneController
-]]></ProtectedString></Properties></Item></Item><Item class="Folder" referent="RBX00000054"><Properties><string name="Name">UI</string></Properties><Item class="ModuleScript" referent="RBX0000004F"><Properties><string name="Name">ClientSettings</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item></Item><Item class="Folder" referent="RBX0000005A"><Properties><string name="Name">UI</string></Properties><Item class="ModuleScript" referent="RBX00000055"><Properties><string name="Name">ClientSettings</string><ProtectedString name="Source"><![CDATA[--!strict
 -- Текущие настройки игрока на клиенте (звук, музыка, цифры урона, слабая графика).
 -- Берутся из профиля, меняются в Меню → Настройки.
 
@@ -11479,7 +13551,7 @@ function ClientSettings.Set(key: string, value: boolean)
 end
 
 return ClientSettings
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000050"><Properties><string name="Name">Components</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000056"><Properties><string name="Name">Components</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Строительные блоки интерфейса. Весь текст — через ключи локализации:
 		C.Text({ Key = "UI_LEVEL", Args = { level = 5 }, ... })
@@ -11806,7 +13878,7 @@ function C.TitleBar(panel: Frame, titleKey: string, onClose: () -> ()): TextLabe
 end
 
 return C
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000051"><Properties><string name="Name">Sound</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000057"><Properties><string name="Name">Sound</string><ProtectedString name="Source"><![CDATA[--!strict
 -- Звуки интерфейса и эффектов. ID задаются в Shared/Config/Audio (пусто = тишина).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -11839,7 +13911,7 @@ function Sound.Play(key: string, volume: number?, pitch: number?)
 end
 
 return Sound
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000052"><Properties><string name="Name">Theme</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000058"><Properties><string name="Name">Theme</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Направление: ночная кузня. Интерфейс — тихий тёплый графит (копоть, металл),
 	главное действие — цвет углей. Холодный синий свет есть только у Системы:
@@ -11909,7 +13981,7 @@ function Theme.S(n: number): number
 end
 
 return Theme
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000053"><Properties><string name="Name">WeaponCard</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000059"><Properties><string name="Name">WeaponCard</string><ProtectedString name="Source"><![CDATA[--!strict
 -- Карточка оружия для инвентаря и торговца.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -11928,7 +14000,9 @@ export type CardProps = {
 	Weapon: any,
 	Equipped: boolean?,
 	Selected: boolean?,
-	ShowPrice: boolean?,
+	ShowPrice: boolean?, -- цена у торговца
+	Listed: boolean?, -- выставлено в лавке
+	PriceText: string?, -- своя подпись цены (цена в лавке)
 	LayoutOrder: number?,
 	OnClick: (() -> ())?,
 	Parent: Instance,
@@ -12025,6 +14099,18 @@ function WeaponCard.Create(props: CardProps): TextButton
 			Font = Theme.FontBold,
 			TextSize = 11,
 			Color = Theme.Accent,
+			AlignX = Enum.TextXAlignment.Right,
+			Size = UDim2.new(0.5, -S(8), 0, S(16)),
+			Position = UDim2.new(0.5, 0, 0, S(40)),
+			Parent = card,
+		})
+	elseif props.Listed or props.PriceText then
+		C.Text({
+			Text = props.PriceText,
+			Key = if props.PriceText then nil else "UI_LISTED",
+			Font = Theme.FontBold,
+			TextSize = if props.PriceText then 13 else 11,
+			Color = if props.PriceText then Theme.Gold else Theme.Muted,
 			AlignX = Enum.TextXAlignment.Right,
 			Size = UDim2.new(0.5, -S(8), 0, S(16)),
 			Position = UDim2.new(0.5, 0, 0, S(40)),

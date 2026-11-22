@@ -50,6 +50,7 @@ function FallbackStore.New(_name: string, template: any)
 		function profile:IsActive(): boolean
 			return active
 		end
+		function profile:Save() end
 		function profile:EndSession()
 			if active then
 				active = false

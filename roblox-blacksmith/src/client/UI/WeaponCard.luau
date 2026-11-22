@@ -17,7 +17,9 @@ export type CardProps = {
 	Weapon: any,
 	Equipped: boolean?,
 	Selected: boolean?,
-	ShowPrice: boolean?,
+	ShowPrice: boolean?, -- цена у торговца
+	Listed: boolean?, -- выставлено в лавке
+	PriceText: string?, -- своя подпись цены (цена в лавке)
 	LayoutOrder: number?,
 	OnClick: (() -> ())?,
 	Parent: Instance,
@@ -114,6 +116,18 @@ function WeaponCard.Create(props: CardProps): TextButton
 			Font = Theme.FontBold,
 			TextSize = 11,
 			Color = Theme.Accent,
+			AlignX = Enum.TextXAlignment.Right,
+			Size = UDim2.new(0.5, -S(8), 0, S(16)),
+			Position = UDim2.new(0.5, 0, 0, S(40)),
+			Parent = card,
+		})
+	elseif props.Listed or props.PriceText then
+		C.Text({
+			Text = props.PriceText,
+			Key = if props.PriceText then nil else "UI_LISTED",
+			Font = Theme.FontBold,
+			TextSize = if props.PriceText then 13 else 11,
+			Color = if props.PriceText then Theme.Gold else Theme.Muted,
 			AlignX = Enum.TextXAlignment.Right,
 			Size = UDim2.new(0.5, -S(8), 0, S(16)),
 			Position = UDim2.new(0.5, 0, 0, S(40)),

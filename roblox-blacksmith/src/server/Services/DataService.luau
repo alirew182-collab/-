@@ -195,6 +195,17 @@ function DataService:Replicate(player: Player, ...: string)
 	end
 end
 
+-- Немедленное сохранение (после обмена и покупки): сужает окно, в котором сбой сервера
+-- мог бы сохранить одну сторону сделки без другой.
+function DataService:SaveNow(player: Player)
+	local profile = profiles[player]
+	if profile and type(profile.Save) == "function" then
+		pcall(function()
+			profile:Save()
+		end)
+	end
+end
+
 function DataService:AddStat(player: Player, stat: string, amount: number)
 	local data = DataService:Get(player)
 	if data then

@@ -29,6 +29,21 @@ function EconomyService:TrySpendGold(player: Player, amount: number): boolean
 	return true
 end
 
+-- Перевод золота между игроками (обмен, покупка в лавке). Не считается «заработком».
+-- tax — доля, которая сгорает (комиссия рынка). Возвращает сумму, дошедшую получателю.
+function EconomyService:TransferGold(from: Player, to: Player, amount: number, tax: number?): number?
+	local a = DataService:Get(from)
+	local b = DataService:Get(to)
+	amount = math.floor(amount)
+	if not a or not b or amount < 0 or a.Gold < amount then
+		return nil
+	end
+	local received = amount - math.floor(amount * (tax or 0) + 0.5)
+	a.Gold -= amount
+	b.Gold += received
+	return received
+end
+
 function EconomyService:GetOre(player: Player, oreId: string): number
 	local data = DataService:Get(player)
 	if not data then

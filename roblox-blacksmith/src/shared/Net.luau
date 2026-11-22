@@ -23,6 +23,8 @@ Net.Events = {
 	Toast = true, -- короткое сообщение внизу экрана
 	OpenPanel = true, -- открыть окно (кузня, торговец)
 	GateState = true, -- состояние группы/забега во Вратах
+	TradeInvite = true, -- кто-то предлагает обмен
+	TradeState = true, -- состояние окна обмена
 	-- клиент → сервер
 	CombatAttack = true,
 	CombatBlock = true,
@@ -31,6 +33,10 @@ Net.Events = {
 	SetSetting = true,
 	GateStart = true,
 	GateLeave = true,
+	TradeRespond = true,
+	TradeReady = true,
+	TradeConfirm = true,
+	TradeCancel = true,
 }
 
 -- UnreliableRemoteEvent (косметика, можно потерять)
@@ -49,6 +55,11 @@ Net.Functions = {
 	SellOres = true,
 	BuyPickaxe = true,
 	RedeemCode = true,
+	TradeSetOffer = true,
+	ShopList = true,
+	ShopUnlist = true,
+	ShopBuy = true,
+	ShopFetch = true,
 }
 
 local function getFolder(): Instance

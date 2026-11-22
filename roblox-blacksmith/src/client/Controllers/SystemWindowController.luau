@@ -40,6 +40,8 @@ local KIND_STYLE: { [string]: { Color: Color3, Sound: string, Duration: number }
 	Legendary = { Color = Color3.fromRGB(255, 80, 110), Sound = "Celebrate", Duration = 5 },
 	Elite = { Color = Theme.Danger, Sound = "EliteAlarm", Duration = 5 },
 	Penalty = { Color = Theme.Danger, Sound = "SystemWarning", Duration = 4 },
+	Trade = { Color = Theme.System, Sound = "SystemOpen", Duration = 3.5 },
+	Shop = { Color = Theme.Gold, Sound = "Coins", Duration = 4 },
 }
 
 -- элементы окна

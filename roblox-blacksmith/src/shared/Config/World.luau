@@ -62,6 +62,15 @@ local World = {
 			Safe = false,
 			Music = "MusicWild",
 		},
+		Market = {
+			Id = "Market",
+			NameKey = "ZONE_MARKET",
+			Center = Vector3.new(96, 0, 60),
+			Radius = 52,
+			Level = 1,
+			Safe = true,
+			Music = "MusicTown",
+		},
 		GatePlains = {
 			Id = "GatePlains",
 			NameKey = "ZONE_PLAINS",
@@ -90,6 +99,7 @@ local World = {
 	-- Мобы открытого мира появляются только в автопостроенном мире (на своей карте зоны могут не совпасть).
 	-- Поставь true, если твоя карта повторяет координаты зон из этого файла.
 	MobsOnCustomMap = false,
+	MarketStalls = 16, -- прилавков в Торговом ряду (= сколько игроков получат лавку на сервере)
 	AggroRadius = 38,
 	LeashRadius = 70, -- дальше от точки появления моб не побежит
 

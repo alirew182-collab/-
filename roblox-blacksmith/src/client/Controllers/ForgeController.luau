@@ -144,6 +144,7 @@ local function showView(name: string)
 	selectView.Visible = name == "select"
 	gameView.Visible = name == "game"
 	resultView.Visible = name == "result"
+	oddsFrame.Visible = false
 	if name == "select" then
 		refreshSelect()
 	end

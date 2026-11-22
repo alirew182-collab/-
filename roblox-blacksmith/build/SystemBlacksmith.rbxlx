@@ -8030,6 +8030,7 @@ local function showView(name: string)
 	selectView.Visible = name == "select"
 	gameView.Visible = name == "game"
 	resultView.Visible = name == "result"
+	oddsFrame.Visible = false
 	if name == "select" then
 		refreshSelect()
 	end
@@ -9688,6 +9689,12 @@ function LocalizationController:Start()
 				renderWorld(label)
 			end
 		end
+		-- подсказки «Добыть», «Ковать»… переводятся сразу, а не при следующем показе
+		for _, inst in workspace:GetDescendants() do
+			if inst:IsA("ProximityPrompt") then
+				localizePrompt(inst)
+			end
+		end
 	end)
 
 	task.spawn(function()
@@ -9699,13 +9706,23 @@ function LocalizationController:Start()
 	end)
 end
 
+-- Язык на сервер уходит через секунду после последнего нажатия: при быстром переключении
+-- сервер (лимит 2 запроса подряд) иначе мог сохранить не тот язык.
+local toggleToken = 0
+
 function LocalizationController:Toggle()
 	local list = Localization.Supported
 	local index = table.find(list, Localization.GetLanguage()) or 1
 	local nextLang = list[(index % #list) + 1]
 	Localization.SetLanguage(nextLang)
-	Net.Event("SetLanguage"):FireServer(nextLang)
 	UIController:Toast("TOAST_LANG")
+	toggleToken += 1
+	local token = toggleToken
+	task.delay(1, function()
+		if token == toggleToken then
+			Net.Event("SetLanguage"):FireServer(Localization.GetLanguage())
+		end
+	end)
 end
 
 return LocalizationController

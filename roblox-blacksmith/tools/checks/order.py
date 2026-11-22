@@ -17,6 +17,8 @@ for f in sorted(root.rglob('*.luau')):
                 decls.setdefault(n, i)
     for name, line in decls.items():
         for i in range(line):
+            if re.match(r'^\s*(export\s+)?type\s', lines[i]):
+                continue  # объявление типа с тем же именем — не использование
             for m in re.finditer(r'(?<![\w.:])'+re.escape(name)+r'(?!\w)', lines[i]):
                 # ignore table field keys like  name = ...  inside constructors, and type annotations
                 after = lines[i][m.end():m.end()+3]

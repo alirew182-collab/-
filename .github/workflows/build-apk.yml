@@ -3,7 +3,7 @@ name: Build APK
 on:
   push:
     branches: [ "claude/**", "main", "master" ]
-    paths-ignore: [ "dist/**", "**.md" ]
+    paths-ignore: [ "dist/**", "**.md", "roblox-blacksmith/**" ]
   workflow_dispatch:
 
 permissions:

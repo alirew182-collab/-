@@ -1,0 +1,256 @@
+--!strict
+--[[
+	ОКНО СИСТЕМЫ — главная фишка. Синее окно в стиле маньхуа:
+	мерцание рамки → окно выезжает → текст «печатается» → само закрывается или по тапу.
+	Окна идут очередью; если их много — показываются быстрее.
+]]
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
+
+local Localization = require(ReplicatedStorage.Shared.Localization)
+local Net = require(ReplicatedStorage.Shared.Net)
+local Types = require(ReplicatedStorage.Shared.Types)
+local C = require(script.Parent.Parent.UI.Components)
+local Sound = require(script.Parent.Parent.UI.Sound)
+local Theme = require(script.Parent.Parent.UI.Theme)
+local UIController = require(script.Parent.UIController)
+
+local S = Theme.S
+
+local SystemWindowController = {}
+
+local queue: { Types.NotifyPayload } = {}
+local showing = false
+
+local KIND_STYLE: { [string]: { Color: Color3, Sound: string, Duration: number } } = {
+	Awakening = { Color = Theme.System, Sound = "SystemOpen", Duration = 6 },
+	Quest = { Color = Theme.System, Sound = "SystemOpen", Duration = 3.5 },
+	QuestDone = { Color = Theme.Success, Sound = "SystemQuestDone", Duration = 3 },
+	LevelUp = { Color = Theme.Gold, Sound = "SystemLevelUp", Duration = 3.5 },
+	Reward = { Color = Theme.Gold, Sound = "SystemQuestDone", Duration = 4 },
+	Info = { Color = Theme.System, Sound = "SystemOpen", Duration = 3.5 },
+	Warning = { Color = Theme.Danger, Sound = "SystemWarning", Duration = 3.5 },
+	Boss = { Color = Theme.Danger, Sound = "SystemBoss", Duration = 4 },
+	GateCleared = { Color = Theme.Gold, Sound = "SystemQuestDone", Duration = 4.5 },
+	GateFailed = { Color = Theme.Danger, Sound = "SystemWarning", Duration = 4 },
+	Forge = { Color = Theme.System, Sound = "ForgeDone", Duration = 3.5 },
+	Daily = { Color = Theme.Gold, Sound = "SystemQuestDone", Duration = 4 },
+	RankUp = { Color = Theme.Gold, Sound = "SystemLevelUp", Duration = 5 },
+	Legendary = { Color = Color3.fromRGB(255, 80, 110), Sound = "Celebrate", Duration = 5 },
+	Elite = { Color = Theme.Danger, Sound = "EliteAlarm", Duration = 5 },
+	Penalty = { Color = Theme.Danger, Sound = "SystemWarning", Duration = 4 },
+	Trade = { Color = Theme.System, Sound = "SystemOpen", Duration = 3.5 },
+	Shop = { Color = Theme.Gold, Sound = "Coins", Duration = 4 },
+}
+
+-- элементы окна
+local root: CanvasGroup
+local frame: Frame
+local stroke: UIStroke
+local header: TextLabel
+local title: TextLabel
+local body: TextLabel
+local closeRequested = false
+
+local function build()
+	root = C.Make("CanvasGroup", {
+		Name = "SystemWindow",
+		Size = UDim2.fromOffset(S(432), S(152)),
+		Position = UDim2.new(0.5, 0, 0, S(88)),
+		AnchorPoint = Vector2.new(0.5, 0),
+		BackgroundTransparency = 1,
+		GroupTransparency = 1,
+		Visible = false,
+		Parent = UIController.Layers.Overlay,
+	})
+	C.Adaptive(root)
+
+	frame = C.Make("Frame", {
+		Size = UDim2.new(1, -S(8), 1, -S(8)),
+		Position = UDim2.fromScale(0.5, 0.5),
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		BackgroundColor3 = Theme.SystemBg,
+		BackgroundTransparency = 0.06,
+		Parent = root,
+	})
+	C.Corner(frame, 6)
+	stroke = C.Stroke(frame, Theme.System, 1.5, 0)
+	C.Padding(frame, 12)
+	C.List(frame, Enum.FillDirection.Vertical, 4)
+
+	header = C.Text({
+		Name = "Header",
+		Font = Theme.FontBold,
+		TextSize = 14,
+		Color = Theme.System,
+		Size = UDim2.new(1, 0, 0, S(20)),
+		LayoutOrder = 1,
+		Parent = frame,
+	})
+	C.Make("Frame", {
+		Name = "Divider",
+		Size = UDim2.new(1, 0, 0, 1),
+		BackgroundColor3 = Theme.System,
+		BackgroundTransparency = 0.5,
+		BorderSizePixel = 0,
+		LayoutOrder = 2,
+		Parent = frame,
+	})
+	title = C.Text({
+		Name = "Title",
+		Font = Theme.FontTitle,
+		TextSize = 21,
+		Wrapped = true,
+		AlignX = Enum.TextXAlignment.Center,
+		Size = UDim2.new(1, 0, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		LayoutOrder = 3,
+		Parent = frame,
+	})
+	body = C.Text({
+		Name = "Body",
+		TextSize = 15,
+		Color = Theme.TextDim,
+		Wrapped = true,
+		AlignX = Enum.TextXAlignment.Center,
+		Size = UDim2.new(1, 0, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		LayoutOrder = 4,
+		Parent = frame,
+	})
+	C.Text({
+		Name = "Hint",
+		Key = "SYS_TAP_TO_CLOSE",
+		TextSize = 11,
+		Color = Theme.TextDim,
+		AlignX = Enum.TextXAlignment.Right,
+		Size = UDim2.new(1, 0, 0, S(16)),
+		LayoutOrder = 5,
+		Parent = frame,
+	})
+
+	local tap = C.Make("TextButton", {
+		Name = "Tap",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundTransparency = 1,
+		Text = "",
+		ZIndex = 5,
+		Parent = root,
+	})
+	tap.Activated:Connect(function()
+		closeRequested = true
+	end)
+end
+
+local function typewriter(label: TextLabel, seconds: number)
+	local length = utf8.len(label.ContentText) or #label.ContentText
+	label.MaxVisibleGraphemes = 0
+	local started = os.clock()
+	while label.MaxVisibleGraphemes ~= -1 do
+		local p = math.clamp((os.clock() - started) / seconds, 0, 1)
+		if p >= 1 or closeRequested then
+			label.MaxVisibleGraphemes = -1
+			break
+		end
+		label.MaxVisibleGraphemes = math.floor(length * p)
+		task.wait()
+	end
+end
+
+local function fitHeight()
+	-- подогнать высоту CanvasGroup под содержимое
+	local layout = frame:FindFirstChildOfClass("UIListLayout")
+	if layout then
+		local h = layout.AbsoluteContentSize.Y + S(24) + S(8)
+		root.Size = UDim2.fromOffset(S(432), math.max(S(112), h))
+	end
+end
+
+local function show(payload: Types.NotifyPayload)
+	local style = KIND_STYLE[payload.Kind] or KIND_STYLE.Info
+	closeRequested = false
+
+	-- фирменная деталь: «[Система] · Вид» холодным синим
+	C.SetRaw(header, `[{Localization.Get("SYS_HEADER")}] · {Localization.Get("SYS_KIND_" .. string.upper(payload.Kind))}`)
+	header.TextColor3 = style.Color
+	stroke.Color = style.Color
+	C.SetRaw(title, Localization.Get(payload.Title, payload.Args))
+	if payload.Body then
+		C.SetRaw(body, Localization.Get(payload.Body, payload.Args))
+		body.Visible = true
+	else
+		body.Visible = false
+	end
+	title.MaxVisibleGraphemes = 0
+	body.MaxVisibleGraphemes = 0
+
+	root.Visible = true
+	task.wait() -- дать AutomaticSize посчитаться
+	fitHeight()
+
+	Sound.Play(style.Sound)
+
+	-- появление: короткий подъём на 8px и проявление, без пружины
+	local targetPos = UDim2.new(0.5, 0, 0, S(88))
+	root.Position = targetPos + UDim2.fromOffset(0, S(8))
+	root.GroupTransparency = 1
+	TweenService:Create(root, TweenInfo.new(0.32, Theme.Ease, Enum.EasingDirection.Out), {
+		Position = targetPos,
+		GroupTransparency = 0,
+	}):Play()
+	task.wait(0.12)
+
+	typewriter(title, 0.35)
+	if body.Visible then
+		typewriter(body, 0.5)
+	end
+
+	local duration = style.Duration
+	if #queue >= 3 then
+		duration = 1.5
+	end
+	local started = os.clock()
+	while os.clock() - started < duration and not closeRequested do
+		task.wait(0.05)
+	end
+
+	local tween = TweenService:Create(root, TweenInfo.new(0.2, Theme.Ease, Enum.EasingDirection.Out), {
+		GroupTransparency = 1,
+	})
+	tween:Play()
+	tween.Completed:Wait()
+	root.Visible = false
+end
+
+local function pump()
+	if showing then
+		return
+	end
+	showing = true
+	while #queue > 0 do
+		local payload = table.remove(queue, 1) :: Types.NotifyPayload
+		local ok, err = pcall(show, payload)
+		if not ok then
+			warn("[SystemWindow]", err)
+			root.Visible = false
+		end
+	end
+	showing = false
+end
+
+function SystemWindowController:Notify(payload: Types.NotifyPayload)
+	table.insert(queue, payload)
+	task.spawn(pump)
+end
+
+function SystemWindowController:Start()
+	build()
+	Net.Event("SystemNotify").OnClientEvent:Connect(function(payload: Types.NotifyPayload)
+		if type(payload) == "table" and type(payload.Title) == "string" then
+			SystemWindowController:Notify(payload)
+		end
+	end)
+end
+
+return SystemWindowController

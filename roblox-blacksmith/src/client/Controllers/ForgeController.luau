@@ -91,14 +91,14 @@ end
 
 local baseSizes: { [GuiObject]: UDim2 } = {}
 
-local function punch(button: GuiObject)
-	local size = baseSizes[button]
+local function punch(target: GuiObject)
+	local size = baseSizes[target]
 	if not size then
-		size = button.Size
-		baseSizes[button] = size
+		size = target.Size
+		baseSizes[target] = size
 	end
-	button.Size = UDim2.new(size.X.Scale, size.X.Offset * 0.96, size.Y.Scale, size.Y.Offset * 0.96)
-	TweenService:Create(button, TweenInfo.new(0.14, Theme.Ease, Enum.EasingDirection.Out), { Size = size }):Play()
+	target.Size = UDim2.new(size.X.Scale, size.X.Offset * 0.96, size.Y.Scale, size.Y.Offset * 0.96)
+	TweenService:Create(target, TweenInfo.new(0.14, Theme.Ease, Enum.EasingDirection.Out), { Size = size }):Play()
 end
 
 -- ===== Экран выбора =====

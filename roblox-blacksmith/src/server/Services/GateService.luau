@@ -304,9 +304,9 @@ local warnedNoSpawns = false
 
 local function spawnPortal()
 	local used: { [Instance]: boolean } = {}
-	for _, p in portals do
-		if p.SpawnPoint then
-			used[p.SpawnPoint] = true
+	for _, other in portals do
+		if other.SpawnPoint then
+			used[other.SpawnPoint] = true
 		end
 	end
 	local candidates = {}
@@ -343,8 +343,8 @@ local function spawnPortal()
 		end
 	end
 	local hasEasy = false
-	for _, p in portals do
-		if p.Gate == easiest then
+	for _, other in portals do
+		if other.Gate == easiest then
 			hasEasy = true
 		end
 	end

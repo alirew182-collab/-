@@ -3838,9 +3838,9 @@ local warnedNoSpawns = false
 
 local function spawnPortal()
 	local used: { [Instance]: boolean } = {}
-	for _, p in portals do
-		if p.SpawnPoint then
-			used[p.SpawnPoint] = true
+	for _, other in portals do
+		if other.SpawnPoint then
+			used[other.SpawnPoint] = true
 		end
 	end
 	local candidates = {}
@@ -3877,8 +3877,8 @@ local function spawnPortal()
 		end
 	end
 	local hasEasy = false
-	for _, p in portals do
-		if p.Gate == easiest then
+	for _, other in portals do
+		if other.Gate == easiest then
 			hasEasy = true
 		end
 	end
@@ -7364,9 +7364,9 @@ local function buildTown(parent: Instance)
 		for _, zone in W.Zones do
 			if zone.Id ~= "Town" then
 				local dir = Vector3.new(zone.Center.X, 0, zone.Center.Z).Unit
-				local p = Vector3.new(x, 0, z)
-				local proj = p:Dot(dir)
-				if proj > 0 and (p - dir * proj).Magnitude < 9 then
+				local point = Vector3.new(x, 0, z)
+				local proj = point:Dot(dir)
+				if proj > 0 and (point - dir * proj).Magnitude < 9 then
 					onRoad = true
 				end
 			end
@@ -7977,14 +7977,14 @@ end
 
 local baseSizes: { [GuiObject]: UDim2 } = {}
 
-local function punch(button: GuiObject)
-	local size = baseSizes[button]
+local function punch(target: GuiObject)
+	local size = baseSizes[target]
 	if not size then
-		size = button.Size
-		baseSizes[button] = size
+		size = target.Size
+		baseSizes[target] = size
 	end
-	button.Size = UDim2.new(size.X.Scale, size.X.Offset * 0.96, size.Y.Scale, size.Y.Offset * 0.96)
-	TweenService:Create(button, TweenInfo.new(0.14, Theme.Ease, Enum.EasingDirection.Out), { Size = size }):Play()
+	target.Size = UDim2.new(size.X.Scale, size.X.Offset * 0.96, size.Y.Scale, size.Y.Offset * 0.96)
+	TweenService:Create(target, TweenInfo.new(0.14, Theme.Ease, Enum.EasingDirection.Out), { Size = size }):Play()
 end
 
 -- ===== Экран выбора =====

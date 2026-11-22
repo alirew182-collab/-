@@ -434,9 +434,9 @@ local function buildTown(parent: Instance)
 		for _, zone in W.Zones do
 			if zone.Id ~= "Town" then
 				local dir = Vector3.new(zone.Center.X, 0, zone.Center.Z).Unit
-				local p = Vector3.new(x, 0, z)
-				local proj = p:Dot(dir)
-				if proj > 0 and (p - dir * proj).Magnitude < 9 then
+				local point = Vector3.new(x, 0, z)
+				local proj = point:Dot(dir)
+				if proj > 0 and (point - dir * proj).Magnitude < 9 then
 					onRoad = true
 				end
 			end

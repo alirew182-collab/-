@@ -86,10 +86,11 @@ local function buildSurface(part: BasePart, board: Board): { TextLabel }
 
 	local title = Instance.new("TextLabel")
 	title.Size = UDim2.fromScale(1, 0.13)
-	title.BackgroundColor3 = Color3.fromRGB(30, 80, 140)
-	title.Font = Enum.Font.GothamBlack
+	title.BackgroundColor3 = Color3.fromRGB(38, 36, 33)
+	title.BorderSizePixel = 0
+	title.Font = Enum.Font.GothamMedium
 	title.TextScaled = true
-	title.TextColor3 = Color3.new(1, 1, 1)
+	title.TextColor3 = Color3.fromRGB(239, 233, 222)
 	title.Text = board.TitleKey
 	title:SetAttribute("LocKey", board.TitleKey) -- переводит клиент
 	title.Parent = gui
@@ -100,14 +101,14 @@ local function buildSurface(part: BasePart, board: Board): { TextLabel }
 		row.Size = UDim2.fromScale(0.94, 0.08)
 		row.Position = UDim2.fromScale(0.03, 0.15 + (i - 1) * 0.085)
 		row.BackgroundTransparency = 1
-		row.Font = if i <= 3 then Enum.Font.GothamBold else Enum.Font.GothamMedium
+		row.Font = if i <= 3 then Enum.Font.GothamMedium else Enum.Font.Gotham
 		row.TextScaled = true
 		row.TextXAlignment = Enum.TextXAlignment.Left
+		-- первое место цветом углей, остальные — основной и второстепенный текст
 		row.TextColor3 = if i == 1
-			then Color3.fromRGB(255, 215, 80)
-			elseif i == 2 then Color3.fromRGB(220, 225, 235)
-			elseif i == 3 then Color3.fromRGB(230, 150, 90)
-			else Color3.fromRGB(200, 215, 235)
+			then Color3.fromRGB(238, 137, 64)
+			elseif i <= 3 then Color3.fromRGB(239, 233, 222)
+			else Color3.fromRGB(170, 163, 152)
 		row.Text = if i == 1 then "LB_EMPTY" else ""
 		if i == 1 then
 			row:SetAttribute("LocKey", "LB_EMPTY")

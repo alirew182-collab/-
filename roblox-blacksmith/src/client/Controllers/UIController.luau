@@ -225,7 +225,7 @@ function UIController:Toast(key: string, args: { [string]: any }?, color: string
 	toastCounter += 1
 	local toast = C.Make("TextLabel", {
 		LayoutOrder = toastCounter,
-		Size = UDim2.new(0, S(340), 0, S(30)),
+		Size = UDim2.new(0, S(340), 0, S(32)),
 		BackgroundColor3 = Theme.Bg,
 		BackgroundTransparency = 0.25,
 		Font = Theme.FontBold,

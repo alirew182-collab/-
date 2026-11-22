@@ -108,7 +108,7 @@ local function refreshQuests(data: any)
 				TextSize = 14,
 				Color = if q.Done then Theme.Success else Theme.Text,
 				Size = UDim2.new(0.65, 0, 0, S(20)),
-				Position = UDim2.fromOffset(S(10), S(6)),
+				Position = UDim2.fromOffset(S(12), S(8)),
 				Parent = r,
 			})
 			C.Text({
@@ -118,12 +118,12 @@ local function refreshQuests(data: any)
 				Color = Theme.Gold,
 				AlignX = Enum.TextXAlignment.Right,
 				Size = UDim2.new(0.35, -S(16), 0, S(20)),
-				Position = UDim2.new(0.65, 0, 0, S(6)),
+				Position = UDim2.new(0.65, 0, 0, S(8)),
 				Parent = r,
 			})
 			C.Bar({
-				Size = UDim2.new(0.7, 0, 0, S(10)),
-				Position = UDim2.fromOffset(S(10), S(36)),
+				Size = UDim2.new(0.7, 0, 0, S(12)),
+				Position = UDim2.fromOffset(S(12), S(36)),
 				Value = math.clamp(q.Progress / def.Count, 0, 1),
 				Color = if q.Done then Theme.Success else Theme.Accent,
 				Parent = r,
@@ -134,7 +134,7 @@ local function refreshQuests(data: any)
 				Font = Theme.FontBold,
 				Color = if q.Done then Theme.Success else Theme.TextDim,
 				AlignX = Enum.TextXAlignment.Right,
-				Size = UDim2.new(0.3, -S(16), 0, S(18)),
+				Size = UDim2.new(0.3, -S(16), 0, S(20)),
 				Position = UDim2.new(0.7, 0, 0, S(32)),
 				Parent = r,
 			})
@@ -150,7 +150,7 @@ local function refreshSettings(data: any)
 	C.Button({
 		Key = "UI_LANG",
 		TextSize = 14,
-		Size = UDim2.fromOffset(S(90), S(34)),
+		Size = UDim2.fromOffset(S(92), S(36)),
 		Position = UDim2.new(1, -S(8), 0.5, 0),
 		AnchorPoint = Vector2.new(1, 0.5),
 		OnClick = function()
@@ -168,10 +168,10 @@ local function refreshSettings(data: any)
 		C.Button({
 			Key = if value then "UI_ON" else "UI_OFF",
 			TextSize = 14,
-			Size = UDim2.fromOffset(S(90), S(34)),
+			Size = UDim2.fromOffset(S(92), S(36)),
 			Position = UDim2.new(1, -S(8), 0.5, 0),
 			AnchorPoint = Vector2.new(1, 0.5),
-			Color = if value then Theme.Success else Theme.Disabled,
+			Color = if value then Theme.Accent else Theme.Disabled,
 			TextColor = if value then Theme.Bg else Theme.Text,
 			OnClick = function()
 				local newValue = not value
@@ -194,7 +194,7 @@ local function refreshStats(data: any)
 			Args = { name = "@STAT_" .. string.upper(key), value = Format.Short(data.Stats[key] or 0) },
 			TextSize = 14,
 			Size = UDim2.new(1, -S(20), 1, 0),
-			Position = UDim2.fromOffset(S(10), 0),
+			Position = UDim2.fromOffset(S(12), 0),
 			Parent = r,
 		})
 	end
@@ -234,19 +234,19 @@ local function redeem()
 end
 
 local function build()
-	panel = C.Panel({ Name = "MenuPanel", Size = UDim2.fromOffset(S(540), S(330)) })
+	panel = C.Panel({ Name = "MenuPanel", Size = UDim2.fromOffset(S(540), S(332)) })
 	C.TitleBar(panel, "UI_MENU", function()
 		UIController:ClosePanel()
 	end)
 
 	local tabs = C.Make("Frame", {
 		Size = UDim2.new(1, -S(24), 0, S(36)),
-		Position = UDim2.fromOffset(S(12), S(46)),
+		Position = UDim2.fromOffset(S(12), S(48)),
 		BackgroundTransparency = 1,
 		Parent = panel,
 	})
 	C.List(tabs, Enum.FillDirection.Horizontal, 6)
-	local contentSize = UDim2.new(1, -S(24), 1, -S(98))
+	local contentSize = UDim2.new(1, -S(24), 1, -S(100))
 	local contentPos = UDim2.fromOffset(S(12), S(88))
 	for i, info in {
 		{ "Quests", "UI_TAB_QUESTS" },
@@ -258,7 +258,7 @@ local function build()
 		tabButtons[name] = C.Button({
 			Key = key,
 			TextSize = 14,
-			Size = UDim2.new(0.25, -S(5), 1, 0),
+			Size = UDim2.new(0.25, -S(4), 1, 0),
 			LayoutOrder = i,
 			OnClick = function()
 				currentTab = name
@@ -282,7 +282,7 @@ local function build()
 	-- коды
 	local codes = tabFrames.Codes
 	codeBox = C.Make("TextBox", {
-		Size = UDim2.new(1, -S(150), 0, S(48)),
+		Size = UDim2.new(1, -S(152), 0, S(48)),
 		Position = UDim2.fromOffset(0, S(20)),
 		BackgroundColor3 = Theme.Bg,
 		Font = Theme.FontBold,
@@ -294,14 +294,14 @@ local function build()
 		Parent = codes,
 	})
 	C.Corner(codeBox, 6)
-	C.Stroke(codeBox, Theme.Accent, 1.5)
+	C.Stroke(codeBox)
 	C.Button({
 		Key = "UI_REDEEM",
 		TextSize = 16,
 		Size = UDim2.fromOffset(S(140), S(48)),
 		Position = UDim2.new(1, 0, 0, S(20)),
 		AnchorPoint = Vector2.new(1, 0),
-		Color = Theme.Success,
+		Color = Theme.Accent,
 		TextColor = Theme.Bg,
 		OnClick = redeem,
 		Parent = codes,

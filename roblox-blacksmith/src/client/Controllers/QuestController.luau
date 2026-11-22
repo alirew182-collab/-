@@ -172,11 +172,10 @@ end
 local function build()
 	box = C.Panel({
 		Name = "Quest",
-		Size = UDim2.fromOffset(S(250), S(58)),
-		Position = UDim2.fromOffset(S(10), S(100)),
+		Size = UDim2.fromOffset(S(252), S(64)),
+		Position = UDim2.fromOffset(S(12), S(100)),
 		AnchorPoint = Vector2.zero,
 		Transparency = 0.2,
-		StrokeColor = Theme.Gold,
 		Visible = false,
 		Adaptive = true,
 		Parent = UIController.Layers.Hud,
@@ -185,23 +184,23 @@ local function build()
 		Key = "QUEST_HEADER",
 		Font = Theme.FontBold,
 		TextSize = 11,
-		Color = Theme.Gold,
-		Size = UDim2.new(1, -S(16), 0, S(14)),
-		Position = UDim2.fromOffset(S(8), S(5)),
+		Color = Theme.System,
+		Size = UDim2.new(1, -S(16), 0, S(16)),
+		Position = UDim2.fromOffset(S(8), S(8)),
 		Parent = box,
 	})
 	titleLabel = C.Text({
 		Font = Theme.FontBold,
 		TextSize = 15,
-		Size = UDim2.new(1, -S(16), 0, S(18)),
-		Position = UDim2.fromOffset(S(8), S(20)),
+		Size = UDim2.new(1, -S(16), 0, S(20)),
+		Position = UDim2.fromOffset(S(8), S(24)),
 		Parent = box,
 	})
 	progressLabel = C.Text({
 		TextSize = 13,
 		Color = Theme.TextDim,
-		Size = UDim2.new(1, -S(16), 0, S(15)),
-		Position = UDim2.fromOffset(S(8), S(39)),
+		Size = UDim2.new(1, -S(16), 0, S(16)),
+		Position = UDim2.fromOffset(S(8), S(44)),
 		Parent = box,
 	})
 
@@ -214,7 +213,7 @@ local function build()
 	beam = Instance.new("Beam")
 	beam.Attachment0 = fromAttachment
 	beam.Attachment1 = toAttachment
-	beam.Color = ColorSequence.new(Theme.Gold)
+	beam.Color = ColorSequence.new(Theme.System)
 	beam.Transparency = NumberSequence.new(0.25, 0.6)
 	beam.Width0 = 0.35
 	beam.Width1 = 0.35

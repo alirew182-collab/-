@@ -129,6 +129,7 @@ local function spawnElite()
 		SystemService:Announce("Elite", "SYS_ELITE_TITLE", "SYS_ELITE_BODY", {
 			boss = "@" .. Config.Mobs[E.Mob].NameKey,
 			zone = "@" .. zone.NameKey,
+			pct = math.floor(E.MinDamageShare * 100 + 0.5),
 		})
 	end
 end

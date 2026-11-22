@@ -24,17 +24,17 @@ local queue: { Types.NotifyPayload } = {}
 local showing = false
 
 local KIND_STYLE: { [string]: { Color: Color3, Sound: string, Duration: number } } = {
-	Awakening = { Color = Theme.Accent, Sound = "SystemOpen", Duration = 6 },
-	Quest = { Color = Theme.Accent, Sound = "SystemOpen", Duration = 3.5 },
+	Awakening = { Color = Theme.System, Sound = "SystemOpen", Duration = 6 },
+	Quest = { Color = Theme.System, Sound = "SystemOpen", Duration = 3.5 },
 	QuestDone = { Color = Theme.Success, Sound = "SystemQuestDone", Duration = 3 },
 	LevelUp = { Color = Theme.Gold, Sound = "SystemLevelUp", Duration = 3.5 },
 	Reward = { Color = Theme.Gold, Sound = "SystemQuestDone", Duration = 4 },
-	Info = { Color = Theme.Accent, Sound = "SystemOpen", Duration = 3.5 },
+	Info = { Color = Theme.System, Sound = "SystemOpen", Duration = 3.5 },
 	Warning = { Color = Theme.Danger, Sound = "SystemWarning", Duration = 3.5 },
 	Boss = { Color = Theme.Danger, Sound = "SystemBoss", Duration = 4 },
 	GateCleared = { Color = Theme.Gold, Sound = "SystemQuestDone", Duration = 4.5 },
 	GateFailed = { Color = Theme.Danger, Sound = "SystemWarning", Duration = 4 },
-	Forge = { Color = Theme.Accent, Sound = "ForgeDone", Duration = 3.5 },
+	Forge = { Color = Theme.System, Sound = "ForgeDone", Duration = 3.5 },
 	Daily = { Color = Theme.Gold, Sound = "SystemQuestDone", Duration = 4 },
 	RankUp = { Color = Theme.Gold, Sound = "SystemLevelUp", Duration = 5 },
 	Legendary = { Color = Color3.fromRGB(255, 80, 110), Sound = "Celebrate", Duration = 5 },
@@ -54,8 +54,8 @@ local closeRequested = false
 local function build()
 	root = C.Make("CanvasGroup", {
 		Name = "SystemWindow",
-		Size = UDim2.fromOffset(S(430), S(150)),
-		Position = UDim2.new(0.5, 0, 0, S(86)),
+		Size = UDim2.fromOffset(S(432), S(152)),
+		Position = UDim2.new(0.5, 0, 0, S(88)),
 		AnchorPoint = Vector2.new(0.5, 0),
 		BackgroundTransparency = 1,
 		GroupTransparency = 1,
@@ -68,17 +68,12 @@ local function build()
 		Size = UDim2.new(1, -S(8), 1, -S(8)),
 		Position = UDim2.fromScale(0.5, 0.5),
 		AnchorPoint = Vector2.new(0.5, 0.5),
-		BackgroundColor3 = Theme.Bg,
-		BackgroundTransparency = 0.08,
+		BackgroundColor3 = Theme.SystemBg,
+		BackgroundTransparency = 0.06,
 		Parent = root,
 	})
 	C.Corner(frame, 6)
-	stroke = C.Stroke(frame, Theme.Accent, 2, 0)
-	C.Make("UIGradient", {
-		Rotation = 90,
-		Color = ColorSequence.new(Color3.fromRGB(40, 80, 140), Color3.fromRGB(10, 20, 45)),
-		Parent = frame,
-	})
+	stroke = C.Stroke(frame, Theme.System, 1.5, 0)
 	C.Padding(frame, 12)
 	C.List(frame, Enum.FillDirection.Vertical, 4)
 
@@ -86,15 +81,15 @@ local function build()
 		Name = "Header",
 		Font = Theme.FontBold,
 		TextSize = 14,
-		Color = Theme.Accent,
-		Size = UDim2.new(1, 0, 0, S(18)),
+		Color = Theme.System,
+		Size = UDim2.new(1, 0, 0, S(20)),
 		LayoutOrder = 1,
 		Parent = frame,
 	})
 	C.Make("Frame", {
 		Name = "Divider",
 		Size = UDim2.new(1, 0, 0, 1),
-		BackgroundColor3 = Theme.Accent,
+		BackgroundColor3 = Theme.System,
 		BackgroundTransparency = 0.5,
 		BorderSizePixel = 0,
 		LayoutOrder = 2,
@@ -128,7 +123,7 @@ local function build()
 		TextSize = 11,
 		Color = Theme.TextDim,
 		AlignX = Enum.TextXAlignment.Right,
-		Size = UDim2.new(1, 0, 0, S(14)),
+		Size = UDim2.new(1, 0, 0, S(16)),
 		LayoutOrder = 5,
 		Parent = frame,
 	})
@@ -166,7 +161,7 @@ local function fitHeight()
 	local layout = frame:FindFirstChildOfClass("UIListLayout")
 	if layout then
 		local h = layout.AbsoluteContentSize.Y + S(24) + S(8)
-		root.Size = UDim2.fromOffset(S(430), math.max(S(110), h))
+		root.Size = UDim2.fromOffset(S(432), math.max(S(112), h))
 	end
 end
 
@@ -174,7 +169,8 @@ local function show(payload: Types.NotifyPayload)
 	local style = KIND_STYLE[payload.Kind] or KIND_STYLE.Info
 	closeRequested = false
 
-	C.SetRaw(header, `[ {Localization.Get("SYS_HEADER")} ]  {Localization.Get("SYS_KIND_" .. string.upper(payload.Kind))}`)
+	-- фирменная деталь: «[Система] · Вид» холодным синим
+	C.SetRaw(header, `[{Localization.Get("SYS_HEADER")}] · {Localization.Get("SYS_KIND_" .. string.upper(payload.Kind))}`)
 	header.TextColor3 = style.Color
 	stroke.Color = style.Color
 	C.SetRaw(title, Localization.Get(payload.Title, payload.Args))
@@ -193,19 +189,15 @@ local function show(payload: Types.NotifyPayload)
 
 	Sound.Play(style.Sound)
 
-	-- появление: мерцание рамки + выезд сверху
-	local targetPos = UDim2.new(0.5, 0, 0, S(86))
-	root.Position = targetPos - UDim2.fromOffset(0, S(18))
+	-- появление: короткий подъём на 8px и проявление, без пружины
+	local targetPos = UDim2.new(0.5, 0, 0, S(88))
+	root.Position = targetPos + UDim2.fromOffset(0, S(8))
 	root.GroupTransparency = 1
-	TweenService:Create(root, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+	TweenService:Create(root, TweenInfo.new(0.32, Theme.Ease, Enum.EasingDirection.Out), {
 		Position = targetPos,
 		GroupTransparency = 0,
 	}):Play()
-	for i = 1, 4 do
-		stroke.Transparency = if i % 2 == 1 then 0.8 else 0
-		task.wait(0.05)
-	end
-	stroke.Transparency = 0
+	task.wait(0.12)
 
 	typewriter(title, 0.35)
 	if body.Visible then
@@ -221,9 +213,8 @@ local function show(payload: Types.NotifyPayload)
 		task.wait(0.05)
 	end
 
-	local tween = TweenService:Create(root, TweenInfo.new(0.2), {
+	local tween = TweenService:Create(root, TweenInfo.new(0.2, Theme.Ease, Enum.EasingDirection.Out), {
 		GroupTransparency = 1,
-		Position = targetPos - UDim2.fromOffset(0, S(10)),
 	})
 	tween:Play()
 	tween.Completed:Wait()

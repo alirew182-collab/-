@@ -75,7 +75,11 @@ function LevelService:AddXp(player: Player, amount: number, noBonus: boolean?)
 
 	if gained > 0 then
 		applyStats(player, true)
-		SystemService:Notify(player, "LevelUp", "SYS_LEVELUP_TITLE", "SYS_LEVELUP_BODY", { level = data.Level })
+		SystemService:Notify(player, "LevelUp", "SYS_LEVELUP_TITLE", "SYS_LEVELUP_BODY", {
+			level = data.Level,
+			hp = Config.Leveling.HealthPerLevel * gained,
+			dmg = math.floor(Config.Leveling.DamagePerLevel * 100 * gained + 0.5),
+		})
 		checkRank(player, data, true)
 	end
 end

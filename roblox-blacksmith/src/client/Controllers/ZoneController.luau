@@ -48,7 +48,7 @@ local function showBanner(zone: any)
 		bannerSub.TextColor3 = Theme.Success
 	else
 		C.Bind(bannerSub, "UI_ZONE_LEVEL", { level = zone.Level })
-		bannerSub.TextColor3 = Theme.Gold
+		bannerSub.TextColor3 = Theme.TextDim
 	end
 	banner.Visible = true
 	banner.GroupTransparency = 1
@@ -89,7 +89,7 @@ end
 local function build()
 	banner = C.Make("CanvasGroup", {
 		Name = "ZoneBanner",
-		Size = UDim2.fromOffset(S(420), S(70)),
+		Size = UDim2.fromOffset(S(420), S(72)),
 		Position = UDim2.new(0.5, 0, 0.26, 0),
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		BackgroundTransparency = 1,
@@ -102,7 +102,7 @@ local function build()
 		Font = Theme.FontTitle,
 		TextSize = 30,
 		AlignX = Enum.TextXAlignment.Center,
-		Size = UDim2.new(1, 0, 0, S(38)),
+		Size = UDim2.new(1, 0, 0, S(40)),
 		Parent = banner,
 	})
 	bannerTitle.TextStrokeTransparency = 0.4
@@ -110,7 +110,7 @@ local function build()
 		Font = Theme.FontBold,
 		TextSize = 15,
 		AlignX = Enum.TextXAlignment.Center,
-		Size = UDim2.new(1, 0, 0, S(22)),
+		Size = UDim2.new(1, 0, 0, S(24)),
 		Position = UDim2.fromOffset(0, S(40)),
 		Parent = banner,
 	})

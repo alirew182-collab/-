@@ -122,7 +122,7 @@ local function onFx(payload: { [string]: any })
 	if kind == "Damage" then
 		local mine = payload.ByUserId == localId
 		if payload.Crit then
-			popup(position, `{Localization.Get("FX_CRIT")} {payload.Amount}!`, Color3.fromRGB(255, 120, 40), true)
+			popup(position, `{Localization.Get("FX_CRIT")} {payload.Amount}`, Color3.fromRGB(255, 120, 40), true)
 		else
 			popup(position, tostring(payload.Amount), if mine then Theme.Gold else Theme.Text, false)
 		end

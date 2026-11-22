@@ -36,12 +36,17 @@ function WeaponCard.Create(props: CardProps): TextButton
 		Parent = props.Parent,
 	})
 	C.Corner(card, 6)
-	C.Stroke(card, if props.Equipped then Theme.Gold elseif props.Selected then Theme.Accent else rarity.Color, if props.Selected or props.Equipped then 2.5 else 1.2, 0.1)
+	-- рамка только у надетого и выбранного; редкость показывает полоска слева
+	if props.Equipped or props.Selected then
+		C.Stroke(card, Theme.Accent, 1.5)
+	else
+		C.Stroke(card)
+	end
 
 	C.Make("Frame", {
 		Name = "RarityStrip",
-		Size = UDim2.new(0, S(4), 1, -S(10)),
-		Position = UDim2.fromOffset(S(5), S(5)),
+		Size = UDim2.new(0, S(4), 1, -S(12)),
+		Position = UDim2.fromOffset(S(4), S(4)),
 		BackgroundColor3 = rarity.Color,
 		BorderSizePixel = 0,
 		Parent = card,
@@ -51,16 +56,16 @@ function WeaponCard.Create(props: CardProps): TextButton
 		Text = Localization.WeaponName(weapon.Type, weapon.Ore),
 		Font = Theme.FontBold,
 		TextSize = 14,
-		Size = UDim2.new(1, -S(18), 0, S(18)),
-		Position = UDim2.fromOffset(S(14), S(5)),
+		Size = UDim2.new(1, -S(20), 0, S(20)),
+		Position = UDim2.fromOffset(S(16), S(4)),
 		Parent = card,
 	})
 	C.Text({
 		Key = rarity.NameKey,
 		TextSize = 11,
 		Color = rarity.Color,
-		Size = UDim2.new(1, -S(18), 0, S(13)),
-		Position = UDim2.fromOffset(S(14), S(23)),
+		Size = UDim2.new(1, -S(20), 0, S(12)),
+		Position = UDim2.fromOffset(S(16), S(24)),
 		Parent = card,
 	})
 	C.Text({
@@ -69,8 +74,8 @@ function WeaponCard.Create(props: CardProps): TextButton
 		Font = Theme.FontBold,
 		TextSize = 14,
 		Color = Theme.Accent,
-		Size = UDim2.new(0.5, -S(10), 0, S(16)),
-		Position = UDim2.fromOffset(S(14), S(38)),
+		Size = UDim2.new(0.5, -S(12), 0, S(16)),
+		Position = UDim2.fromOffset(S(16), S(40)),
 		Parent = card,
 	})
 	C.Text({
@@ -79,8 +84,8 @@ function WeaponCard.Create(props: CardProps): TextButton
 		TextSize = 11,
 		Color = Theme.TextDim,
 		AlignX = Enum.TextXAlignment.Right,
-		Size = UDim2.new(1, -S(20), 0, S(13)),
-		Position = UDim2.fromOffset(S(14), S(23)),
+		Size = UDim2.new(1, -S(20), 0, S(12)),
+		Position = UDim2.fromOffset(S(16), S(24)),
 		Parent = card,
 	})
 	-- черты оружия
@@ -96,9 +101,9 @@ function WeaponCard.Create(props: CardProps): TextButton
 			Text = table.concat(traits, " · "),
 			TextSize = 11,
 			Font = Theme.FontBold,
-			Color = Theme.Gold,
-			Size = UDim2.new(1, -S(18), 0, S(14)),
-			Position = UDim2.fromOffset(S(14), S(57)),
+			Color = Theme.TextDim,
+			Size = UDim2.new(1, -S(20), 0, S(16)),
+			Position = UDim2.fromOffset(S(16), S(56)),
 			Parent = card,
 		})
 	end
@@ -108,10 +113,10 @@ function WeaponCard.Create(props: CardProps): TextButton
 			Key = "UI_EQUIPPED",
 			Font = Theme.FontBold,
 			TextSize = 11,
-			Color = Theme.Gold,
+			Color = Theme.Accent,
 			AlignX = Enum.TextXAlignment.Right,
-			Size = UDim2.new(0.5, -S(6), 0, S(16)),
-			Position = UDim2.new(0.5, 0, 0, S(38)),
+			Size = UDim2.new(0.5, -S(8), 0, S(16)),
+			Position = UDim2.new(0.5, 0, 0, S(40)),
 			Parent = card,
 		})
 	elseif props.ShowPrice then
@@ -121,8 +126,8 @@ function WeaponCard.Create(props: CardProps): TextButton
 			TextSize = 13,
 			Color = Theme.Gold,
 			AlignX = Enum.TextXAlignment.Right,
-			Size = UDim2.new(0.5, -S(6), 0, S(16)),
-			Position = UDim2.new(0.5, 0, 0, S(38)),
+			Size = UDim2.new(0.5, -S(8), 0, S(16)),
+			Position = UDim2.new(0.5, 0, 0, S(40)),
 			Parent = card,
 		})
 	end
@@ -157,15 +162,15 @@ function WeaponCard.Grid(parent: Instance, size: UDim2, position: UDim2): Scroll
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
 		ScrollBarThickness = S(6),
-		ScrollBarImageColor3 = Theme.Accent,
+		ScrollBarImageColor3 = Theme.Muted,
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		Parent = parent,
 	})
 	C.Make("UIGridLayout", {
-		CellSize = UDim2.fromOffset(S(158), S(76)),
-		CellPadding = UDim2.fromOffset(S(6), S(6)),
+		CellSize = UDim2.fromOffset(S(160), S(76)),
+		CellPadding = UDim2.fromOffset(S(8), S(8)),
 		SortOrder = Enum.SortOrder.LayoutOrder,
 		Parent = scroll,
 	})

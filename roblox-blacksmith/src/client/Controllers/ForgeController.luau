@@ -97,8 +97,8 @@ local function punch(button: GuiObject)
 		size = button.Size
 		baseSizes[button] = size
 	end
-	button.Size = UDim2.new(size.X.Scale, size.X.Offset * 0.92, size.Y.Scale, size.Y.Offset * 0.92)
-	TweenService:Create(button, TweenInfo.new(0.12, Enum.EasingStyle.Back), { Size = size }):Play()
+	button.Size = UDim2.new(size.X.Scale, size.X.Offset * 0.96, size.Y.Scale, size.Y.Offset * 0.96)
+	TweenService:Create(button, TweenInfo.new(0.14, Theme.Ease, Enum.EasingDirection.Out), { Size = size }):Play()
 end
 
 -- ===== Экран выбора =====
@@ -136,7 +136,8 @@ local function refreshSelect()
 		max = WeaponMath.Preview(selectedType, selectedOre, 100),
 	})
 	local canForge = have >= def.OreCost and data.Level >= ore.RequiredLevel
-	forgeButton.BackgroundColor3 = if canForge then Theme.Success else Theme.Disabled
+	forgeButton.BackgroundColor3 = if canForge then Theme.Accent else Theme.Disabled
+	forgeButton.TextColor3 = if canForge then Theme.Bg else Theme.Muted
 end
 
 local function showView(name: string)
@@ -190,7 +191,7 @@ local function strike()
 	end
 	offsets[bestIndex] = now - beatTimes[bestIndex]
 	if bestAbs <= F.Hammer.PerfectWindow then
-		feedback("FORGE_PERFECT", Theme.Gold)
+		feedback("FORGE_PERFECT", Theme.Accent)
 		Sound.Play("ForgeHammerPerfect")
 	elseif bestAbs <= F.Hammer.HitWindow then
 		feedback("FORGE_GOOD", Theme.Success)
@@ -273,7 +274,7 @@ local function runPour(p: any): number
 		end
 		local close = math.abs(pourLevel - p.Target) <= F.Pour.PerfectTolerance * 2
 		pourFill.Size = UDim2.fromScale(1, pourLevel)
-		pourFill.BackgroundColor3 = if close then Theme.Success else Color3.fromRGB(255, 140, 40)
+		pourFill.BackgroundColor3 = if close then Theme.Success else Theme.Accent
 	end
 	holding = false
 	-- сервер не примет слишком быстрое прохождение — подождём минимум
@@ -329,7 +330,7 @@ local function showResult(result: any)
 	lastWeaponId = weapon.Id
 	C.Bind(resultQuality, "FORGE_RESULT", { quality = result.quality })
 	resultQuality.TextColor3 = if result.quality >= 90
-		then Theme.Gold
+		then Theme.Accent
 		elseif result.quality >= 60 then Theme.Success
 		else Theme.Text
 	C.SetRaw(resultName, Localization.WeaponName(weapon.Type, weapon.Ore))
@@ -350,7 +351,7 @@ local function showResult(result: any)
 	end
 	showView("result")
 	resultQuality.TextSize = S(48)
-	TweenService:Create(resultQuality, TweenInfo.new(0.35, Enum.EasingStyle.Back), { TextSize = S(36) }):Play()
+	TweenService:Create(resultQuality, TweenInfo.new(0.35, Theme.Ease, Enum.EasingDirection.Out), { TextSize = S(36) }):Play()
 end
 
 local function startForging()
@@ -416,13 +417,13 @@ end
 local function build()
 	panel = C.Panel({
 		Name = "ForgePanel",
-		Size = UDim2.fromOffset(S(540), S(330)),
+		Size = UDim2.fromOffset(S(540), S(332)),
 	})
 	C.TitleBar(panel, "UI_FORGE_TITLE", function()
 		UIController:ClosePanel()
 	end)
 
-	local content = UDim2.new(1, -S(24), 1, -S(58))
+	local content = UDim2.new(1, -S(24), 1, -S(60))
 	local contentPos = UDim2.fromOffset(S(12), S(48))
 
 	-- выбор
@@ -430,7 +431,7 @@ local function build()
 	C.Text({ Key = "UI_CHOOSE_WEAPON", TextSize = 13, Color = Theme.TextDim, Size = UDim2.new(1, 0, 0, S(16)), Parent = selectView })
 	local weaponRow = C.Make("Frame", {
 		Size = UDim2.new(1, 0, 0, S(48)),
-		Position = UDim2.fromOffset(0, S(18)),
+		Position = UDim2.fromOffset(0, S(20)),
 		BackgroundTransparency = 1,
 		Parent = selectView,
 	})
@@ -438,7 +439,7 @@ local function build()
 	for i, id in sortedKeys(Config.Weapons) do
 		weaponButtons[id] = C.Button({
 			Key = Config.Weapons[id].NameKey,
-			Size = UDim2.new(1 / 3, -S(6), 1, 0),
+			Size = UDim2.new(1 / 3, -S(8), 1, 0),
 			LayoutOrder = i,
 			TextSize = 17,
 			OnClick = function()
@@ -454,7 +455,7 @@ local function build()
 		TextSize = 13,
 		Color = Theme.TextDim,
 		Size = UDim2.new(1, 0, 0, S(16)),
-		Position = UDim2.fromOffset(0, S(74)),
+		Position = UDim2.fromOffset(0, S(76)),
 		Parent = selectView,
 	})
 	local oreRow = C.Make("Frame", {
@@ -466,7 +467,7 @@ local function build()
 	C.List(oreRow, Enum.FillDirection.Horizontal, 8)
 	for i, id in sortedKeys(Config.Ores) do
 		oreButtons[id] = C.Button({
-			Size = UDim2.new(1 / 3, -S(6), 1, 0),
+			Size = UDim2.new(1 / 3, -S(8), 1, 0),
 			LayoutOrder = i,
 			TextSize = 14,
 			OnClick = function()
@@ -485,15 +486,15 @@ local function build()
 		TextSize = 15,
 		Font = Theme.FontBold,
 		Color = Theme.Accent,
-		Size = UDim2.new(1, 0, 0, S(18)),
-		Position = UDim2.fromOffset(0, S(170)),
+		Size = UDim2.new(1, 0, 0, S(20)),
+		Position = UDim2.fromOffset(0, S(172)),
 		Parent = selectView,
 	})
 	-- шансы редкости (правила Roblox: шансы случайных наград должны быть видны)
 	C.Button({
 		Key = "UI_ODDS",
 		TextSize = 13,
-		Size = UDim2.fromOffset(S(84), S(30)),
+		Size = UDim2.fromOffset(S(84), S(32)),
 		Position = UDim2.new(1, 0, 0, S(160)),
 		AnchorPoint = Vector2.new(1, 0),
 		Color = Theme.PanelLight,
@@ -533,7 +534,7 @@ local function build()
 		ZIndex = 21,
 		AlignY = Enum.TextYAlignment.Top,
 		Size = UDim2.new(1, -S(20), 1, -S(60)),
-		Position = UDim2.fromOffset(S(10), S(8)),
+		Position = UDim2.fromOffset(S(12), S(8)),
 		Parent = oddsFrame,
 	})
 	C.Button({
@@ -553,10 +554,10 @@ local function build()
 		Key = "UI_FORGE_BUTTON",
 		Font = Theme.FontTitle,
 		TextSize = 24,
-		Size = UDim2.fromOffset(S(240), S(54)),
+		Size = UDim2.fromOffset(S(240), S(56)),
 		Position = UDim2.new(0.5, 0, 1, 0),
 		AnchorPoint = Vector2.new(0.5, 1),
-		Color = Theme.Success,
+		Color = Theme.Accent,
 		TextColor = Theme.Bg,
 		OnClick = function()
 			task.spawn(startForging)
@@ -566,11 +567,11 @@ local function build()
 
 	-- мини-игра
 	gameView = C.Make("Frame", { Size = content, Position = contentPos, BackgroundTransparency = 1, Visible = false, Parent = panel })
-	stepTitle = C.Text({ Font = Theme.FontTitle, TextSize = 20, Color = Theme.Accent, Size = UDim2.new(1, 0, 0, S(22)), Parent = gameView })
+	stepTitle = C.Text({ Font = Theme.FontTitle, TextSize = 20, Color = Theme.Text, Size = UDim2.new(1, 0, 0, S(22)), Parent = gameView })
 	stepHint = C.Text({
 		TextSize = 14,
 		Color = Theme.TextDim,
-		Size = UDim2.new(1, 0, 0, S(18)),
+		Size = UDim2.new(1, 0, 0, S(20)),
 		Position = UDim2.fromOffset(0, S(24)),
 		Parent = gameView,
 	})
@@ -593,14 +594,14 @@ local function build()
 
 	-- меха: вертикальный термометр с зелёной зоной
 	bellowsWidget = C.Make("Frame", {
-		Size = UDim2.new(0, S(46), 1, 0),
+		Size = UDim2.new(0, S(48), 1, 0),
 		Position = UDim2.fromScale(0.5, 0),
 		AnchorPoint = Vector2.new(0.5, 0),
 		BackgroundColor3 = Theme.Bg,
 		Parent = widgetArea,
 	})
 	C.Corner(bellowsWidget, 6)
-	C.Stroke(bellowsWidget, Theme.AccentDim, 2)
+	C.Stroke(bellowsWidget)
 	zoneFrame = C.Make("Frame", {
 		BackgroundColor3 = Theme.Success,
 		BackgroundTransparency = 0.6,
@@ -621,7 +622,7 @@ local function build()
 
 	-- заливка: форма, которая наполняется металлом
 	pourWidget = C.Make("Frame", {
-		Size = UDim2.new(0, S(70), 1, 0),
+		Size = UDim2.new(0, S(72), 1, 0),
 		Position = UDim2.fromScale(0.5, 0),
 		AnchorPoint = Vector2.new(0.5, 0),
 		BackgroundColor3 = Theme.Bg,
@@ -629,7 +630,7 @@ local function build()
 		Parent = widgetArea,
 	})
 	C.Corner(pourWidget, 6)
-	C.Stroke(pourWidget, Theme.AccentDim, 2)
+	C.Stroke(pourWidget)
 	pourFill = C.Make("Frame", {
 		Size = UDim2.fromScale(1, 0),
 		Position = UDim2.fromScale(0, 1),
@@ -654,12 +655,12 @@ local function build()
 		Size = UDim2.fromOffset(S(80), S(80)),
 		Position = UDim2.fromScale(0.5, 0.5),
 		AnchorPoint = Vector2.new(0.5, 0.5),
-		BackgroundColor3 = Theme.AccentDim,
-		BackgroundTransparency = 0.4,
+		BackgroundColor3 = Theme.PanelLight,
+		BackgroundTransparency = 0,
 		Parent = hammerWidget,
 	})
 	C.Round(target)
-	C.Stroke(target, Theme.Accent, 3)
+	C.Stroke(target, Theme.Accent, 2)
 	hammerRing = C.Make("Frame", {
 		Size = UDim2.fromOffset(S(160), S(160)),
 		Position = UDim2.fromScale(0.5, 0.5),
@@ -669,7 +670,7 @@ local function build()
 		Parent = hammerWidget,
 	})
 	C.Round(hammerRing)
-	C.Stroke(hammerRing, Theme.Gold, 3)
+	C.Stroke(hammerRing, Theme.Text, 2)
 	hammerCounter = C.Text({
 		Font = Theme.FontBold,
 		TextSize = 18,
@@ -681,7 +682,7 @@ local function build()
 		Font = Theme.FontTitle,
 		TextSize = 22,
 		AlignX = Enum.TextXAlignment.Center,
-		Size = UDim2.new(1, 0, 0, S(30)),
+		Size = UDim2.new(1, 0, 0, S(32)),
 		Position = UDim2.fromScale(0, 0),
 		ZIndex = 3,
 		Parent = hammerWidget,
@@ -691,10 +692,11 @@ local function build()
 	actionButton = C.Button({
 		Font = Theme.FontTitle,
 		TextSize = 26,
-		Size = UDim2.fromOffset(S(190), S(120)),
+		Size = UDim2.fromOffset(S(192), S(120)),
 		Position = UDim2.new(0.75, 0, 0.55, 0),
 		AnchorPoint = Vector2.new(0.5, 0.5),
-		Color = Color3.fromRGB(200, 90, 30),
+		Color = Theme.Accent,
+		TextColor = Theme.Bg,
 		Silent = true,
 		Parent = gameView,
 	})
@@ -715,23 +717,23 @@ local function build()
 		Font = Theme.FontTitle,
 		TextSize = 36,
 		AlignX = Enum.TextXAlignment.Center,
-		Size = UDim2.new(1, 0, 0, S(50)),
-		Position = UDim2.fromOffset(0, S(10)),
+		Size = UDim2.new(1, 0, 0, S(52)),
+		Position = UDim2.fromOffset(0, S(12)),
 		Parent = resultView,
 	})
 	resultName = C.Text({
 		Font = Theme.FontBold,
 		TextSize = 20,
 		AlignX = Enum.TextXAlignment.Center,
-		Size = UDim2.new(1, 0, 0, S(26)),
-		Position = UDim2.fromOffset(0, S(66)),
+		Size = UDim2.new(1, 0, 0, S(28)),
+		Position = UDim2.fromOffset(0, S(68)),
 		Parent = resultView,
 	})
 	resultDamage = C.Text({
 		TextSize = 17,
 		Color = Theme.Accent,
 		AlignX = Enum.TextXAlignment.Center,
-		Size = UDim2.new(1, 0, 0, S(22)),
+		Size = UDim2.new(1, 0, 0, S(24)),
 		Position = UDim2.fromOffset(0, S(96)),
 		Parent = resultView,
 	})
@@ -739,13 +741,13 @@ local function build()
 		Font = Theme.FontTitle,
 		TextSize = 18,
 		AlignX = Enum.TextXAlignment.Center,
-		Size = UDim2.new(1, 0, 0, S(22)),
+		Size = UDim2.new(1, 0, 0, S(24)),
 		Position = UDim2.fromOffset(0, S(120)),
 		Parent = resultView,
 	})
 	resultTraits = C.Text({
 		TextSize = 14,
-		Color = Theme.Gold,
+		Color = Theme.TextDim,
 		AlignX = Enum.TextXAlignment.Center,
 		Size = UDim2.new(1, 0, 0, S(20)),
 		Position = UDim2.fromOffset(0, S(144)),
@@ -754,9 +756,9 @@ local function build()
 	C.Button({
 		Key = "UI_EQUIP",
 		Size = UDim2.fromOffset(S(200), S(52)),
-		Position = UDim2.new(0.5, -S(6), 1, 0),
+		Position = UDim2.new(0.5, -S(8), 1, 0),
 		AnchorPoint = Vector2.new(1, 1),
-		Color = Theme.Success,
+		Color = Theme.Accent,
 		TextColor = Theme.Bg,
 		OnClick = function()
 			if lastWeaponId then
@@ -771,7 +773,7 @@ local function build()
 	C.Button({
 		Key = "FORGE_AGAIN",
 		Size = UDim2.fromOffset(S(200), S(52)),
-		Position = UDim2.new(0.5, S(6), 1, 0),
+		Position = UDim2.new(0.5, S(8), 1, 0),
 		AnchorPoint = Vector2.new(0, 1),
 		OnClick = function()
 			showView("select")

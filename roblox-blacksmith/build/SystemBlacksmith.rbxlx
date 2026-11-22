@@ -1325,7 +1325,7 @@ local en: { [string]: string } = {
 	UI_CLOSE = "Close",
 	UI_LANG = "EN",
 	UI_XP = "{xp}/{need} XP",
-	UI_MAX_LEVEL = "MAX",
+	UI_MAX_LEVEL = "Max level",
 
 	-- Инвентарь / торговец
 	UI_EQUIP = "Equip",
@@ -1341,7 +1341,7 @@ local en: { [string]: string } = {
 	UI_WEAPONS = "Weapons",
 	UI_ORES = "Ores",
 	UI_PICKAXES = "Pickaxes",
-	UI_EMPTY_INV = "No weapons yet. Forge one at the anvil!",
+	UI_EMPTY_INV = "No weapons yet. Forge one at the anvil in town",
 	UI_DMG = "DMG {value}",
 	UI_QUALITY = "Quality {value}%",
 	UI_POWER = "Power {value}",
@@ -1355,26 +1355,26 @@ local en: { [string]: string } = {
 	UI_CHOOSE_WEAPON = "Weapon",
 	UI_CHOOSE_ORE = "Ore",
 	UI_ORE_COST = "Cost: {count} × {ore} (you have {have})",
-	UI_FORGE_BUTTON = "FORGE",
+	UI_FORGE_BUTTON = "Forge",
 	UI_FORGE_PREVIEW = "Damage {min}–{max}",
 	FORGE_STEP_BELLOWS = "Step 1/3 · Bellows",
-	FORGE_HINT_BELLOWS = "Tap PUMP to keep the heat in the green zone!",
-	FORGE_PUMP = "PUMP",
+	FORGE_HINT_BELLOWS = "Tap Pump to keep the heat in the green zone",
+	FORGE_PUMP = "Pump",
 	FORGE_STEP_POUR = "Step 2/3 · Pour",
-	FORGE_HINT_POUR = "Hold POUR and release on the line!",
-	FORGE_POUR = "POUR",
+	FORGE_HINT_POUR = "Hold Pour and let go at the white line",
+	FORGE_POUR = "Pour",
 	FORGE_STEP_HAMMER = "Step 3/3 · Hammer",
-	FORGE_HINT_HAMMER = "Strike when the ring meets the circle!",
-	FORGE_STRIKE = "STRIKE",
-	FORGE_PERFECT = "PERFECT!",
-	FORGE_GOOD = "GOOD",
-	FORGE_MISS = "MISS",
+	FORGE_HINT_HAMMER = "Strike when the ring closes on the circle",
+	FORGE_STRIKE = "Strike",
+	FORGE_PERFECT = "Perfect",
+	FORGE_GOOD = "Good",
+	FORGE_MISS = "Miss",
 	FORGE_RESULT = "Quality {quality}%",
 	FORGE_AGAIN = "Forge again",
-	FORGE_WORKING = "The System evaluates your work...",
+	FORGE_WORKING = "Calculating quality",
 
 	-- Квесты
-	QUEST_HEADER = "[SYSTEM] Quest",
+	QUEST_HEADER = "[System] Quest",
 	QUEST_PROGRESS = "{progress}/{count}",
 	QUEST_WAIT_GATE = "Wait for a Gate to open",
 	Q_MINE_COPPER = "Mine Copper Ore",
@@ -1390,7 +1390,7 @@ local en: { [string]: string } = {
 	UI_GATE_START = "Start",
 	UI_GATE_LEAVE = "Leave",
 	UI_GATE_WAVE = "Wave {wave}/{total}",
-	UI_GATE_BOSS = "BOSS",
+	UI_GATE_BOSS = "Boss",
 	UI_GATE_TIME = "{time}",
 	UI_GATE_ALIVE = "Alive {alive}/{total}",
 
@@ -1401,8 +1401,8 @@ local en: { [string]: string } = {
 	PROMPT_ENTER_GATE = "Enter Gate",
 
 	-- Эффекты
-	FX_PARRY = "PARRY!",
-	FX_BLOCK = "BLOCK",
+	FX_PARRY = "Parry",
+	FX_BLOCK = "Block",
 
 	-- Предметы
 	ORE_COPPER = "Copper Ore",
@@ -1430,39 +1430,39 @@ local en: { [string]: string } = {
 	GATE_E = "Rank E Gate",
 
 	-- Окно Системы
-	SYS_HEADER = "SYSTEM",
-	SYS_KIND_AWAKENING = "AWAKENING",
-	SYS_KIND_QUEST = "NEW QUEST",
-	SYS_KIND_QUESTDONE = "QUEST COMPLETE",
-	SYS_KIND_LEVELUP = "LEVEL UP",
-	SYS_KIND_REWARD = "REWARD",
-	SYS_KIND_INFO = "NOTICE",
-	SYS_KIND_WARNING = "WARNING",
-	SYS_KIND_BOSS = "DANGER",
-	SYS_KIND_GATECLEARED = "GATE CLEARED",
-	SYS_KIND_GATEFAILED = "GATE FAILED",
-	SYS_KIND_FORGE = "CRAFT COMPLETE",
+	SYS_HEADER = "System",
+	SYS_KIND_AWAKENING = "Awakening",
+	SYS_KIND_QUEST = "New quest",
+	SYS_KIND_QUESTDONE = "Quest complete",
+	SYS_KIND_LEVELUP = "Level up",
+	SYS_KIND_REWARD = "Reward",
+	SYS_KIND_INFO = "Notice",
+	SYS_KIND_WARNING = "Warning",
+	SYS_KIND_BOSS = "Danger",
+	SYS_KIND_GATECLEARED = "Gate cleared",
+	SYS_KIND_GATEFAILED = "Gate failed",
+	SYS_KIND_FORGE = "Forged",
 	SYS_TAP_TO_CLOSE = "tap to close",
 
 	SYS_AWAKEN_TITLE = "You have awakened a class: Blacksmith (Rank F)",
-	SYS_AWAKEN_BODY = "A weak craftsman... for now. Forge, fight and grow. The System is watching.",
+	SYS_AWAKEN_BODY = "You start at Rank F, the weakest class. Mine ore, forge a weapon and clear a Gate to rank up",
 	SYS_QUEST_REWARD = "Reward: +{xp} XP, +{gold} Gold",
 	SYS_QUEST_REWARD_XP = "Reward: +{xp} XP",
 	SYS_REWARD_LINE = "+{xp} XP  +{gold} Gold",
 	SYS_REWARD_LINE_XP = "+{xp} XP",
-	SYS_LEVELUP_TITLE = "Level {level} reached!",
-	SYS_LEVELUP_BODY = "Max HP and damage increased.",
+	SYS_LEVELUP_TITLE = "Level {level}",
+	SYS_LEVELUP_BODY = "Max HP +{hp}, damage +{dmg}%",
 	SYS_TUTORIAL_DONE_TITLE = "Trial of the Novice complete",
-	SYS_TUTORIAL_DONE_BODY = "The System grants you freedom. Become the strongest smith.",
+	SYS_TUTORIAL_DONE_BODY = "Training is over. Daily quests and codes are in the Menu",
 	SYS_FORGE_TITLE = "{weapon} forged",
 	SYS_FORGE_BODY = "{rarity} · Quality {quality}% · DMG {damage}",
-	SYS_FORGE_BODY_MASTER = "{rarity} · Quality {quality}% · DMG {damage}. Masterwork!",
+	SYS_FORGE_BODY_MASTER = "{rarity} · Quality {quality}% · DMG {damage}",
 	SYS_GATE_OPEN_TITLE = "A Gate has opened",
-	SYS_GATE_OPEN_BODY = "{gate} appeared nearby. Gather your party!",
-	SYS_BOSS_TITLE = "{boss} has appeared!",
-	SYS_BOSS_BODY = "Press Block right before its strike to parry.",
+	SYS_GATE_OPEN_BODY = "{gate} opened for {minutes} min",
+	SYS_BOSS_TITLE = "{boss} appeared",
+	SYS_BOSS_BODY = "Press Block right before its strike to parry",
 	SYS_GATE_CLEARED_BODY = "+{gold} Gold  +{xp} XP",
-	SYS_GATE_FAILED_BODY = "The Gate rejected you. Grow stronger and return.",
+	SYS_GATE_FAILED_BODY = "The party fell or time ran out. A stronger weapon helps",
 
 	-- Тосты
 	TOAST_ORE = "+{count} {ore}",
@@ -1476,12 +1476,12 @@ local en: { [string]: string } = {
 	TOAST_PARTY_JOINED = "{name} joined the party",
 	TOAST_GATE_CLOSED = "The Gate collapsed",
 	TOAST_WAVE = "Wave {wave}/{total}",
-	TOAST_DIED = "You fell. Your party fights on!",
+	TOAST_DIED = "You fell. Your party is still in the Gate",
 	TOAST_LANG = "Language: English",
 
 	-- Ошибки
-	ERR_RATE_LIMIT = "Slow down!",
-	ERR_SERVER = "Something went wrong",
+	ERR_RATE_LIMIT = "Too many actions, wait a second",
+	ERR_SERVER = "Server error, try again",
 	ERR_BAD_REQUEST = "Invalid request",
 	ERR_NOT_LOADED = "Your data is still loading",
 	ERR_TOO_FAR = "Come closer",
@@ -1489,7 +1489,7 @@ local en: { [string]: string } = {
 	ERR_PICKAXE_WEAK = "Your pickaxe is too weak",
 	ERR_NOT_ENOUGH_ORE = "Not enough ore",
 	ERR_NOT_ENOUGH_GOLD = "Not enough Gold",
-	ERR_INVENTORY_FULL = "Inventory full — sell something",
+	ERR_INVENTORY_FULL = "Inventory full. Sell weapons at the Merchant",
 	ERR_NO_SESSION = "Forging was interrupted",
 	ERR_TOO_FAST = "The metal needs more time",
 	ERR_UNKNOWN_ITEM = "Item not found",
@@ -1500,7 +1500,7 @@ local en: { [string]: string } = {
 	ERR_PARTY_FULL = "Party is full",
 	ERR_GATE_BUSY = "This Gate has already started",
 	ERR_NOT_LEADER = "Only the party leader can start",
-	ERR_ARENAS_FULL = "All arenas are busy, retrying...",
+	ERR_ARENAS_FULL = "All arenas are busy, retrying in 10 s",
 	ERR_DEAD = "You can't do that right now",
 
 	-- ===== Этап 2 =====
@@ -1520,26 +1520,26 @@ local en: { [string]: string } = {
 	MOB_RIMETYRANT = "Rime Tyrant",
 	GATE_D = "Rank D Gate",
 	GATE_C = "Rank C Gate",
-	UI_RED_PREFIX = "RED GATE",
-	SYS_REDGATE_TITLE = "RED GATE detected!",
-	SYS_REDGATE_BODY = "{gate}: stronger monsters, x{mult} rewards. Enter if you dare.",
-	SYS_ELITE_TITLE = "{boss} has awakened!",
-	SYS_ELITE_BODY = "Elite monster in {zone}. Everyone who fights it gets a reward.",
-	SYS_ELITE_DEFEATED_TITLE = "{boss} defeated!",
-	SYS_KIND_DAILY = "DAILY REWARD",
-	SYS_KIND_RANKUP = "RANK UP",
-	SYS_KIND_LEGENDARY = "LEGENDARY CRAFT",
-	SYS_KIND_ELITE = "ELITE MONSTER",
-	SYS_KIND_PENALTY = "PENALTY",
+	UI_RED_PREFIX = "Red Gate",
+	SYS_REDGATE_TITLE = "Red Gate opened",
+	SYS_REDGATE_BODY = "{gate}: monsters hit harder and have more HP, rewards x{mult}",
+	SYS_ELITE_TITLE = "{boss} appeared",
+	SYS_ELITE_BODY = "Elite monster in {zone}. Deal {pct}% of its HP to get the reward",
+	SYS_ELITE_DEFEATED_TITLE = "{boss} defeated",
+	SYS_KIND_DAILY = "Daily reward",
+	SYS_KIND_RANKUP = "Rank up",
+	SYS_KIND_LEGENDARY = "Rare craft",
+	SYS_KIND_ELITE = "Elite monster",
+	SYS_KIND_PENALTY = "Penalty",
 	SYS_DAILY_TITLE = "Day {day} login reward",
-	SYS_DAILY_BODY = "+{gold} Gold. Come back tomorrow for a bigger reward!",
+	SYS_DAILY_BODY = "+{gold} Gold. Tomorrow's reward is bigger",
 	SYS_DAILYQ_NEW_TITLE = "New daily quests",
-	SYS_DAILYQ_NEW_BODY = "Open Menu → Quests. The System expects results.",
+	SYS_DAILYQ_NEW_BODY = "3 new quests in Menu → Quests",
 	SYS_PENALTY_TITLE = "Daily quests were not completed",
-	SYS_PENALTY_BODY = "Penalty: the System is mildly disappointed in you. (No real penalty… this time.)",
-	SYS_RANKUP_TITLE = "Rank {rank} achieved!",
-	SYS_RANKUP_BODY = "Permanent damage bonus: +{bonus}%.",
-	SYS_ANNOUNCE_FORGE_TITLE = "{name} forged a {rarity} weapon!",
+	SYS_PENALTY_BODY = "The System is mildly disappointed. No real penalty this time",
+	SYS_RANKUP_TITLE = "Rank {rank}",
+	SYS_RANKUP_BODY = "Permanent damage bonus +{bonus}%",
+	SYS_ANNOUNCE_FORGE_TITLE = "{name} forged a {rarity} weapon",
 	SYS_ANNOUNCE_FORGE_BODY = "{weapon} · DMG {damage}",
 	DQ_MINE = "Mine ore: {count}",
 	DQ_FORGE = "Forge weapons: {count}",
@@ -1548,7 +1548,7 @@ local en: { [string]: string } = {
 	DQ_PARRY = "Parry attacks: {count}",
 	DQ_SELL = "Sell items: {count}",
 	DQ_QUALITY = "Forge a weapon with 80%+ quality",
-	QUEST_DAILY_HEADER = "[SYSTEM] Daily quest",
+	QUEST_DAILY_HEADER = "[System] Daily quest",
 	UI_MENU = "Menu",
 	UI_TAB_QUESTS = "Quests",
 	UI_TAB_CODES = "Codes",
@@ -1557,16 +1557,16 @@ local en: { [string]: string } = {
 	UI_STREAK = "Login streak: {days} · come back tomorrow for day {next}",
 	UI_DONE = "Done",
 	UI_REWARD = "+{gold} Gold · +{xp} XP",
-	UI_CODE_PLACEHOLDER = "Enter code",
+	UI_CODE_PLACEHOLDER = "Code",
 	UI_REDEEM = "Redeem",
-	UI_CODES_HINT = "New codes are posted in our group and socials.",
+	UI_CODES_HINT = "New codes are posted in our Roblox group",
 	UI_SET_LANGUAGE = "Language",
 	UI_SET_SFX = "Sound effects",
 	UI_SET_MUSIC = "Music",
 	UI_SET_DMG = "Damage numbers",
 	UI_SET_LOW = "Low graphics (weak phones)",
-	UI_ON = "ON",
-	UI_OFF = "OFF",
+	UI_ON = "On",
+	UI_OFF = "Off",
 	UI_STAT_LINE = "{name}: {value}",
 	STAT_ORESMINED = "Ore mined",
 	STAT_WEAPONSFORGED = "Weapons forged",
@@ -1579,7 +1579,7 @@ local en: { [string]: string } = {
 	STAT_GOLDEARNED = "Gold earned",
 	STAT_ELITEKILLS = "Elites defeated",
 	STAT_MYTHICFORGED = "Mythic+ forged",
-	TOAST_CODE_OK = "Code activated!",
+	TOAST_CODE_OK = "Code activated",
 	ERR_CODE_INVALID = "Unknown code",
 	ERR_CODE_USED = "Code already used",
 	ERR_CODE_EXPIRED = "Code expired",
@@ -1600,8 +1600,8 @@ local en: { [string]: string } = {
 	LB_LEVEL = "Top Level",
 	LB_DAMAGE = "Strongest Weapon",
 	LB_GATES = "Gates Cleared",
-	LB_EMPTY = "Waiting for data...",
-	FX_CRIT = "CRIT",
+	LB_EMPTY = "Loading",
+	FX_CRIT = "Crit",
 	RANK_F = "F",
 	RANK_E = "E",
 	RANK_D = "D",
@@ -1622,7 +1622,7 @@ local ru: { [string]: string } = {
 	UI_CLOSE = "Закрыть",
 	UI_LANG = "RU",
 	UI_XP = "{xp}/{need} опыта",
-	UI_MAX_LEVEL = "МАКС",
+	UI_MAX_LEVEL = "Макс. уровень",
 
 	UI_EQUIP = "Надеть",
 	UI_EQUIPPED = "Надето",
@@ -1637,8 +1637,8 @@ local ru: { [string]: string } = {
 	UI_WEAPONS = "Оружие",
 	UI_ORES = "Руда",
 	UI_PICKAXES = "Кирки",
-	UI_EMPTY_INV = "Оружия пока нет. Выкуй его на наковальне!",
-	UI_DMG = "УРН {value}",
+	UI_EMPTY_INV = "Оружия пока нет. Выкуй его на наковальне в городе",
+	UI_DMG = "Урон {value}",
 	UI_QUALITY = "Качество {value}%",
 	UI_POWER = "Сила {value}",
 	UI_SLOTS = "{count}/{max}",
@@ -1650,25 +1650,25 @@ local ru: { [string]: string } = {
 	UI_CHOOSE_WEAPON = "Оружие",
 	UI_CHOOSE_ORE = "Руда",
 	UI_ORE_COST = "Цена: {count} × {ore} (есть {have})",
-	UI_FORGE_BUTTON = "КОВАТЬ",
+	UI_FORGE_BUTTON = "Ковать",
 	UI_FORGE_PREVIEW = "Урон {min}–{max}",
 	FORGE_STEP_BELLOWS = "Шаг 1/3 · Меха",
-	FORGE_HINT_BELLOWS = "Жми КАЧАТЬ и держи жар в зелёной зоне!",
-	FORGE_PUMP = "КАЧАТЬ",
+	FORGE_HINT_BELLOWS = "Жми «Качать», чтобы жар держался в зелёной зоне",
+	FORGE_PUMP = "Качать",
 	FORGE_STEP_POUR = "Шаг 2/3 · Заливка",
-	FORGE_HINT_POUR = "Держи ЛИТЬ и отпусти на линии!",
-	FORGE_POUR = "ЛИТЬ",
+	FORGE_HINT_POUR = "Держи «Лить» и отпусти на белой линии",
+	FORGE_POUR = "Лить",
 	FORGE_STEP_HAMMER = "Шаг 3/3 · Молот",
-	FORGE_HINT_HAMMER = "Бей, когда кольцо совпадёт с кругом!",
-	FORGE_STRIKE = "УДАР",
-	FORGE_PERFECT = "ИДЕАЛЬНО!",
-	FORGE_GOOD = "ХОРОШО",
-	FORGE_MISS = "МИМО",
+	FORGE_HINT_HAMMER = "Бей, когда кольцо сойдётся с кругом",
+	FORGE_STRIKE = "Удар",
+	FORGE_PERFECT = "Идеально",
+	FORGE_GOOD = "Хорошо",
+	FORGE_MISS = "Мимо",
 	FORGE_RESULT = "Качество {quality}%",
 	FORGE_AGAIN = "Ковать ещё",
-	FORGE_WORKING = "Система оценивает твою работу...",
+	FORGE_WORKING = "Считаем качество",
 
-	QUEST_HEADER = "[СИСТЕМА] Задание",
+	QUEST_HEADER = "[Система] Задание",
 	QUEST_PROGRESS = "{progress}/{count}",
 	QUEST_WAIT_GATE = "Дождись открытия Врат",
 	Q_MINE_COPPER = "Добудь медную руду",
@@ -1683,7 +1683,7 @@ local ru: { [string]: string } = {
 	UI_GATE_START = "Начать",
 	UI_GATE_LEAVE = "Выйти",
 	UI_GATE_WAVE = "Волна {wave}/{total}",
-	UI_GATE_BOSS = "БОСС",
+	UI_GATE_BOSS = "Босс",
 	UI_GATE_TIME = "{time}",
 	UI_GATE_ALIVE = "Живы {alive}/{total}",
 
@@ -1692,8 +1692,8 @@ local ru: { [string]: string } = {
 	PROMPT_TRADE = "Торговать",
 	PROMPT_ENTER_GATE = "Войти во Врата",
 
-	FX_PARRY = "ПАРИРОВАНИЕ!",
-	FX_BLOCK = "БЛОК",
+	FX_PARRY = "Парирование",
+	FX_BLOCK = "Блок",
 
 	ORE_COPPER = "Медная руда",
 	ORE_IRON = "Железная руда",
@@ -1719,39 +1719,39 @@ local ru: { [string]: string } = {
 	MOB_CINDERWARDEN = "Страж Пепла",
 	GATE_E = "Врата ранга E",
 
-	SYS_HEADER = "СИСТЕМА",
-	SYS_KIND_AWAKENING = "ПРОБУЖДЕНИЕ",
-	SYS_KIND_QUEST = "НОВОЕ ЗАДАНИЕ",
-	SYS_KIND_QUESTDONE = "ЗАДАНИЕ ВЫПОЛНЕНО",
-	SYS_KIND_LEVELUP = "УРОВЕНЬ ПОВЫШЕН",
-	SYS_KIND_REWARD = "НАГРАДА",
-	SYS_KIND_INFO = "УВЕДОМЛЕНИЕ",
-	SYS_KIND_WARNING = "ПРЕДУПРЕЖДЕНИЕ",
-	SYS_KIND_BOSS = "ОПАСНОСТЬ",
-	SYS_KIND_GATECLEARED = "ВРАТА ЗАЧИЩЕНЫ",
-	SYS_KIND_GATEFAILED = "ПРОВАЛ",
-	SYS_KIND_FORGE = "КОВКА ЗАВЕРШЕНА",
+	SYS_HEADER = "Система",
+	SYS_KIND_AWAKENING = "Пробуждение",
+	SYS_KIND_QUEST = "Новое задание",
+	SYS_KIND_QUESTDONE = "Задание выполнено",
+	SYS_KIND_LEVELUP = "Новый уровень",
+	SYS_KIND_REWARD = "Награда",
+	SYS_KIND_INFO = "Уведомление",
+	SYS_KIND_WARNING = "Предупреждение",
+	SYS_KIND_BOSS = "Опасность",
+	SYS_KIND_GATECLEARED = "Врата зачищены",
+	SYS_KIND_GATEFAILED = "Провал",
+	SYS_KIND_FORGE = "Выковано",
 	SYS_TAP_TO_CLOSE = "нажми, чтобы закрыть",
 
 	SYS_AWAKEN_TITLE = "Ты пробудил класс: Кузнец (Ранг F)",
-	SYS_AWAKEN_BODY = "Слабый ремесленник... пока что. Куй, сражайся, расти. Система наблюдает.",
+	SYS_AWAKEN_BODY = "Ты начинаешь с ранга F, самого слабого. Добудь руду, выкуй оружие и пройди Врата, чтобы расти",
 	SYS_QUEST_REWARD = "Награда: +{xp} опыта, +{gold} золота",
 	SYS_QUEST_REWARD_XP = "Награда: +{xp} опыта",
 	SYS_REWARD_LINE = "+{xp} опыта  +{gold} золота",
 	SYS_REWARD_LINE_XP = "+{xp} опыта",
-	SYS_LEVELUP_TITLE = "Достигнут уровень {level}!",
-	SYS_LEVELUP_BODY = "Здоровье и урон увеличены.",
+	SYS_LEVELUP_TITLE = "Уровень {level}",
+	SYS_LEVELUP_BODY = "Здоровье +{hp}, урон +{dmg}%",
 	SYS_TUTORIAL_DONE_TITLE = "Испытание новичка пройдено",
-	SYS_TUTORIAL_DONE_BODY = "Система дарует тебе свободу. Стань сильнейшим кузнецом.",
+	SYS_TUTORIAL_DONE_BODY = "Обучение пройдено. Ежедневные задания и коды есть в Меню",
 	SYS_FORGE_TITLE = "Выковано: {weapon}",
 	SYS_FORGE_BODY = "{rarity} · Качество {quality}% · Урон {damage}",
-	SYS_FORGE_BODY_MASTER = "{rarity} · Качество {quality}% · Урон {damage}. Шедевр!",
+	SYS_FORGE_BODY_MASTER = "{rarity} · Качество {quality}% · Урон {damage}",
 	SYS_GATE_OPEN_TITLE = "Открылись Врата",
-	SYS_GATE_OPEN_BODY = "{gate} появились неподалёку. Собирай группу!",
-	SYS_BOSS_TITLE = "Появился {boss}!",
-	SYS_BOSS_BODY = "Нажми Блок прямо перед его ударом — это парирование.",
+	SYS_GATE_OPEN_BODY = "{gate} открылись на {minutes} мин",
+	SYS_BOSS_TITLE = "Появился {boss}",
+	SYS_BOSS_BODY = "Нажми Блок прямо перед его ударом, чтобы парировать",
 	SYS_GATE_CLEARED_BODY = "+{gold} золота  +{xp} опыта",
-	SYS_GATE_FAILED_BODY = "Врата отвергли тебя. Стань сильнее и возвращайся.",
+	SYS_GATE_FAILED_BODY = "Группа пала или вышло время. Помогает оружие посильнее",
 
 	TOAST_ORE = "+{count} {ore}",
 	TOAST_GOLD = "+{gold} золота",
@@ -1764,11 +1764,11 @@ local ru: { [string]: string } = {
 	TOAST_PARTY_JOINED = "{name} в группе",
 	TOAST_GATE_CLOSED = "Врата закрылись",
 	TOAST_WAVE = "Волна {wave}/{total}",
-	TOAST_DIED = "Ты пал. Группа продолжает бой!",
+	TOAST_DIED = "Ты пал. Группа ещё во Вратах",
 	TOAST_LANG = "Язык: русский",
 
-	ERR_RATE_LIMIT = "Не так быстро!",
-	ERR_SERVER = "Что-то пошло не так",
+	ERR_RATE_LIMIT = "Слишком часто, подожди секунду",
+	ERR_SERVER = "Ошибка сервера, попробуй ещё раз",
 	ERR_BAD_REQUEST = "Неверный запрос",
 	ERR_NOT_LOADED = "Данные ещё загружаются",
 	ERR_TOO_FAR = "Подойди ближе",
@@ -1776,7 +1776,7 @@ local ru: { [string]: string } = {
 	ERR_PICKAXE_WEAK = "Кирка слишком слабая",
 	ERR_NOT_ENOUGH_ORE = "Не хватает руды",
 	ERR_NOT_ENOUGH_GOLD = "Не хватает золота",
-	ERR_INVENTORY_FULL = "Инвентарь полон — продай что-нибудь",
+	ERR_INVENTORY_FULL = "Инвентарь полон. Продай оружие торговцу",
 	ERR_NO_SESSION = "Ковка прервана",
 	ERR_TOO_FAST = "Металлу нужно больше времени",
 	ERR_UNKNOWN_ITEM = "Предмет не найден",
@@ -1787,7 +1787,7 @@ local ru: { [string]: string } = {
 	ERR_PARTY_FULL = "Группа заполнена",
 	ERR_GATE_BUSY = "Эти Врата уже начались",
 	ERR_NOT_LEADER = "Начать может только лидер группы",
-	ERR_ARENAS_FULL = "Все арены заняты, пробуем ещё...",
+	ERR_ARENAS_FULL = "Все арены заняты, повтор через 10 с",
 	ERR_DEAD = "Сейчас это сделать нельзя",
 
 	-- ===== Этап 2 =====
@@ -1807,35 +1807,35 @@ local ru: { [string]: string } = {
 	MOB_RIMETYRANT = "Тиран инея",
 	GATE_D = "Врата ранга D",
 	GATE_C = "Врата ранга C",
-	UI_RED_PREFIX = "КРАСНЫЕ ВРАТА",
-	SYS_REDGATE_TITLE = "Обнаружены КРАСНЫЕ ВРАТА!",
-	SYS_REDGATE_BODY = "{gate}: монстры сильнее, награда x{mult}. Входи, если осмелишься.",
-	SYS_ELITE_TITLE = "Пробудился {boss}!",
-	SYS_ELITE_BODY = "Элитный монстр: {zone}. Награду получат все, кто сражался.",
-	SYS_ELITE_DEFEATED_TITLE = "{boss} повержен!",
-	SYS_KIND_DAILY = "ЕЖЕДНЕВНАЯ НАГРАДА",
-	SYS_KIND_RANKUP = "НОВЫЙ РАНГ",
-	SYS_KIND_LEGENDARY = "ЛЕГЕНДАРНАЯ КОВКА",
-	SYS_KIND_ELITE = "ЭЛИТНЫЙ МОНСТР",
-	SYS_KIND_PENALTY = "ШТРАФ",
+	UI_RED_PREFIX = "Красные Врата",
+	SYS_REDGATE_TITLE = "Открылись Красные Врата",
+	SYS_REDGATE_BODY = "{gate}: у монстров больше здоровья и урона, награда x{mult}",
+	SYS_ELITE_TITLE = "Появился {boss}",
+	SYS_ELITE_BODY = "Элитный монстр: {zone}. Награду получит каждый, кто снимет ему {pct}% здоровья",
+	SYS_ELITE_DEFEATED_TITLE = "{boss} повержен",
+	SYS_KIND_DAILY = "Награда за вход",
+	SYS_KIND_RANKUP = "Новый ранг",
+	SYS_KIND_LEGENDARY = "Редкая ковка",
+	SYS_KIND_ELITE = "Элитный монстр",
+	SYS_KIND_PENALTY = "Штраф",
 	SYS_DAILY_TITLE = "Награда за вход: день {day}",
-	SYS_DAILY_BODY = "+{gold} золота. Заходи завтра — награда будет больше!",
+	SYS_DAILY_BODY = "+{gold} золота. Завтрашняя награда больше",
 	SYS_DAILYQ_NEW_TITLE = "Новые ежедневные задания",
-	SYS_DAILYQ_NEW_BODY = "Открой Меню → Задания. Система ждёт результатов.",
+	SYS_DAILYQ_NEW_BODY = "3 новых задания в Меню → Задания",
 	SYS_PENALTY_TITLE = "Ежедневные задания не выполнены",
-	SYS_PENALTY_BODY = "Штраф: Система слегка в тебе разочарована. (Настоящего штрафа нет… пока.)",
-	SYS_RANKUP_TITLE = "Получен ранг {rank}!",
-	SYS_RANKUP_BODY = "Постоянный бонус к урону: +{bonus}%.",
-	SYS_ANNOUNCE_FORGE_TITLE = "{name} выковал оружие редкости «{rarity}»!",
+	SYS_PENALTY_BODY = "Система слегка разочарована. Настоящего штрафа в этот раз нет",
+	SYS_RANKUP_TITLE = "Ранг {rank}",
+	SYS_RANKUP_BODY = "Постоянный бонус к урону +{bonus}%",
+	SYS_ANNOUNCE_FORGE_TITLE = "{name} выковал оружие редкости «{rarity}»",
 	SYS_ANNOUNCE_FORGE_BODY = "{weapon} · Урон {damage}",
 	DQ_MINE = "Добудь руду: {count}",
-	DQ_FORGE = "Выкуй оружие: {count} шт.",
+	DQ_FORGE = "Выкуй оружие: {count}",
 	DQ_KILL = "Победи монстров: {count}",
 	DQ_GATE = "Зачисти Врата: {count}",
 	DQ_PARRY = "Парируй удары: {count}",
 	DQ_SELL = "Продай предметы: {count}",
 	DQ_QUALITY = "Выкуй оружие с качеством 80%+",
-	QUEST_DAILY_HEADER = "[СИСТЕМА] Ежедневное задание",
+	QUEST_DAILY_HEADER = "[Система] Ежедневное задание",
 	UI_MENU = "Меню",
 	UI_TAB_QUESTS = "Задания",
 	UI_TAB_CODES = "Коды",
@@ -1844,16 +1844,16 @@ local ru: { [string]: string } = {
 	UI_STREAK = "Серия входов: {days} · завтра будет день {next}",
 	UI_DONE = "Готово",
 	UI_REWARD = "+{gold} золота · +{xp} опыта",
-	UI_CODE_PLACEHOLDER = "Введи код",
+	UI_CODE_PLACEHOLDER = "Код",
 	UI_REDEEM = "Активировать",
-	UI_CODES_HINT = "Новые коды публикуются в нашей группе и соцсетях.",
+	UI_CODES_HINT = "Новые коды публикуются в нашей группе Roblox",
 	UI_SET_LANGUAGE = "Язык",
 	UI_SET_SFX = "Звуки",
 	UI_SET_MUSIC = "Музыка",
 	UI_SET_DMG = "Цифры урона",
 	UI_SET_LOW = "Слабая графика (для слабых телефонов)",
-	UI_ON = "ВКЛ",
-	UI_OFF = "ВЫКЛ",
+	UI_ON = "Вкл",
+	UI_OFF = "Выкл",
 	UI_STAT_LINE = "{name}: {value}",
 	STAT_ORESMINED = "Добыто руды",
 	STAT_WEAPONSFORGED = "Выковано оружия",
@@ -1866,7 +1866,7 @@ local ru: { [string]: string } = {
 	STAT_GOLDEARNED = "Заработано золота",
 	STAT_ELITEKILLS = "Побеждено элит",
 	STAT_MYTHICFORGED = "Выковано Мифических+",
-	TOAST_CODE_OK = "Код активирован!",
+	TOAST_CODE_OK = "Код активирован",
 	ERR_CODE_INVALID = "Неизвестный код",
 	ERR_CODE_USED = "Код уже использован",
 	ERR_CODE_EXPIRED = "Срок кода истёк",
@@ -1879,7 +1879,7 @@ local ru: { [string]: string } = {
 	UI_ODDS = "Шансы",
 	UI_ODDS_TITLE = "Шансы редкости: качество 0% → 100%",
 	UI_ODDS_LINE = "{rarity}: {low}% → {high}%",
-	UI_ODDS_HINT = "Лучше руда и качество — выше шансы",
+	UI_ODDS_HINT = "Чем лучше руда и качество, тем выше шансы",
 	UI_SELECT_COMMON = "Выбрать обычные",
 	UI_XP_BONUS = "+{pct}% опыта",
 	CONTROLS_KBM = "ЛКМ Атака · F Блок · E Действие · I Инвентарь · M Меню",
@@ -1887,8 +1887,8 @@ local ru: { [string]: string } = {
 	LB_LEVEL = "Топ по уровню",
 	LB_DAMAGE = "Сильнейшее оружие",
 	LB_GATES = "Зачищено Врат",
-	LB_EMPTY = "Ждём данные...",
-	FX_CRIT = "КРИТ",
+	LB_EMPTY = "Загрузка",
+	FX_CRIT = "Крит",
 	RANK_F = "F",
 	RANK_E = "E",
 	RANK_D = "D",
@@ -3917,7 +3917,7 @@ local function spawnPortal()
 	local label = Instance.new("TextLabel")
 	label.Size = UDim2.fromScale(1, 1)
 	label.BackgroundTransparency = 1
-	label.Font = Enum.Font.GothamBlack
+	label.Font = Enum.Font.GothamMedium
 	label.TextScaled = true
 	label.TextColor3 = Color3.new(1, 1, 1)
 	label.TextStrokeTransparency = 0.3
@@ -3954,7 +3954,10 @@ local function spawnPortal()
 			mult = G.RedGate.RewardMult,
 		})
 	else
-		SystemService:Announce("Info", "SYS_GATE_OPEN_TITLE", "SYS_GATE_OPEN_BODY", { gate = "@" .. gate.NameKey })
+		SystemService:Announce("Info", "SYS_GATE_OPEN_TITLE", "SYS_GATE_OPEN_BODY", {
+			gate = "@" .. gate.NameKey,
+			minutes = math.floor(G.PortalLifetimeSeconds / 60),
+		})
 	end
 end
 
@@ -4753,10 +4756,11 @@ local function buildSurface(part: BasePart, board: Board): { TextLabel }
 
 	local title = Instance.new("TextLabel")
 	title.Size = UDim2.fromScale(1, 0.13)
-	title.BackgroundColor3 = Color3.fromRGB(30, 80, 140)
-	title.Font = Enum.Font.GothamBlack
+	title.BackgroundColor3 = Color3.fromRGB(38, 36, 33)
+	title.BorderSizePixel = 0
+	title.Font = Enum.Font.GothamMedium
 	title.TextScaled = true
-	title.TextColor3 = Color3.new(1, 1, 1)
+	title.TextColor3 = Color3.fromRGB(239, 233, 222)
 	title.Text = board.TitleKey
 	title:SetAttribute("LocKey", board.TitleKey) -- переводит клиент
 	title.Parent = gui
@@ -4767,14 +4771,14 @@ local function buildSurface(part: BasePart, board: Board): { TextLabel }
 		row.Size = UDim2.fromScale(0.94, 0.08)
 		row.Position = UDim2.fromScale(0.03, 0.15 + (i - 1) * 0.085)
 		row.BackgroundTransparency = 1
-		row.Font = if i <= 3 then Enum.Font.GothamBold else Enum.Font.GothamMedium
+		row.Font = if i <= 3 then Enum.Font.GothamMedium else Enum.Font.Gotham
 		row.TextScaled = true
 		row.TextXAlignment = Enum.TextXAlignment.Left
+		-- первое место цветом углей, остальные — основной и второстепенный текст
 		row.TextColor3 = if i == 1
-			then Color3.fromRGB(255, 215, 80)
-			elseif i == 2 then Color3.fromRGB(220, 225, 235)
-			elseif i == 3 then Color3.fromRGB(230, 150, 90)
-			else Color3.fromRGB(200, 215, 235)
+			then Color3.fromRGB(238, 137, 64)
+			elseif i <= 3 then Color3.fromRGB(239, 233, 222)
+			else Color3.fromRGB(170, 163, 152)
 		row.Text = if i == 1 then "LB_EMPTY" else ""
 		if i == 1 then
 			row:SetAttribute("LocKey", "LB_EMPTY")
@@ -4979,7 +4983,11 @@ function LevelService:AddXp(player: Player, amount: number, noBonus: boolean?)
 
 	if gained > 0 then
 		applyStats(player, true)
-		SystemService:Notify(player, "LevelUp", "SYS_LEVELUP_TITLE", "SYS_LEVELUP_BODY", { level = data.Level })
+		SystemService:Notify(player, "LevelUp", "SYS_LEVELUP_TITLE", "SYS_LEVELUP_BODY", {
+			level = data.Level,
+			hp = Config.Leveling.HealthPerLevel * gained,
+			dmg = math.floor(Config.Leveling.DamagePerLevel * 100 * gained + 0.5),
+		})
 		checkRank(player, data, true)
 	end
 end
@@ -6497,6 +6505,7 @@ local function spawnElite()
 		SystemService:Announce("Elite", "SYS_ELITE_TITLE", "SYS_ELITE_BODY", {
 			boss = "@" .. Config.Mobs[E.Mob].NameKey,
 			zone = "@" .. zone.NameKey,
+			pct = math.floor(E.MinDamageShare * 100 + 0.5),
 		})
 	end
 end
@@ -7009,9 +7018,10 @@ local function light(parent: BasePart, color: Color3, range: number, brightness:
 	l.Parent = parent
 end
 
-local function icon(parent: BasePart, text: string, height: number)
+-- Подпись над зданием (вместо эмодзи). Текст переводит клиент по атрибуту LocKey.
+local function sign(parent: BasePart, locKey: string, height: number)
 	local gui = Instance.new("BillboardGui")
-	gui.Size = UDim2.fromOffset(70, 70)
+	gui.Size = UDim2.fromOffset(160, 32)
 	gui.StudsOffsetWorldSpace = Vector3.new(0, height, 0)
 	gui.MaxDistance = 140
 	gui.LightInfluence = 0
@@ -7020,9 +7030,12 @@ local function icon(parent: BasePart, text: string, height: number)
 	label.Size = UDim2.fromScale(1, 1)
 	label.BackgroundTransparency = 1
 	label.TextScaled = true
-	label.Font = Enum.Font.GothamBlack
-	label.Text = text
-	label.TextColor3 = Color3.new(1, 1, 1)
+	label.Font = Enum.Font.GothamMedium
+	label.Text = locKey
+	label:SetAttribute("LocKey", locKey)
+	label.TextColor3 = Color3.fromRGB(239, 233, 222)
+	label.TextStrokeColor3 = Color3.fromRGB(18, 17, 15)
+	label.TextStrokeTransparency = 0.4
 	label.Parent = gui
 	gui.Parent = parent
 end
@@ -7237,7 +7250,7 @@ local function buildSmithy(parent: Instance, origin: Vector3)
 	anvil.PrimaryPart = top
 	anvil.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
 	CollectionService:AddTag(anvil, T.Forge)
-	icon(top, "⚒", 6)
+	sign(top, "UI_FORGE_TITLE", 6)
 
 	-- бочка для закалки
 	part(m, { Name = "Barrel", Shape = Enum.PartType.Cylinder, Size = Vector3.new(3, 3, 3), CFrame = CFrame.new(origin + Vector3.new(8, 2.5, 4)) * CFrame.Angles(0, 0, math.rad(90)), Material = M.Wood, Color = wood })
@@ -7274,7 +7287,7 @@ local function buildMerchant(parent: Instance, origin: Vector3)
 	npc.PrimaryPart = body
 	npc.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
 	CollectionService:AddTag(npc, T.Merchant)
-	icon(body, "💰", 6)
+	sign(body, "UI_MERCHANT_TITLE", 6)
 end
 
 local function buildLeaderboards(parent: Instance, origin: Vector3)
@@ -7287,7 +7300,7 @@ local function buildLeaderboards(parent: Instance, origin: Vector3)
 			-- лицевая сторона смотрит на центр площади
 			CFrame = CFrame.lookAt(pos, Vector3.new(0, pos.Y, 0)),
 			Material = M.Slate,
-			Color = Color3.fromRGB(25, 35, 60),
+			Color = Color3.fromRGB(28, 26, 24),
 		})
 		p:SetAttribute("Board", board)
 		CollectionService:AddTag(p, T.Leaderboard)
@@ -7693,8 +7706,8 @@ end
 local function build()
 	cluster = C.Make("Frame", {
 		Name = "CombatButtons",
-		Size = UDim2.fromOffset(S(190), S(100)),
-		Position = UDim2.new(1, -S(175), 1, -S(16)),
+		Size = UDim2.fromOffset(S(192), S(100)),
+		Position = UDim2.new(1, -S(176), 1, -S(16)),
 		AnchorPoint = Vector2.new(1, 1),
 		BackgroundTransparency = 1,
 		Parent = UIController.Layers.Hud,
@@ -7708,7 +7721,8 @@ local function build()
 		Size = UDim2.fromOffset(S(96), S(96)),
 		Position = UDim2.fromScale(1, 1),
 		AnchorPoint = Vector2.new(1, 1),
-		Color = Color3.fromRGB(150, 45, 45),
+		Color = Theme.Accent,
+		TextColor = Theme.Bg,
 		Transparency = 0.05,
 		Round = true,
 		Silent = true,
@@ -7719,7 +7733,7 @@ local function build()
 		Key = "UI_BLOCK",
 		Font = Theme.FontBold,
 		TextSize = 14,
-		Size = UDim2.fromOffset(S(70), S(70)),
+		Size = UDim2.fromOffset(S(72), S(72)),
 		Position = UDim2.new(0, 0, 1, 0),
 		AnchorPoint = Vector2.new(0, 1),
 		Color = Theme.Panel,
@@ -7969,8 +7983,8 @@ local function punch(button: GuiObject)
 		size = button.Size
 		baseSizes[button] = size
 	end
-	button.Size = UDim2.new(size.X.Scale, size.X.Offset * 0.92, size.Y.Scale, size.Y.Offset * 0.92)
-	TweenService:Create(button, TweenInfo.new(0.12, Enum.EasingStyle.Back), { Size = size }):Play()
+	button.Size = UDim2.new(size.X.Scale, size.X.Offset * 0.96, size.Y.Scale, size.Y.Offset * 0.96)
+	TweenService:Create(button, TweenInfo.new(0.14, Theme.Ease, Enum.EasingDirection.Out), { Size = size }):Play()
 end
 
 -- ===== Экран выбора =====
@@ -8008,7 +8022,8 @@ local function refreshSelect()
 		max = WeaponMath.Preview(selectedType, selectedOre, 100),
 	})
 	local canForge = have >= def.OreCost and data.Level >= ore.RequiredLevel
-	forgeButton.BackgroundColor3 = if canForge then Theme.Success else Theme.Disabled
+	forgeButton.BackgroundColor3 = if canForge then Theme.Accent else Theme.Disabled
+	forgeButton.TextColor3 = if canForge then Theme.Bg else Theme.Muted
 end
 
 local function showView(name: string)
@@ -8062,7 +8077,7 @@ local function strike()
 	end
 	offsets[bestIndex] = now - beatTimes[bestIndex]
 	if bestAbs <= F.Hammer.PerfectWindow then
-		feedback("FORGE_PERFECT", Theme.Gold)
+		feedback("FORGE_PERFECT", Theme.Accent)
 		Sound.Play("ForgeHammerPerfect")
 	elseif bestAbs <= F.Hammer.HitWindow then
 		feedback("FORGE_GOOD", Theme.Success)
@@ -8145,7 +8160,7 @@ local function runPour(p: any): number
 		end
 		local close = math.abs(pourLevel - p.Target) <= F.Pour.PerfectTolerance * 2
 		pourFill.Size = UDim2.fromScale(1, pourLevel)
-		pourFill.BackgroundColor3 = if close then Theme.Success else Color3.fromRGB(255, 140, 40)
+		pourFill.BackgroundColor3 = if close then Theme.Success else Theme.Accent
 	end
 	holding = false
 	-- сервер не примет слишком быстрое прохождение — подождём минимум
@@ -8201,7 +8216,7 @@ local function showResult(result: any)
 	lastWeaponId = weapon.Id
 	C.Bind(resultQuality, "FORGE_RESULT", { quality = result.quality })
 	resultQuality.TextColor3 = if result.quality >= 90
-		then Theme.Gold
+		then Theme.Accent
 		elseif result.quality >= 60 then Theme.Success
 		else Theme.Text
 	C.SetRaw(resultName, Localization.WeaponName(weapon.Type, weapon.Ore))
@@ -8222,7 +8237,7 @@ local function showResult(result: any)
 	end
 	showView("result")
 	resultQuality.TextSize = S(48)
-	TweenService:Create(resultQuality, TweenInfo.new(0.35, Enum.EasingStyle.Back), { TextSize = S(36) }):Play()
+	TweenService:Create(resultQuality, TweenInfo.new(0.35, Theme.Ease, Enum.EasingDirection.Out), { TextSize = S(36) }):Play()
 end
 
 local function startForging()
@@ -8288,13 +8303,13 @@ end
 local function build()
 	panel = C.Panel({
 		Name = "ForgePanel",
-		Size = UDim2.fromOffset(S(540), S(330)),
+		Size = UDim2.fromOffset(S(540), S(332)),
 	})
 	C.TitleBar(panel, "UI_FORGE_TITLE", function()
 		UIController:ClosePanel()
 	end)
 
-	local content = UDim2.new(1, -S(24), 1, -S(58))
+	local content = UDim2.new(1, -S(24), 1, -S(60))
 	local contentPos = UDim2.fromOffset(S(12), S(48))
 
 	-- выбор
@@ -8302,7 +8317,7 @@ local function build()
 	C.Text({ Key = "UI_CHOOSE_WEAPON", TextSize = 13, Color = Theme.TextDim, Size = UDim2.new(1, 0, 0, S(16)), Parent = selectView })
 	local weaponRow = C.Make("Frame", {
 		Size = UDim2.new(1, 0, 0, S(48)),
-		Position = UDim2.fromOffset(0, S(18)),
+		Position = UDim2.fromOffset(0, S(20)),
 		BackgroundTransparency = 1,
 		Parent = selectView,
 	})
@@ -8310,7 +8325,7 @@ local function build()
 	for i, id in sortedKeys(Config.Weapons) do
 		weaponButtons[id] = C.Button({
 			Key = Config.Weapons[id].NameKey,
-			Size = UDim2.new(1 / 3, -S(6), 1, 0),
+			Size = UDim2.new(1 / 3, -S(8), 1, 0),
 			LayoutOrder = i,
 			TextSize = 17,
 			OnClick = function()
@@ -8326,7 +8341,7 @@ local function build()
 		TextSize = 13,
 		Color = Theme.TextDim,
 		Size = UDim2.new(1, 0, 0, S(16)),
-		Position = UDim2.fromOffset(0, S(74)),
+		Position = UDim2.fromOffset(0, S(76)),
 		Parent = selectView,
 	})
 	local oreRow = C.Make("Frame", {
@@ -8338,7 +8353,7 @@ local function build()
 	C.List(oreRow, Enum.FillDirection.Horizontal, 8)
 	for i, id in sortedKeys(Config.Ores) do
 		oreButtons[id] = C.Button({
-			Size = UDim2.new(1 / 3, -S(6), 1, 0),
+			Size = UDim2.new(1 / 3, -S(8), 1, 0),
 			LayoutOrder = i,
 			TextSize = 14,
 			OnClick = function()
@@ -8357,15 +8372,15 @@ local function build()
 		TextSize = 15,
 		Font = Theme.FontBold,
 		Color = Theme.Accent,
-		Size = UDim2.new(1, 0, 0, S(18)),
-		Position = UDim2.fromOffset(0, S(170)),
+		Size = UDim2.new(1, 0, 0, S(20)),
+		Position = UDim2.fromOffset(0, S(172)),
 		Parent = selectView,
 	})
 	-- шансы редкости (правила Roblox: шансы случайных наград должны быть видны)
 	C.Button({
 		Key = "UI_ODDS",
 		TextSize = 13,
-		Size = UDim2.fromOffset(S(84), S(30)),
+		Size = UDim2.fromOffset(S(84), S(32)),
 		Position = UDim2.new(1, 0, 0, S(160)),
 		AnchorPoint = Vector2.new(1, 0),
 		Color = Theme.PanelLight,
@@ -8405,7 +8420,7 @@ local function build()
 		ZIndex = 21,
 		AlignY = Enum.TextYAlignment.Top,
 		Size = UDim2.new(1, -S(20), 1, -S(60)),
-		Position = UDim2.fromOffset(S(10), S(8)),
+		Position = UDim2.fromOffset(S(12), S(8)),
 		Parent = oddsFrame,
 	})
 	C.Button({
@@ -8425,10 +8440,10 @@ local function build()
 		Key = "UI_FORGE_BUTTON",
 		Font = Theme.FontTitle,
 		TextSize = 24,
-		Size = UDim2.fromOffset(S(240), S(54)),
+		Size = UDim2.fromOffset(S(240), S(56)),
 		Position = UDim2.new(0.5, 0, 1, 0),
 		AnchorPoint = Vector2.new(0.5, 1),
-		Color = Theme.Success,
+		Color = Theme.Accent,
 		TextColor = Theme.Bg,
 		OnClick = function()
 			task.spawn(startForging)
@@ -8438,11 +8453,11 @@ local function build()
 
 	-- мини-игра
 	gameView = C.Make("Frame", { Size = content, Position = contentPos, BackgroundTransparency = 1, Visible = false, Parent = panel })
-	stepTitle = C.Text({ Font = Theme.FontTitle, TextSize = 20, Color = Theme.Accent, Size = UDim2.new(1, 0, 0, S(22)), Parent = gameView })
+	stepTitle = C.Text({ Font = Theme.FontTitle, TextSize = 20, Color = Theme.Text, Size = UDim2.new(1, 0, 0, S(22)), Parent = gameView })
 	stepHint = C.Text({
 		TextSize = 14,
 		Color = Theme.TextDim,
-		Size = UDim2.new(1, 0, 0, S(18)),
+		Size = UDim2.new(1, 0, 0, S(20)),
 		Position = UDim2.fromOffset(0, S(24)),
 		Parent = gameView,
 	})
@@ -8465,14 +8480,14 @@ local function build()
 
 	-- меха: вертикальный термометр с зелёной зоной
 	bellowsWidget = C.Make("Frame", {
-		Size = UDim2.new(0, S(46), 1, 0),
+		Size = UDim2.new(0, S(48), 1, 0),
 		Position = UDim2.fromScale(0.5, 0),
 		AnchorPoint = Vector2.new(0.5, 0),
 		BackgroundColor3 = Theme.Bg,
 		Parent = widgetArea,
 	})
 	C.Corner(bellowsWidget, 6)
-	C.Stroke(bellowsWidget, Theme.AccentDim, 2)
+	C.Stroke(bellowsWidget)
 	zoneFrame = C.Make("Frame", {
 		BackgroundColor3 = Theme.Success,
 		BackgroundTransparency = 0.6,
@@ -8493,7 +8508,7 @@ local function build()
 
 	-- заливка: форма, которая наполняется металлом
 	pourWidget = C.Make("Frame", {
-		Size = UDim2.new(0, S(70), 1, 0),
+		Size = UDim2.new(0, S(72), 1, 0),
 		Position = UDim2.fromScale(0.5, 0),
 		AnchorPoint = Vector2.new(0.5, 0),
 		BackgroundColor3 = Theme.Bg,
@@ -8501,7 +8516,7 @@ local function build()
 		Parent = widgetArea,
 	})
 	C.Corner(pourWidget, 6)
-	C.Stroke(pourWidget, Theme.AccentDim, 2)
+	C.Stroke(pourWidget)
 	pourFill = C.Make("Frame", {
 		Size = UDim2.fromScale(1, 0),
 		Position = UDim2.fromScale(0, 1),
@@ -8526,12 +8541,12 @@ local function build()
 		Size = UDim2.fromOffset(S(80), S(80)),
 		Position = UDim2.fromScale(0.5, 0.5),
 		AnchorPoint = Vector2.new(0.5, 0.5),
-		BackgroundColor3 = Theme.AccentDim,
-		BackgroundTransparency = 0.4,
+		BackgroundColor3 = Theme.PanelLight,
+		BackgroundTransparency = 0,
 		Parent = hammerWidget,
 	})
 	C.Round(target)
-	C.Stroke(target, Theme.Accent, 3)
+	C.Stroke(target, Theme.Accent, 2)
 	hammerRing = C.Make("Frame", {
 		Size = UDim2.fromOffset(S(160), S(160)),
 		Position = UDim2.fromScale(0.5, 0.5),
@@ -8541,7 +8556,7 @@ local function build()
 		Parent = hammerWidget,
 	})
 	C.Round(hammerRing)
-	C.Stroke(hammerRing, Theme.Gold, 3)
+	C.Stroke(hammerRing, Theme.Text, 2)
 	hammerCounter = C.Text({
 		Font = Theme.FontBold,
 		TextSize = 18,
@@ -8553,7 +8568,7 @@ local function build()
 		Font = Theme.FontTitle,
 		TextSize = 22,
 		AlignX = Enum.TextXAlignment.Center,
-		Size = UDim2.new(1, 0, 0, S(30)),
+		Size = UDim2.new(1, 0, 0, S(32)),
 		Position = UDim2.fromScale(0, 0),
 		ZIndex = 3,
 		Parent = hammerWidget,
@@ -8563,10 +8578,11 @@ local function build()
 	actionButton = C.Button({
 		Font = Theme.FontTitle,
 		TextSize = 26,
-		Size = UDim2.fromOffset(S(190), S(120)),
+		Size = UDim2.fromOffset(S(192), S(120)),
 		Position = UDim2.new(0.75, 0, 0.55, 0),
 		AnchorPoint = Vector2.new(0.5, 0.5),
-		Color = Color3.fromRGB(200, 90, 30),
+		Color = Theme.Accent,
+		TextColor = Theme.Bg,
 		Silent = true,
 		Parent = gameView,
 	})
@@ -8587,23 +8603,23 @@ local function build()
 		Font = Theme.FontTitle,
 		TextSize = 36,
 		AlignX = Enum.TextXAlignment.Center,
-		Size = UDim2.new(1, 0, 0, S(50)),
-		Position = UDim2.fromOffset(0, S(10)),
+		Size = UDim2.new(1, 0, 0, S(52)),
+		Position = UDim2.fromOffset(0, S(12)),
 		Parent = resultView,
 	})
 	resultName = C.Text({
 		Font = Theme.FontBold,
 		TextSize = 20,
 		AlignX = Enum.TextXAlignment.Center,
-		Size = UDim2.new(1, 0, 0, S(26)),
-		Position = UDim2.fromOffset(0, S(66)),
+		Size = UDim2.new(1, 0, 0, S(28)),
+		Position = UDim2.fromOffset(0, S(68)),
 		Parent = resultView,
 	})
 	resultDamage = C.Text({
 		TextSize = 17,
 		Color = Theme.Accent,
 		AlignX = Enum.TextXAlignment.Center,
-		Size = UDim2.new(1, 0, 0, S(22)),
+		Size = UDim2.new(1, 0, 0, S(24)),
 		Position = UDim2.fromOffset(0, S(96)),
 		Parent = resultView,
 	})
@@ -8611,13 +8627,13 @@ local function build()
 		Font = Theme.FontTitle,
 		TextSize = 18,
 		AlignX = Enum.TextXAlignment.Center,
-		Size = UDim2.new(1, 0, 0, S(22)),
+		Size = UDim2.new(1, 0, 0, S(24)),
 		Position = UDim2.fromOffset(0, S(120)),
 		Parent = resultView,
 	})
 	resultTraits = C.Text({
 		TextSize = 14,
-		Color = Theme.Gold,
+		Color = Theme.TextDim,
 		AlignX = Enum.TextXAlignment.Center,
 		Size = UDim2.new(1, 0, 0, S(20)),
 		Position = UDim2.fromOffset(0, S(144)),
@@ -8626,9 +8642,9 @@ local function build()
 	C.Button({
 		Key = "UI_EQUIP",
 		Size = UDim2.fromOffset(S(200), S(52)),
-		Position = UDim2.new(0.5, -S(6), 1, 0),
+		Position = UDim2.new(0.5, -S(8), 1, 0),
 		AnchorPoint = Vector2.new(1, 1),
-		Color = Theme.Success,
+		Color = Theme.Accent,
 		TextColor = Theme.Bg,
 		OnClick = function()
 			if lastWeaponId then
@@ -8643,7 +8659,7 @@ local function build()
 	C.Button({
 		Key = "FORGE_AGAIN",
 		Size = UDim2.fromOffset(S(200), S(52)),
-		Position = UDim2.new(0.5, S(6), 1, 0),
+		Position = UDim2.new(0.5, S(8), 1, 0),
 		AnchorPoint = Vector2.new(0, 1),
 		OnClick = function()
 			showView("select")
@@ -8805,7 +8821,7 @@ local function onFx(payload: { [string]: any })
 	if kind == "Damage" then
 		local mine = payload.ByUserId == localId
 		if payload.Crit then
-			popup(position, `{Localization.Get("FX_CRIT")} {payload.Amount}!`, Color3.fromRGB(255, 120, 40), true)
+			popup(position, `{Localization.Get("FX_CRIT")} {payload.Amount}`, Color3.fromRGB(255, 120, 40), true)
 		else
 			popup(position, tostring(payload.Amount), if mine then Theme.Gold else Theme.Text, false)
 		end
@@ -8914,7 +8930,9 @@ local function render()
 	bossFrame.Visible = phase == "run" and state.Boss ~= nil
 	local stroke = card:FindFirstChildOfClass("UIStroke")
 	if stroke then
-		stroke.Color = if state.IsRed then Theme.Danger else Theme.Accent
+		-- обычная рамка — тонкая линия; у Красных врат — красная
+		stroke.Color = if state.IsRed then Theme.Danger else Theme.Text
+		stroke.Transparency = if state.IsRed then 0 else Theme.HairlineTransparency
 	end
 	line1.TextColor3 = if state.IsRed then Theme.Danger else Theme.Text
 	if phase == "lobby" then
@@ -8952,7 +8970,7 @@ local function build()
 	local hud = UIController.Layers.Hud
 	card = C.Panel({
 		Name = "GateCard",
-		Size = UDim2.fromOffset(S(300), S(66)),
+		Size = UDim2.fromOffset(S(300), S(68)),
 		Position = UDim2.new(0.5, 0, 0, S(8)),
 		AnchorPoint = Vector2.new(0.5, 0),
 		Transparency = 0.15,
@@ -8963,22 +8981,22 @@ local function build()
 	line1 = C.Text({
 		Font = Theme.FontBold,
 		TextSize = 15,
-		Size = UDim2.new(1, -S(100), 0, S(22)),
-		Position = UDim2.fromOffset(S(10), S(8)),
+		Size = UDim2.new(1, -S(100), 0, S(24)),
+		Position = UDim2.fromOffset(S(12), S(8)),
 		Parent = card,
 	})
 	line2 = C.Text({
 		TextSize = 13,
 		Color = Theme.TextDim,
 		Size = UDim2.new(1, -S(100), 0, S(20)),
-		Position = UDim2.fromOffset(S(10), S(34)),
+		Position = UDim2.fromOffset(S(12), S(36)),
 		Parent = card,
 	})
 	C.Button({
 		Key = "UI_GATE_LEAVE",
 		TextSize = 13,
-		Size = UDim2.fromOffset(S(80), S(26)),
-		Position = UDim2.new(1, -S(8), 0, S(6)),
+		Size = UDim2.fromOffset(S(80), S(28)),
+		Position = UDim2.new(1, -S(8), 0, S(8)),
 		AnchorPoint = Vector2.new(1, 0),
 		Color = Theme.PanelLight,
 		OnClick = function()
@@ -8989,10 +9007,10 @@ local function build()
 	startButton = C.Button({
 		Key = "UI_GATE_START",
 		TextSize = 13,
-		Size = UDim2.fromOffset(S(80), S(26)),
-		Position = UDim2.new(1, -S(8), 1, -S(6)),
+		Size = UDim2.fromOffset(S(80), S(28)),
+		Position = UDim2.new(1, -S(8), 1, -S(8)),
 		AnchorPoint = Vector2.new(1, 1),
-		Color = Theme.Success,
+		Color = Theme.Accent,
 		TextColor = Theme.Bg,
 		Visible = false,
 		OnClick = function()
@@ -9003,7 +9021,7 @@ local function build()
 
 	bossFrame = C.Make("Frame", {
 		Name = "BossBar",
-		Size = UDim2.fromOffset(S(360), S(34)),
+		Size = UDim2.fromOffset(S(360), S(36)),
 		Position = UDim2.new(0.5, 0, 0, S(80)),
 		AnchorPoint = Vector2.new(0.5, 0),
 		BackgroundTransparency = 1,
@@ -9021,7 +9039,7 @@ local function build()
 	})
 	local _, fill = C.Bar({
 		Size = UDim2.new(1, 0, 0, S(12)),
-		Position = UDim2.fromOffset(0, S(18)),
+		Position = UDim2.fromOffset(0, S(20)),
 		Color = Theme.Danger,
 		Value = 1,
 		Parent = bossFrame,
@@ -9093,7 +9111,6 @@ local goldLabel: TextLabel
 local bonusLabel: TextLabel
 local inventoryButton: TextButton
 local controlsBar: TextLabel
-local pulseTween: Tween? = nil
 local lastGold = -1
 
 local function refresh()
@@ -9146,8 +9163,8 @@ local function build()
 	-- ===== левый верхний блок =====
 	local top = C.Panel({
 		Name = "TopLeft",
-		Size = UDim2.fromOffset(S(250), S(84)),
-		Position = UDim2.fromOffset(S(10), S(8)),
+		Size = UDim2.fromOffset(S(252), S(84)),
+		Position = UDim2.fromOffset(S(12), S(8)),
 		AnchorPoint = Vector2.zero,
 		Transparency = 0.2,
 		Adaptive = true,
@@ -9156,17 +9173,17 @@ local function build()
 
 	local badge = C.Make("Frame", {
 		Name = "RankBadge",
-		Size = UDim2.fromOffset(S(46), S(46)),
+		Size = UDim2.fromOffset(S(48), S(48)),
 		Position = UDim2.fromOffset(S(8), S(8)),
 		BackgroundColor3 = Theme.Bg,
 		Parent = top,
 	})
 	C.Corner(badge, 6)
-	C.Stroke(badge, Theme.Accent, 2)
+	C.Stroke(badge)
 	rankLabel = C.Text({
 		Font = Theme.FontTitle,
 		TextSize = 30,
-		Color = Theme.Accent,
+		Color = Theme.Text,
 		AlignX = Enum.TextXAlignment.Center,
 		Size = UDim2.fromScale(1, 1),
 		Text = "F",
@@ -9176,8 +9193,8 @@ local function build()
 	levelLabel = C.Text({
 		Font = Theme.FontTitle,
 		TextSize = 18,
-		Size = UDim2.new(1, -S(66), 0, S(20)),
-		Position = UDim2.fromOffset(S(62), S(6)),
+		Size = UDim2.new(1, -S(68), 0, S(20)),
+		Position = UDim2.fromOffset(S(64), S(8)),
 		Parent = top,
 	})
 	bonusLabel = C.Text({
@@ -9185,30 +9202,30 @@ local function build()
 		TextSize = 12,
 		Color = Theme.Success,
 		AlignX = Enum.TextXAlignment.Right,
-		Size = UDim2.new(0, S(90), 0, S(20)),
-		Position = UDim2.new(1, -S(8), 0, S(6)),
+		Size = UDim2.new(0, S(92), 0, S(20)),
+		Position = UDim2.new(1, -S(8), 0, S(8)),
 		AnchorPoint = Vector2.new(1, 0),
 		Visible = false,
 		Parent = top,
 	})
 	local _, fill = C.Bar({
-		Size = UDim2.new(1, -S(72), 0, S(10)),
-		Position = UDim2.fromOffset(S(62), S(29)),
+		Size = UDim2.new(1, -S(72), 0, S(12)),
+		Position = UDim2.fromOffset(S(64), S(28)),
 		Parent = top,
 	})
 	xpFill = fill
 	xpLabel = C.Text({
 		TextSize = 12,
 		Color = Theme.TextDim,
-		Size = UDim2.new(1, -S(66), 0, S(14)),
-		Position = UDim2.fromOffset(S(62), S(41)),
+		Size = UDim2.new(1, -S(68), 0, S(16)),
+		Position = UDim2.fromOffset(S(64), S(40)),
 		Parent = top,
 	})
 
 	-- золото
 	local goldIcon = C.Make("Frame", {
 		Size = UDim2.fromOffset(S(16), S(16)),
-		Position = UDim2.fromOffset(S(10), S(62)),
+		Position = UDim2.fromOffset(S(12), S(64)),
 		BackgroundColor3 = Theme.Gold,
 		Parent = top,
 	})
@@ -9228,8 +9245,8 @@ local function build()
 		Name = "Language",
 		Key = "UI_LANG",
 		TextSize = 14,
-		Size = UDim2.fromOffset(S(46), S(26)),
-		Position = UDim2.new(1, -S(8), 0, S(56)),
+		Size = UDim2.fromOffset(S(48), S(28)),
+		Position = UDim2.new(1, -S(8), 0, S(52)),
 		AnchorPoint = Vector2.new(1, 0),
 		Color = Theme.PanelLight,
 		OnClick = function()
@@ -9242,7 +9259,7 @@ local function build()
 	local column = C.Make("Frame", {
 		Name = "RightButtons",
 		Size = UDim2.fromOffset(S(84), S(132)),
-		Position = UDim2.new(1, -S(10), 0.5, -S(30)),
+		Position = UDim2.new(1, -S(12), 0.5, -S(32)),
 		AnchorPoint = Vector2.new(1, 0.5),
 		BackgroundTransparency = 1,
 		Parent = hud,
@@ -9281,8 +9298,8 @@ local function build()
 	-- ===== подсказки управления (ПК / геймпад) =====
 	controlsBar = C.Make("TextLabel", {
 		Name = "Controls",
-		Size = UDim2.fromOffset(S(520), S(22)),
-		Position = UDim2.new(0.5, 0, 1, -S(6)),
+		Size = UDim2.fromOffset(S(520), S(24)),
+		Position = UDim2.new(0.5, 0, 1, -S(8)),
 		AnchorPoint = Vector2.new(0.5, 1),
 		BackgroundColor3 = Theme.Bg,
 		BackgroundTransparency = 0.45,
@@ -9295,30 +9312,21 @@ local function build()
 	C.Adaptive(controlsBar)
 end
 
--- Пульсация кнопки инвентаря (подсказка обучения «надень оружие»)
+-- Подсказка обучения «надень оружие»: кнопка инвентаря получает рамку цвета углей.
+-- Статично: мигание без живого события только отвлекает.
 function HudController:SetInventoryPulse(enabled: boolean)
-	if pulseTween then
-		pulseTween:Cancel()
-		pulseTween = nil
-	end
 	local stroke = inventoryButton:FindFirstChildOfClass("UIStroke")
 	if not stroke then
 		return
 	end
 	if enabled then
-		stroke.Color = Theme.Gold
-		stroke.Thickness = S(3)
-		local tween = TweenService:Create(
-			stroke,
-			TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true),
-			{ Transparency = 0.8 }
-		)
-		tween:Play()
-		pulseTween = tween
-	else
 		stroke.Color = Theme.Accent
-		stroke.Thickness = S(1.5)
-		stroke.Transparency = 0.25
+		stroke.Thickness = S(2)
+		stroke.Transparency = 0
+	else
+		stroke.Color = Theme.Text
+		stroke.Thickness = S(1)
+		stroke.Transparency = Theme.HairlineTransparency
 	end
 end
 
@@ -9482,18 +9490,18 @@ local function refresh()
 		order += 1
 		return order
 	end
-	C.Text({ Key = "UI_ORES", Font = Theme.FontBold, TextSize = 13, Color = Theme.Accent, Size = UDim2.new(1, 0, 0, S(18)), LayoutOrder = nextOrder(), Parent = sideList })
+	C.Text({ Key = "UI_ORES", Font = Theme.FontBold, TextSize = 13, Color = Theme.Muted, Size = UDim2.new(1, 0, 0, S(20)), LayoutOrder = nextOrder(), Parent = sideList })
 	for _, id in sortedIds(Config.Ores) do
 		C.Text({
 			Key = "UI_ORE_COUNT",
 			Args = { ore = "@" .. Config.Ores[id].NameKey, count = data.Ores[id] or 0 },
 			TextSize = 13,
-			Size = UDim2.new(1, 0, 0, S(18)),
+			Size = UDim2.new(1, 0, 0, S(20)),
 			LayoutOrder = nextOrder(),
 			Parent = sideList,
 		})
 	end
-	C.Text({ Key = "UI_PICKAXES", Font = Theme.FontBold, TextSize = 13, Color = Theme.Accent, Size = UDim2.new(1, 0, 0, S(22)), AlignY = Enum.TextYAlignment.Bottom, LayoutOrder = nextOrder(), Parent = sideList })
+	C.Text({ Key = "UI_PICKAXES", Font = Theme.FontBold, TextSize = 13, Color = Theme.Muted, Size = UDim2.new(1, 0, 0, S(24)), AlignY = Enum.TextYAlignment.Bottom, LayoutOrder = nextOrder(), Parent = sideList })
 	for _, id in sortedIds(Config.Pickaxes) do
 		if data.OwnedPickaxes[id] then
 			local def = Config.Pickaxes[id]
@@ -9501,9 +9509,9 @@ local function refresh()
 			C.Button({
 				Text = `{Localization.Get(def.NameKey)} · {Localization.Get("UI_POWER", { value = def.Power })}`,
 				TextSize = 12,
-				Size = UDim2.new(1, 0, 0, S(34)),
+				Size = UDim2.new(1, 0, 0, S(36)),
 				Color = if equipped then Theme.AccentDim else Theme.PanelLight,
-				StrokeColor = if equipped then Theme.Gold else Theme.Accent,
+				StrokeColor = if equipped then Theme.Accent else nil,
 				LayoutOrder = nextOrder(),
 				OnClick = function()
 					if not equipped then
@@ -9541,7 +9549,7 @@ local function refresh()
 end
 
 local function build()
-	panel = C.Panel({ Name = "InventoryPanel", Size = UDim2.fromOffset(S(540), S(330)) })
+	panel = C.Panel({ Name = "InventoryPanel", Size = UDim2.fromOffset(S(540), S(332)) })
 	C.TitleBar(panel, "UI_INVENTORY", function()
 		UIController:ClosePanel()
 	end)
@@ -9549,14 +9557,14 @@ local function build()
 		TextSize = 14,
 		Color = Theme.TextDim,
 		AlignX = Enum.TextXAlignment.Right,
-		Size = UDim2.fromOffset(S(80), S(34)),
-		Position = UDim2.new(1, -S(56), 0, S(6)),
+		Size = UDim2.fromOffset(S(80), S(36)),
+		Position = UDim2.new(1, -S(56), 0, S(8)),
 		AnchorPoint = Vector2.new(1, 0),
 		Parent = panel,
 	})
 
 	sideList = C.Make("ScrollingFrame", {
-		Size = UDim2.new(0, S(170), 1, -S(60)),
+		Size = UDim2.new(0, S(172), 1, -S(60)),
 		Position = UDim2.fromOffset(S(12), S(48)),
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
@@ -9567,14 +9575,14 @@ local function build()
 	})
 	C.List(sideList, Enum.FillDirection.Vertical, 4)
 
-	grid = WeaponCard.Grid(panel, UDim2.new(1, -S(202), 1, -S(60)), UDim2.fromOffset(S(192), S(48)))
+	grid = WeaponCard.Grid(panel, UDim2.new(1, -S(204), 1, -S(60)), UDim2.fromOffset(S(192), S(48)))
 	emptyLabel = C.Text({
 		Key = "UI_EMPTY_INV",
 		TextSize = 15,
 		Color = Theme.TextDim,
 		Wrapped = true,
 		AlignX = Enum.TextXAlignment.Center,
-		Size = UDim2.new(1, -S(202), 0, S(60)),
+		Size = UDim2.new(1, -S(204), 0, S(60)),
 		Position = UDim2.fromOffset(S(192), S(120)),
 		Visible = false,
 		Parent = panel,
@@ -9811,7 +9819,7 @@ local function refreshQuests(data: any)
 				TextSize = 14,
 				Color = if q.Done then Theme.Success else Theme.Text,
 				Size = UDim2.new(0.65, 0, 0, S(20)),
-				Position = UDim2.fromOffset(S(10), S(6)),
+				Position = UDim2.fromOffset(S(12), S(8)),
 				Parent = r,
 			})
 			C.Text({
@@ -9821,12 +9829,12 @@ local function refreshQuests(data: any)
 				Color = Theme.Gold,
 				AlignX = Enum.TextXAlignment.Right,
 				Size = UDim2.new(0.35, -S(16), 0, S(20)),
-				Position = UDim2.new(0.65, 0, 0, S(6)),
+				Position = UDim2.new(0.65, 0, 0, S(8)),
 				Parent = r,
 			})
 			C.Bar({
-				Size = UDim2.new(0.7, 0, 0, S(10)),
-				Position = UDim2.fromOffset(S(10), S(36)),
+				Size = UDim2.new(0.7, 0, 0, S(12)),
+				Position = UDim2.fromOffset(S(12), S(36)),
 				Value = math.clamp(q.Progress / def.Count, 0, 1),
 				Color = if q.Done then Theme.Success else Theme.Accent,
 				Parent = r,
@@ -9837,7 +9845,7 @@ local function refreshQuests(data: any)
 				Font = Theme.FontBold,
 				Color = if q.Done then Theme.Success else Theme.TextDim,
 				AlignX = Enum.TextXAlignment.Right,
-				Size = UDim2.new(0.3, -S(16), 0, S(18)),
+				Size = UDim2.new(0.3, -S(16), 0, S(20)),
 				Position = UDim2.new(0.7, 0, 0, S(32)),
 				Parent = r,
 			})
@@ -9853,7 +9861,7 @@ local function refreshSettings(data: any)
 	C.Button({
 		Key = "UI_LANG",
 		TextSize = 14,
-		Size = UDim2.fromOffset(S(90), S(34)),
+		Size = UDim2.fromOffset(S(92), S(36)),
 		Position = UDim2.new(1, -S(8), 0.5, 0),
 		AnchorPoint = Vector2.new(1, 0.5),
 		OnClick = function()
@@ -9871,10 +9879,10 @@ local function refreshSettings(data: any)
 		C.Button({
 			Key = if value then "UI_ON" else "UI_OFF",
 			TextSize = 14,
-			Size = UDim2.fromOffset(S(90), S(34)),
+			Size = UDim2.fromOffset(S(92), S(36)),
 			Position = UDim2.new(1, -S(8), 0.5, 0),
 			AnchorPoint = Vector2.new(1, 0.5),
-			Color = if value then Theme.Success else Theme.Disabled,
+			Color = if value then Theme.Accent else Theme.Disabled,
 			TextColor = if value then Theme.Bg else Theme.Text,
 			OnClick = function()
 				local newValue = not value
@@ -9897,7 +9905,7 @@ local function refreshStats(data: any)
 			Args = { name = "@STAT_" .. string.upper(key), value = Format.Short(data.Stats[key] or 0) },
 			TextSize = 14,
 			Size = UDim2.new(1, -S(20), 1, 0),
-			Position = UDim2.fromOffset(S(10), 0),
+			Position = UDim2.fromOffset(S(12), 0),
 			Parent = r,
 		})
 	end
@@ -9937,19 +9945,19 @@ local function redeem()
 end
 
 local function build()
-	panel = C.Panel({ Name = "MenuPanel", Size = UDim2.fromOffset(S(540), S(330)) })
+	panel = C.Panel({ Name = "MenuPanel", Size = UDim2.fromOffset(S(540), S(332)) })
 	C.TitleBar(panel, "UI_MENU", function()
 		UIController:ClosePanel()
 	end)
 
 	local tabs = C.Make("Frame", {
 		Size = UDim2.new(1, -S(24), 0, S(36)),
-		Position = UDim2.fromOffset(S(12), S(46)),
+		Position = UDim2.fromOffset(S(12), S(48)),
 		BackgroundTransparency = 1,
 		Parent = panel,
 	})
 	C.List(tabs, Enum.FillDirection.Horizontal, 6)
-	local contentSize = UDim2.new(1, -S(24), 1, -S(98))
+	local contentSize = UDim2.new(1, -S(24), 1, -S(100))
 	local contentPos = UDim2.fromOffset(S(12), S(88))
 	for i, info in {
 		{ "Quests", "UI_TAB_QUESTS" },
@@ -9961,7 +9969,7 @@ local function build()
 		tabButtons[name] = C.Button({
 			Key = key,
 			TextSize = 14,
-			Size = UDim2.new(0.25, -S(5), 1, 0),
+			Size = UDim2.new(0.25, -S(4), 1, 0),
 			LayoutOrder = i,
 			OnClick = function()
 				currentTab = name
@@ -9985,7 +9993,7 @@ local function build()
 	-- коды
 	local codes = tabFrames.Codes
 	codeBox = C.Make("TextBox", {
-		Size = UDim2.new(1, -S(150), 0, S(48)),
+		Size = UDim2.new(1, -S(152), 0, S(48)),
 		Position = UDim2.fromOffset(0, S(20)),
 		BackgroundColor3 = Theme.Bg,
 		Font = Theme.FontBold,
@@ -9997,14 +10005,14 @@ local function build()
 		Parent = codes,
 	})
 	C.Corner(codeBox, 6)
-	C.Stroke(codeBox, Theme.Accent, 1.5)
+	C.Stroke(codeBox)
 	C.Button({
 		Key = "UI_REDEEM",
 		TextSize = 16,
 		Size = UDim2.fromOffset(S(140), S(48)),
 		Position = UDim2.new(1, 0, 0, S(20)),
 		AnchorPoint = Vector2.new(1, 0),
-		Color = Theme.Success,
+		Color = Theme.Accent,
 		TextColor = Theme.Bg,
 		OnClick = redeem,
 		Parent = codes,
@@ -10134,7 +10142,7 @@ local function refreshSellButton(data: any)
 		sellButton.BackgroundColor3 = Theme.Danger
 	else
 		C.Bind(sellButton, "UI_SELL_SELECTED", { gold = gold })
-		sellButton.BackgroundColor3 = Theme.Gold
+		sellButton.BackgroundColor3 = Theme.Accent
 	end
 end
 
@@ -10171,7 +10179,7 @@ end
 
 local function row(parent: Instance, order: number): Frame
 	local frame = C.Make("Frame", {
-		Size = UDim2.new(1, -S(8), 0, S(46)),
+		Size = UDim2.new(1, -S(8), 0, S(48)),
 		BackgroundColor3 = Theme.PanelLight,
 		BackgroundTransparency = 0.2,
 		LayoutOrder = order,
@@ -10193,7 +10201,7 @@ local function refreshOres(data: any)
 			Font = Theme.FontBold,
 			TextSize = 14,
 			Size = UDim2.new(0.45, 0, 1, 0),
-			Position = UDim2.fromOffset(S(10), 0),
+			Position = UDim2.fromOffset(S(12), 0),
 			Parent = r,
 		})
 		C.Text({
@@ -10218,7 +10226,7 @@ local function refreshOres(data: any)
 			Size = UDim2.new(0.17, 0, 0, S(36)),
 			Position = UDim2.new(0.63, 0, 0.5, 0),
 			AnchorPoint = Vector2.new(0, 0.5),
-			Color = if count > 0 then Theme.AccentDim else Theme.Disabled,
+			Color = if count > 0 then Theme.PanelLight else Theme.Disabled,
 			OnClick = function()
 				if count > 0 then
 					sell(1)
@@ -10230,9 +10238,9 @@ local function refreshOres(data: any)
 			Key = "UI_SELL_ALL",
 			TextSize = 12,
 			Size = UDim2.new(0.17, 0, 0, S(36)),
-			Position = UDim2.new(1, -S(6), 0.5, 0),
+			Position = UDim2.new(1, -S(8), 0.5, 0),
 			AnchorPoint = Vector2.new(1, 0.5),
-			Color = if count > 0 then Theme.AccentDim else Theme.Disabled,
+			Color = if count > 0 then Theme.PanelLight else Theme.Disabled,
 			OnClick = function()
 				if count > 0 then
 					sell(count)
@@ -10254,7 +10262,7 @@ local function refreshPickaxes(data: any)
 			Font = Theme.FontBold,
 			TextSize = 14,
 			Size = UDim2.new(0.6, 0, 1, 0),
-			Position = UDim2.fromOffset(S(10), 0),
+			Position = UDim2.fromOffset(S(12), 0),
 			Parent = r,
 		})
 		local key, args, color
@@ -10263,15 +10271,15 @@ local function refreshPickaxes(data: any)
 		elseif data.Level < def.RequiredLevel then
 			key, args, color = "UI_REQ_LEVEL", { level = def.RequiredLevel }, Theme.Disabled
 		else
-			key, args, color = "UI_BUY", { price = def.Price }, if data.Gold >= def.Price then Theme.Gold else Theme.Disabled
+			key, args, color = "UI_BUY", { price = def.Price }, if data.Gold >= def.Price then Theme.Accent else Theme.Disabled
 		end
 		C.Button({
 			Key = key,
 			Args = args,
 			TextSize = 13,
-			TextColor = if color == Theme.Gold then Theme.Bg else Theme.Text,
+			TextColor = if color == Theme.Accent then Theme.Bg else Theme.Text,
 			Size = UDim2.new(0.34, 0, 0, S(36)),
-			Position = UDim2.new(1, -S(6), 0.5, 0),
+			Position = UDim2.new(1, -S(8), 0.5, 0),
 			AnchorPoint = Vector2.new(1, 0.5),
 			Color = color,
 			OnClick = function()
@@ -10344,14 +10352,14 @@ local function sellSelected()
 end
 
 local function build()
-	panel = C.Panel({ Name = "MerchantPanel", Size = UDim2.fromOffset(S(540), S(330)) })
+	panel = C.Panel({ Name = "MerchantPanel", Size = UDim2.fromOffset(S(540), S(332)) })
 	C.TitleBar(panel, "UI_MERCHANT_TITLE", function()
 		UIController:ClosePanel()
 	end)
 
 	local tabs = C.Make("Frame", {
-		Size = UDim2.new(1, -S(24), 0, S(38)),
-		Position = UDim2.fromOffset(S(12), S(46)),
+		Size = UDim2.new(1, -S(24), 0, S(40)),
+		Position = UDim2.fromOffset(S(12), S(48)),
 		BackgroundTransparency = 1,
 		Parent = panel,
 	})
@@ -10372,7 +10380,7 @@ local function build()
 	end
 
 	local contentSize = UDim2.new(1, -S(24), 1, -S(100))
-	local contentPos = UDim2.fromOffset(S(12), S(90))
+	local contentPos = UDim2.fromOffset(S(12), S(92))
 
 	-- оружие
 	local weaponsFrame = C.Make("Frame", { Size = contentSize, Position = contentPos, BackgroundTransparency = 1, Parent = panel })
@@ -10381,7 +10389,7 @@ local function build()
 	C.Button({
 		Key = "UI_SELECT_COMMON",
 		TextSize = 13,
-		Size = UDim2.new(0.34, -S(4), 0, S(46)),
+		Size = UDim2.new(0.34, -S(4), 0, S(48)),
 		Position = UDim2.fromScale(0, 1),
 		AnchorPoint = Vector2.new(0, 1),
 		Color = Theme.PanelLight,
@@ -10404,10 +10412,10 @@ local function build()
 		Font = Theme.FontTitle,
 		TextSize = 16,
 		TextColor = Theme.Bg,
-		Size = UDim2.new(0.66, -S(4), 0, S(46)),
+		Size = UDim2.new(0.66, -S(4), 0, S(48)),
 		Position = UDim2.fromScale(1, 1),
 		AnchorPoint = Vector2.new(1, 1),
-		Color = Theme.Gold,
+		Color = Theme.Accent,
 		OnClick = sellSelected,
 		Parent = weaponsFrame,
 	})
@@ -10643,11 +10651,10 @@ end
 local function build()
 	box = C.Panel({
 		Name = "Quest",
-		Size = UDim2.fromOffset(S(250), S(58)),
-		Position = UDim2.fromOffset(S(10), S(100)),
+		Size = UDim2.fromOffset(S(252), S(64)),
+		Position = UDim2.fromOffset(S(12), S(100)),
 		AnchorPoint = Vector2.zero,
 		Transparency = 0.2,
-		StrokeColor = Theme.Gold,
 		Visible = false,
 		Adaptive = true,
 		Parent = UIController.Layers.Hud,
@@ -10656,23 +10663,23 @@ local function build()
 		Key = "QUEST_HEADER",
 		Font = Theme.FontBold,
 		TextSize = 11,
-		Color = Theme.Gold,
-		Size = UDim2.new(1, -S(16), 0, S(14)),
-		Position = UDim2.fromOffset(S(8), S(5)),
+		Color = Theme.System,
+		Size = UDim2.new(1, -S(16), 0, S(16)),
+		Position = UDim2.fromOffset(S(8), S(8)),
 		Parent = box,
 	})
 	titleLabel = C.Text({
 		Font = Theme.FontBold,
 		TextSize = 15,
-		Size = UDim2.new(1, -S(16), 0, S(18)),
-		Position = UDim2.fromOffset(S(8), S(20)),
+		Size = UDim2.new(1, -S(16), 0, S(20)),
+		Position = UDim2.fromOffset(S(8), S(24)),
 		Parent = box,
 	})
 	progressLabel = C.Text({
 		TextSize = 13,
 		Color = Theme.TextDim,
-		Size = UDim2.new(1, -S(16), 0, S(15)),
-		Position = UDim2.fromOffset(S(8), S(39)),
+		Size = UDim2.new(1, -S(16), 0, S(16)),
+		Position = UDim2.fromOffset(S(8), S(44)),
 		Parent = box,
 	})
 
@@ -10685,7 +10692,7 @@ local function build()
 	beam = Instance.new("Beam")
 	beam.Attachment0 = fromAttachment
 	beam.Attachment1 = toAttachment
-	beam.Color = ColorSequence.new(Theme.Gold)
+	beam.Color = ColorSequence.new(Theme.System)
 	beam.Transparency = NumberSequence.new(0.25, 0.6)
 	beam.Width0 = 0.35
 	beam.Width1 = 0.35
@@ -10739,17 +10746,17 @@ local queue: { Types.NotifyPayload } = {}
 local showing = false
 
 local KIND_STYLE: { [string]: { Color: Color3, Sound: string, Duration: number } } = {
-	Awakening = { Color = Theme.Accent, Sound = "SystemOpen", Duration = 6 },
-	Quest = { Color = Theme.Accent, Sound = "SystemOpen", Duration = 3.5 },
+	Awakening = { Color = Theme.System, Sound = "SystemOpen", Duration = 6 },
+	Quest = { Color = Theme.System, Sound = "SystemOpen", Duration = 3.5 },
 	QuestDone = { Color = Theme.Success, Sound = "SystemQuestDone", Duration = 3 },
 	LevelUp = { Color = Theme.Gold, Sound = "SystemLevelUp", Duration = 3.5 },
 	Reward = { Color = Theme.Gold, Sound = "SystemQuestDone", Duration = 4 },
-	Info = { Color = Theme.Accent, Sound = "SystemOpen", Duration = 3.5 },
+	Info = { Color = Theme.System, Sound = "SystemOpen", Duration = 3.5 },
 	Warning = { Color = Theme.Danger, Sound = "SystemWarning", Duration = 3.5 },
 	Boss = { Color = Theme.Danger, Sound = "SystemBoss", Duration = 4 },
 	GateCleared = { Color = Theme.Gold, Sound = "SystemQuestDone", Duration = 4.5 },
 	GateFailed = { Color = Theme.Danger, Sound = "SystemWarning", Duration = 4 },
-	Forge = { Color = Theme.Accent, Sound = "ForgeDone", Duration = 3.5 },
+	Forge = { Color = Theme.System, Sound = "ForgeDone", Duration = 3.5 },
 	Daily = { Color = Theme.Gold, Sound = "SystemQuestDone", Duration = 4 },
 	RankUp = { Color = Theme.Gold, Sound = "SystemLevelUp", Duration = 5 },
 	Legendary = { Color = Color3.fromRGB(255, 80, 110), Sound = "Celebrate", Duration = 5 },
@@ -10769,8 +10776,8 @@ local closeRequested = false
 local function build()
 	root = C.Make("CanvasGroup", {
 		Name = "SystemWindow",
-		Size = UDim2.fromOffset(S(430), S(150)),
-		Position = UDim2.new(0.5, 0, 0, S(86)),
+		Size = UDim2.fromOffset(S(432), S(152)),
+		Position = UDim2.new(0.5, 0, 0, S(88)),
 		AnchorPoint = Vector2.new(0.5, 0),
 		BackgroundTransparency = 1,
 		GroupTransparency = 1,
@@ -10783,17 +10790,12 @@ local function build()
 		Size = UDim2.new(1, -S(8), 1, -S(8)),
 		Position = UDim2.fromScale(0.5, 0.5),
 		AnchorPoint = Vector2.new(0.5, 0.5),
-		BackgroundColor3 = Theme.Bg,
-		BackgroundTransparency = 0.08,
+		BackgroundColor3 = Theme.SystemBg,
+		BackgroundTransparency = 0.06,
 		Parent = root,
 	})
 	C.Corner(frame, 6)
-	stroke = C.Stroke(frame, Theme.Accent, 2, 0)
-	C.Make("UIGradient", {
-		Rotation = 90,
-		Color = ColorSequence.new(Color3.fromRGB(40, 80, 140), Color3.fromRGB(10, 20, 45)),
-		Parent = frame,
-	})
+	stroke = C.Stroke(frame, Theme.System, 1.5, 0)
 	C.Padding(frame, 12)
 	C.List(frame, Enum.FillDirection.Vertical, 4)
 
@@ -10801,15 +10803,15 @@ local function build()
 		Name = "Header",
 		Font = Theme.FontBold,
 		TextSize = 14,
-		Color = Theme.Accent,
-		Size = UDim2.new(1, 0, 0, S(18)),
+		Color = Theme.System,
+		Size = UDim2.new(1, 0, 0, S(20)),
 		LayoutOrder = 1,
 		Parent = frame,
 	})
 	C.Make("Frame", {
 		Name = "Divider",
 		Size = UDim2.new(1, 0, 0, 1),
-		BackgroundColor3 = Theme.Accent,
+		BackgroundColor3 = Theme.System,
 		BackgroundTransparency = 0.5,
 		BorderSizePixel = 0,
 		LayoutOrder = 2,
@@ -10843,7 +10845,7 @@ local function build()
 		TextSize = 11,
 		Color = Theme.TextDim,
 		AlignX = Enum.TextXAlignment.Right,
-		Size = UDim2.new(1, 0, 0, S(14)),
+		Size = UDim2.new(1, 0, 0, S(16)),
 		LayoutOrder = 5,
 		Parent = frame,
 	})
@@ -10881,7 +10883,7 @@ local function fitHeight()
 	local layout = frame:FindFirstChildOfClass("UIListLayout")
 	if layout then
 		local h = layout.AbsoluteContentSize.Y + S(24) + S(8)
-		root.Size = UDim2.fromOffset(S(430), math.max(S(110), h))
+		root.Size = UDim2.fromOffset(S(432), math.max(S(112), h))
 	end
 end
 
@@ -10889,7 +10891,8 @@ local function show(payload: Types.NotifyPayload)
 	local style = KIND_STYLE[payload.Kind] or KIND_STYLE.Info
 	closeRequested = false
 
-	C.SetRaw(header, `[ {Localization.Get("SYS_HEADER")} ]  {Localization.Get("SYS_KIND_" .. string.upper(payload.Kind))}`)
+	-- фирменная деталь: «[Система] · Вид» холодным синим
+	C.SetRaw(header, `[{Localization.Get("SYS_HEADER")}] · {Localization.Get("SYS_KIND_" .. string.upper(payload.Kind))}`)
 	header.TextColor3 = style.Color
 	stroke.Color = style.Color
 	C.SetRaw(title, Localization.Get(payload.Title, payload.Args))
@@ -10908,19 +10911,15 @@ local function show(payload: Types.NotifyPayload)
 
 	Sound.Play(style.Sound)
 
-	-- появление: мерцание рамки + выезд сверху
-	local targetPos = UDim2.new(0.5, 0, 0, S(86))
-	root.Position = targetPos - UDim2.fromOffset(0, S(18))
+	-- появление: короткий подъём на 8px и проявление, без пружины
+	local targetPos = UDim2.new(0.5, 0, 0, S(88))
+	root.Position = targetPos + UDim2.fromOffset(0, S(8))
 	root.GroupTransparency = 1
-	TweenService:Create(root, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+	TweenService:Create(root, TweenInfo.new(0.32, Theme.Ease, Enum.EasingDirection.Out), {
 		Position = targetPos,
 		GroupTransparency = 0,
 	}):Play()
-	for i = 1, 4 do
-		stroke.Transparency = if i % 2 == 1 then 0.8 else 0
-		task.wait(0.05)
-	end
-	stroke.Transparency = 0
+	task.wait(0.12)
 
 	typewriter(title, 0.35)
 	if body.Visible then
@@ -10936,9 +10935,8 @@ local function show(payload: Types.NotifyPayload)
 		task.wait(0.05)
 	end
 
-	local tween = TweenService:Create(root, TweenInfo.new(0.2), {
+	local tween = TweenService:Create(root, TweenInfo.new(0.2, Theme.Ease, Enum.EasingDirection.Out), {
 		GroupTransparency = 1,
-		Position = targetPos - UDim2.fromOffset(0, S(10)),
 	})
 	tween:Play()
 	tween.Completed:Wait()
@@ -11203,7 +11201,7 @@ function UIController:Toast(key: string, args: { [string]: any }?, color: string
 	toastCounter += 1
 	local toast = C.Make("TextLabel", {
 		LayoutOrder = toastCounter,
-		Size = UDim2.new(0, S(340), 0, S(30)),
+		Size = UDim2.new(0, S(340), 0, S(32)),
 		BackgroundColor3 = Theme.Bg,
 		BackgroundTransparency = 0.25,
 		Font = Theme.FontBold,
@@ -11319,7 +11317,7 @@ local function showBanner(zone: any)
 		bannerSub.TextColor3 = Theme.Success
 	else
 		C.Bind(bannerSub, "UI_ZONE_LEVEL", { level = zone.Level })
-		bannerSub.TextColor3 = Theme.Gold
+		bannerSub.TextColor3 = Theme.TextDim
 	end
 	banner.Visible = true
 	banner.GroupTransparency = 1
@@ -11360,7 +11358,7 @@ end
 local function build()
 	banner = C.Make("CanvasGroup", {
 		Name = "ZoneBanner",
-		Size = UDim2.fromOffset(S(420), S(70)),
+		Size = UDim2.fromOffset(S(420), S(72)),
 		Position = UDim2.new(0.5, 0, 0.26, 0),
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		BackgroundTransparency = 1,
@@ -11373,7 +11371,7 @@ local function build()
 		Font = Theme.FontTitle,
 		TextSize = 30,
 		AlignX = Enum.TextXAlignment.Center,
-		Size = UDim2.new(1, 0, 0, S(38)),
+		Size = UDim2.new(1, 0, 0, S(40)),
 		Parent = banner,
 	})
 	bannerTitle.TextStrokeTransparency = 0.4
@@ -11381,7 +11379,7 @@ local function build()
 		Font = Theme.FontBold,
 		TextSize = 15,
 		AlignX = Enum.TextXAlignment.Center,
-		Size = UDim2.new(1, 0, 0, S(22)),
+		Size = UDim2.new(1, 0, 0, S(24)),
 		Position = UDim2.fromOffset(0, S(40)),
 		Parent = banner,
 	})
@@ -11564,7 +11562,7 @@ end
 function C.KeyHint(parent: GuiObject, keys: { [string]: string }): TextLabel
 	local label = Instance.new("TextLabel")
 	label.Name = "KeyHint"
-	label.Size = UDim2.fromOffset(Theme.S(26), Theme.S(18))
+	label.Size = UDim2.fromOffset(Theme.S(28), Theme.S(20))
 	label.Position = UDim2.new(1, Theme.S(4), 0, -Theme.S(4))
 	label.AnchorPoint = Vector2.new(1, 0)
 	label.BackgroundColor3 = Color3.fromRGB(240, 240, 250)
@@ -11610,11 +11608,12 @@ function C.Round(parent: Instance): UICorner
 	return C.Make("UICorner", { CornerRadius = UDim.new(1, 0), Parent = parent })
 end
 
+-- Без цвета — тонкая линия (основной текст на 10%). С цветом — осознанный акцент.
 function C.Stroke(parent: Instance, color: Color3?, thickness: number?, transparency: number?): UIStroke
 	return C.Make("UIStroke", {
-		Color = color or Theme.Accent,
-		Thickness = math.max(1, S(thickness or 1.5)),
-		Transparency = transparency or 0,
+		Color = color or Theme.Text,
+		Thickness = math.max(1, S(thickness or 1)),
+		Transparency = transparency or (if color then 0 else Theme.HairlineTransparency),
 		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 		Parent = parent,
 	})
@@ -11658,13 +11657,8 @@ function C.Panel(props: { [string]: any }): Frame
 	if props.Adaptive then
 		C.Adaptive(frame)
 	end
-	C.Corner(frame, props.Radius or 10)
-	C.Stroke(frame, props.StrokeColor or Theme.Accent, props.StrokeThickness or 2, 0.1)
-	C.Make("UIGradient", {
-		Rotation = 90,
-		Color = ColorSequence.new(Color3.new(1, 1, 1), Color3.fromRGB(150, 160, 190)),
-		Parent = frame,
-	})
+	C.Corner(frame, props.Radius or 16)
+	C.Stroke(frame, props.StrokeColor, props.StrokeThickness or 1)
 	return frame
 end
 
@@ -11698,7 +11692,7 @@ end
 
 -- Крупная кнопка с «нажатием» (удобно пальцем)
 function C.Button(props: { [string]: any }): TextButton
-	local color: Color3 = props.Color or Theme.AccentDim
+	local color: Color3 = props.Color or Theme.PanelLight
 	local button = C.Make("TextButton", {
 		Name = props.Name or "Button",
 		Size = props.Size,
@@ -11721,16 +11715,16 @@ function C.Button(props: { [string]: any }): TextButton
 	if props.Round then
 		(button:FindFirstChildOfClass("UICorner") :: UICorner).CornerRadius = UDim.new(1, 0)
 	end
-	C.Stroke(button, props.StrokeColor or Theme.Accent, 1.5, 0.25)
+	C.Stroke(button, props.StrokeColor)
 	if props.Key then
 		C.Bind(button, props.Key, props.Args)
 	end
 
 	button.MouseButton1Down:Connect(function()
-		TweenService:Create(button, TweenInfo.new(0.06), { BackgroundTransparency = 0.35 }):Play()
+		TweenService:Create(button, TweenInfo.new(0.12, Theme.Ease), { BackgroundTransparency = 0.2 }):Play()
 	end)
 	local function release()
-		TweenService:Create(button, TweenInfo.new(0.12), { BackgroundTransparency = props.Transparency or 0 }):Play()
+		TweenService:Create(button, TweenInfo.new(0.16, Theme.Ease), { BackgroundTransparency = props.Transparency or 0 }):Play()
 	end
 	button.MouseButton1Up:Connect(release)
 	button.MouseLeave:Connect(release)
@@ -11775,16 +11769,16 @@ function C.TitleBar(panel: Frame, titleKey: string, onClose: () -> ()): TextLabe
 		Key = titleKey,
 		Font = Theme.FontTitle,
 		TextSize = 22,
-		Color = Theme.Accent,
-		Size = UDim2.new(1, -S(60), 0, S(34)),
-		Position = UDim2.fromOffset(S(14), S(6)),
+		Color = Theme.Text,
+		Size = UDim2.new(1, -S(64), 0, S(32)),
+		Position = UDim2.fromOffset(S(16), S(8)),
 		Parent = panel,
 	})
 	C.Button({
 		Name = "Close",
-		Text = "X",
+		Text = "×",
 		Size = UDim2.fromOffset(S(40), S(40)),
-		Position = UDim2.new(1, -S(6), 0, S(6)),
+		Position = UDim2.new(1, -S(8), 0, S(8)),
 		AnchorPoint = Vector2.new(1, 0),
 		Color = Theme.PanelLight,
 		TextSize = 20,
@@ -11830,29 +11824,48 @@ end
 return Sound
 ]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX00000052"><Properties><string name="Name">Theme</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
-	Стиль «Системы»: тёмно-синие окна, неоновая голубая обводка.
+	Направление: ночная кузня. Интерфейс — тихий тёплый графит (копоть, металл),
+	главное действие — цвет углей. Холодный синий свет есть только у Системы:
+	окно Системы и заголовок «[Система]» в трекере задания.
+	Без неоновых обводок и градиентов: глубина от ступеней поверхности и тонких линий.
+
 	S(n) — размер в пикселях, масштабированный под экран (телефон ≈ 0.9, ПК до 1.6).
-	Интерфейс спроектирован под экран телефона в альбомной ориентации (~640×380 точек).
+	Базовые размеры — на сетке 4px. Интерфейс рассчитан на телефон в альбомной ориентации (~640×380 точек).
 ]]
 
 local Theme = {
 	Scale = 1,
 
-	Bg = Color3.fromRGB(6, 12, 28),
-	Panel = Color3.fromRGB(10, 22, 46),
-	PanelLight = Color3.fromRGB(18, 36, 70),
-	Accent = Color3.fromRGB(70, 195, 255),
-	AccentDim = Color3.fromRGB(35, 95, 150),
-	Text = Color3.fromRGB(228, 242, 255),
-	TextDim = Color3.fromRGB(140, 168, 200),
-	Gold = Color3.fromRGB(255, 205, 80),
-	Danger = Color3.fromRGB(255, 80, 95),
-	Success = Color3.fromRGB(90, 230, 140),
-	Disabled = Color3.fromRGB(70, 80, 100),
+	-- тёплая нейтральная шкала (поверхности и текст)
+	Bg = Color3.fromRGB(18, 17, 15), -- самая глубокая поверхность
+	Panel = Color3.fromRGB(28, 26, 24), -- окна и блоки
+	PanelLight = Color3.fromRGB(38, 36, 33), -- поднятая: кнопки, строки, поля
+	Text = Color3.fromRGB(239, 233, 222), -- основной
+	TextDim = Color3.fromRGB(170, 163, 152), -- второстепенный
+	Muted = Color3.fromRGB(138, 132, 122), -- подписи и мета
+	HairlineTransparency = 0.9, -- линии = основной текст на 10%
 
-	Font = Enum.Font.GothamMedium,
-	FontBold = Enum.Font.GothamBold,
-	FontTitle = Enum.Font.GothamBlack,
+	-- угли кузни: главное действие, выбор, таймер
+	Accent = Color3.fromRGB(238, 137, 64),
+	AccentDim = Color3.fromRGB(58, 44, 34), -- выбранная строка: поверхность с оттенком углей
+
+	-- холодный свет Системы (только окно Системы и заголовок «[Система]»)
+	System = Color3.fromRGB(88, 190, 255),
+	SystemBg = Color3.fromRGB(10, 22, 40),
+
+	-- смысловые цвета, приглушённые под шкалу
+	Gold = Color3.fromRGB(232, 190, 90), -- золото как валюта
+	Danger = Color3.fromRGB(229, 72, 77),
+	Success = Color3.fromRGB(76, 195, 138),
+	Disabled = Color3.fromRGB(34, 32, 30),
+
+	-- веса 400 и 500; иерархия — размером и цветом, а не жирностью
+	Font = Enum.Font.Gotham,
+	FontBold = Enum.Font.GothamMedium,
+	FontTitle = Enum.Font.GothamMedium,
+
+	-- одна кривая для всей анимации (ease-out), без пружин
+	Ease = Enum.EasingStyle.Quint,
 }
 
 -- Масштаб для текущего экрана (не меняет Theme.Scale)
@@ -11917,12 +11930,17 @@ function WeaponCard.Create(props: CardProps): TextButton
 		Parent = props.Parent,
 	})
 	C.Corner(card, 6)
-	C.Stroke(card, if props.Equipped then Theme.Gold elseif props.Selected then Theme.Accent else rarity.Color, if props.Selected or props.Equipped then 2.5 else 1.2, 0.1)
+	-- рамка только у надетого и выбранного; редкость показывает полоска слева
+	if props.Equipped or props.Selected then
+		C.Stroke(card, Theme.Accent, 1.5)
+	else
+		C.Stroke(card)
+	end
 
 	C.Make("Frame", {
 		Name = "RarityStrip",
-		Size = UDim2.new(0, S(4), 1, -S(10)),
-		Position = UDim2.fromOffset(S(5), S(5)),
+		Size = UDim2.new(0, S(4), 1, -S(12)),
+		Position = UDim2.fromOffset(S(4), S(4)),
 		BackgroundColor3 = rarity.Color,
 		BorderSizePixel = 0,
 		Parent = card,
@@ -11932,16 +11950,16 @@ function WeaponCard.Create(props: CardProps): TextButton
 		Text = Localization.WeaponName(weapon.Type, weapon.Ore),
 		Font = Theme.FontBold,
 		TextSize = 14,
-		Size = UDim2.new(1, -S(18), 0, S(18)),
-		Position = UDim2.fromOffset(S(14), S(5)),
+		Size = UDim2.new(1, -S(20), 0, S(20)),
+		Position = UDim2.fromOffset(S(16), S(4)),
 		Parent = card,
 	})
 	C.Text({
 		Key = rarity.NameKey,
 		TextSize = 11,
 		Color = rarity.Color,
-		Size = UDim2.new(1, -S(18), 0, S(13)),
-		Position = UDim2.fromOffset(S(14), S(23)),
+		Size = UDim2.new(1, -S(20), 0, S(12)),
+		Position = UDim2.fromOffset(S(16), S(24)),
 		Parent = card,
 	})
 	C.Text({
@@ -11950,8 +11968,8 @@ function WeaponCard.Create(props: CardProps): TextButton
 		Font = Theme.FontBold,
 		TextSize = 14,
 		Color = Theme.Accent,
-		Size = UDim2.new(0.5, -S(10), 0, S(16)),
-		Position = UDim2.fromOffset(S(14), S(38)),
+		Size = UDim2.new(0.5, -S(12), 0, S(16)),
+		Position = UDim2.fromOffset(S(16), S(40)),
 		Parent = card,
 	})
 	C.Text({
@@ -11960,8 +11978,8 @@ function WeaponCard.Create(props: CardProps): TextButton
 		TextSize = 11,
 		Color = Theme.TextDim,
 		AlignX = Enum.TextXAlignment.Right,
-		Size = UDim2.new(1, -S(20), 0, S(13)),
-		Position = UDim2.fromOffset(S(14), S(23)),
+		Size = UDim2.new(1, -S(20), 0, S(12)),
+		Position = UDim2.fromOffset(S(16), S(24)),
 		Parent = card,
 	})
 	-- черты оружия
@@ -11977,9 +11995,9 @@ function WeaponCard.Create(props: CardProps): TextButton
 			Text = table.concat(traits, " · "),
 			TextSize = 11,
 			Font = Theme.FontBold,
-			Color = Theme.Gold,
-			Size = UDim2.new(1, -S(18), 0, S(14)),
-			Position = UDim2.fromOffset(S(14), S(57)),
+			Color = Theme.TextDim,
+			Size = UDim2.new(1, -S(20), 0, S(16)),
+			Position = UDim2.fromOffset(S(16), S(56)),
 			Parent = card,
 		})
 	end
@@ -11989,10 +12007,10 @@ function WeaponCard.Create(props: CardProps): TextButton
 			Key = "UI_EQUIPPED",
 			Font = Theme.FontBold,
 			TextSize = 11,
-			Color = Theme.Gold,
+			Color = Theme.Accent,
 			AlignX = Enum.TextXAlignment.Right,
-			Size = UDim2.new(0.5, -S(6), 0, S(16)),
-			Position = UDim2.new(0.5, 0, 0, S(38)),
+			Size = UDim2.new(0.5, -S(8), 0, S(16)),
+			Position = UDim2.new(0.5, 0, 0, S(40)),
 			Parent = card,
 		})
 	elseif props.ShowPrice then
@@ -12002,8 +12020,8 @@ function WeaponCard.Create(props: CardProps): TextButton
 			TextSize = 13,
 			Color = Theme.Gold,
 			AlignX = Enum.TextXAlignment.Right,
-			Size = UDim2.new(0.5, -S(6), 0, S(16)),
-			Position = UDim2.new(0.5, 0, 0, S(38)),
+			Size = UDim2.new(0.5, -S(8), 0, S(16)),
+			Position = UDim2.new(0.5, 0, 0, S(40)),
 			Parent = card,
 		})
 	end
@@ -12038,15 +12056,15 @@ function WeaponCard.Grid(parent: Instance, size: UDim2, position: UDim2): Scroll
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
 		ScrollBarThickness = S(6),
-		ScrollBarImageColor3 = Theme.Accent,
+		ScrollBarImageColor3 = Theme.Muted,
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		ScrollingDirection = Enum.ScrollingDirection.Y,
 		Parent = parent,
 	})
 	C.Make("UIGridLayout", {
-		CellSize = UDim2.fromOffset(S(158), S(76)),
-		CellPadding = UDim2.fromOffset(S(6), S(6)),
+		CellSize = UDim2.fromOffset(S(160), S(76)),
+		CellPadding = UDim2.fromOffset(S(8), S(8)),
 		SortOrder = Enum.SortOrder.LayoutOrder,
 		Parent = scroll,
 	})

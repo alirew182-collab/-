@@ -70,7 +70,7 @@ local function refreshSellButton(data: any)
 		sellButton.BackgroundColor3 = Theme.Danger
 	else
 		C.Bind(sellButton, "UI_SELL_SELECTED", { gold = gold })
-		sellButton.BackgroundColor3 = Theme.Gold
+		sellButton.BackgroundColor3 = Theme.Accent
 	end
 end
 
@@ -107,7 +107,7 @@ end
 
 local function row(parent: Instance, order: number): Frame
 	local frame = C.Make("Frame", {
-		Size = UDim2.new(1, -S(8), 0, S(46)),
+		Size = UDim2.new(1, -S(8), 0, S(48)),
 		BackgroundColor3 = Theme.PanelLight,
 		BackgroundTransparency = 0.2,
 		LayoutOrder = order,
@@ -129,7 +129,7 @@ local function refreshOres(data: any)
 			Font = Theme.FontBold,
 			TextSize = 14,
 			Size = UDim2.new(0.45, 0, 1, 0),
-			Position = UDim2.fromOffset(S(10), 0),
+			Position = UDim2.fromOffset(S(12), 0),
 			Parent = r,
 		})
 		C.Text({
@@ -154,7 +154,7 @@ local function refreshOres(data: any)
 			Size = UDim2.new(0.17, 0, 0, S(36)),
 			Position = UDim2.new(0.63, 0, 0.5, 0),
 			AnchorPoint = Vector2.new(0, 0.5),
-			Color = if count > 0 then Theme.AccentDim else Theme.Disabled,
+			Color = if count > 0 then Theme.PanelLight else Theme.Disabled,
 			OnClick = function()
 				if count > 0 then
 					sell(1)
@@ -166,9 +166,9 @@ local function refreshOres(data: any)
 			Key = "UI_SELL_ALL",
 			TextSize = 12,
 			Size = UDim2.new(0.17, 0, 0, S(36)),
-			Position = UDim2.new(1, -S(6), 0.5, 0),
+			Position = UDim2.new(1, -S(8), 0.5, 0),
 			AnchorPoint = Vector2.new(1, 0.5),
-			Color = if count > 0 then Theme.AccentDim else Theme.Disabled,
+			Color = if count > 0 then Theme.PanelLight else Theme.Disabled,
 			OnClick = function()
 				if count > 0 then
 					sell(count)
@@ -190,7 +190,7 @@ local function refreshPickaxes(data: any)
 			Font = Theme.FontBold,
 			TextSize = 14,
 			Size = UDim2.new(0.6, 0, 1, 0),
-			Position = UDim2.fromOffset(S(10), 0),
+			Position = UDim2.fromOffset(S(12), 0),
 			Parent = r,
 		})
 		local key, args, color
@@ -199,15 +199,15 @@ local function refreshPickaxes(data: any)
 		elseif data.Level < def.RequiredLevel then
 			key, args, color = "UI_REQ_LEVEL", { level = def.RequiredLevel }, Theme.Disabled
 		else
-			key, args, color = "UI_BUY", { price = def.Price }, if data.Gold >= def.Price then Theme.Gold else Theme.Disabled
+			key, args, color = "UI_BUY", { price = def.Price }, if data.Gold >= def.Price then Theme.Accent else Theme.Disabled
 		end
 		C.Button({
 			Key = key,
 			Args = args,
 			TextSize = 13,
-			TextColor = if color == Theme.Gold then Theme.Bg else Theme.Text,
+			TextColor = if color == Theme.Accent then Theme.Bg else Theme.Text,
 			Size = UDim2.new(0.34, 0, 0, S(36)),
-			Position = UDim2.new(1, -S(6), 0.5, 0),
+			Position = UDim2.new(1, -S(8), 0.5, 0),
 			AnchorPoint = Vector2.new(1, 0.5),
 			Color = color,
 			OnClick = function()
@@ -280,14 +280,14 @@ local function sellSelected()
 end
 
 local function build()
-	panel = C.Panel({ Name = "MerchantPanel", Size = UDim2.fromOffset(S(540), S(330)) })
+	panel = C.Panel({ Name = "MerchantPanel", Size = UDim2.fromOffset(S(540), S(332)) })
 	C.TitleBar(panel, "UI_MERCHANT_TITLE", function()
 		UIController:ClosePanel()
 	end)
 
 	local tabs = C.Make("Frame", {
-		Size = UDim2.new(1, -S(24), 0, S(38)),
-		Position = UDim2.fromOffset(S(12), S(46)),
+		Size = UDim2.new(1, -S(24), 0, S(40)),
+		Position = UDim2.fromOffset(S(12), S(48)),
 		BackgroundTransparency = 1,
 		Parent = panel,
 	})
@@ -308,7 +308,7 @@ local function build()
 	end
 
 	local contentSize = UDim2.new(1, -S(24), 1, -S(100))
-	local contentPos = UDim2.fromOffset(S(12), S(90))
+	local contentPos = UDim2.fromOffset(S(12), S(92))
 
 	-- оружие
 	local weaponsFrame = C.Make("Frame", { Size = contentSize, Position = contentPos, BackgroundTransparency = 1, Parent = panel })
@@ -317,7 +317,7 @@ local function build()
 	C.Button({
 		Key = "UI_SELECT_COMMON",
 		TextSize = 13,
-		Size = UDim2.new(0.34, -S(4), 0, S(46)),
+		Size = UDim2.new(0.34, -S(4), 0, S(48)),
 		Position = UDim2.fromScale(0, 1),
 		AnchorPoint = Vector2.new(0, 1),
 		Color = Theme.PanelLight,
@@ -340,10 +340,10 @@ local function build()
 		Font = Theme.FontTitle,
 		TextSize = 16,
 		TextColor = Theme.Bg,
-		Size = UDim2.new(0.66, -S(4), 0, S(46)),
+		Size = UDim2.new(0.66, -S(4), 0, S(48)),
 		Position = UDim2.fromScale(1, 1),
 		AnchorPoint = Vector2.new(1, 1),
-		Color = Theme.Gold,
+		Color = Theme.Accent,
 		OnClick = sellSelected,
 		Parent = weaponsFrame,
 	})

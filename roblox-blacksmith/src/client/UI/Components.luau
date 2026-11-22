@@ -98,7 +98,7 @@ end
 function C.KeyHint(parent: GuiObject, keys: { [string]: string }): TextLabel
 	local label = Instance.new("TextLabel")
 	label.Name = "KeyHint"
-	label.Size = UDim2.fromOffset(Theme.S(26), Theme.S(18))
+	label.Size = UDim2.fromOffset(Theme.S(28), Theme.S(20))
 	label.Position = UDim2.new(1, Theme.S(4), 0, -Theme.S(4))
 	label.AnchorPoint = Vector2.new(1, 0)
 	label.BackgroundColor3 = Color3.fromRGB(240, 240, 250)
@@ -144,11 +144,12 @@ function C.Round(parent: Instance): UICorner
 	return C.Make("UICorner", { CornerRadius = UDim.new(1, 0), Parent = parent })
 end
 
+-- Без цвета — тонкая линия (основной текст на 10%). С цветом — осознанный акцент.
 function C.Stroke(parent: Instance, color: Color3?, thickness: number?, transparency: number?): UIStroke
 	return C.Make("UIStroke", {
-		Color = color or Theme.Accent,
-		Thickness = math.max(1, S(thickness or 1.5)),
-		Transparency = transparency or 0,
+		Color = color or Theme.Text,
+		Thickness = math.max(1, S(thickness or 1)),
+		Transparency = transparency or (if color then 0 else Theme.HairlineTransparency),
 		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 		Parent = parent,
 	})
@@ -192,13 +193,8 @@ function C.Panel(props: { [string]: any }): Frame
 	if props.Adaptive then
 		C.Adaptive(frame)
 	end
-	C.Corner(frame, props.Radius or 10)
-	C.Stroke(frame, props.StrokeColor or Theme.Accent, props.StrokeThickness or 2, 0.1)
-	C.Make("UIGradient", {
-		Rotation = 90,
-		Color = ColorSequence.new(Color3.new(1, 1, 1), Color3.fromRGB(150, 160, 190)),
-		Parent = frame,
-	})
+	C.Corner(frame, props.Radius or 16)
+	C.Stroke(frame, props.StrokeColor, props.StrokeThickness or 1)
 	return frame
 end
 
@@ -232,7 +228,7 @@ end
 
 -- Крупная кнопка с «нажатием» (удобно пальцем)
 function C.Button(props: { [string]: any }): TextButton
-	local color: Color3 = props.Color or Theme.AccentDim
+	local color: Color3 = props.Color or Theme.PanelLight
 	local button = C.Make("TextButton", {
 		Name = props.Name or "Button",
 		Size = props.Size,
@@ -255,16 +251,16 @@ function C.Button(props: { [string]: any }): TextButton
 	if props.Round then
 		(button:FindFirstChildOfClass("UICorner") :: UICorner).CornerRadius = UDim.new(1, 0)
 	end
-	C.Stroke(button, props.StrokeColor or Theme.Accent, 1.5, 0.25)
+	C.Stroke(button, props.StrokeColor)
 	if props.Key then
 		C.Bind(button, props.Key, props.Args)
 	end
 
 	button.MouseButton1Down:Connect(function()
-		TweenService:Create(button, TweenInfo.new(0.06), { BackgroundTransparency = 0.35 }):Play()
+		TweenService:Create(button, TweenInfo.new(0.12, Theme.Ease), { BackgroundTransparency = 0.2 }):Play()
 	end)
 	local function release()
-		TweenService:Create(button, TweenInfo.new(0.12), { BackgroundTransparency = props.Transparency or 0 }):Play()
+		TweenService:Create(button, TweenInfo.new(0.16, Theme.Ease), { BackgroundTransparency = props.Transparency or 0 }):Play()
 	end
 	button.MouseButton1Up:Connect(release)
 	button.MouseLeave:Connect(release)
@@ -309,16 +305,16 @@ function C.TitleBar(panel: Frame, titleKey: string, onClose: () -> ()): TextLabe
 		Key = titleKey,
 		Font = Theme.FontTitle,
 		TextSize = 22,
-		Color = Theme.Accent,
-		Size = UDim2.new(1, -S(60), 0, S(34)),
-		Position = UDim2.fromOffset(S(14), S(6)),
+		Color = Theme.Text,
+		Size = UDim2.new(1, -S(64), 0, S(32)),
+		Position = UDim2.fromOffset(S(16), S(8)),
 		Parent = panel,
 	})
 	C.Button({
 		Name = "Close",
-		Text = "X",
+		Text = "×",
 		Size = UDim2.fromOffset(S(40), S(40)),
-		Position = UDim2.new(1, -S(6), 0, S(6)),
+		Position = UDim2.new(1, -S(8), 0, S(8)),
 		AnchorPoint = Vector2.new(1, 0),
 		Color = Theme.PanelLight,
 		TextSize = 20,

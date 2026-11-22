@@ -88,9 +88,10 @@ local function light(parent: BasePart, color: Color3, range: number, brightness:
 	l.Parent = parent
 end
 
-local function icon(parent: BasePart, text: string, height: number)
+-- Подпись над зданием (вместо эмодзи). Текст переводит клиент по атрибуту LocKey.
+local function sign(parent: BasePart, locKey: string, height: number)
 	local gui = Instance.new("BillboardGui")
-	gui.Size = UDim2.fromOffset(70, 70)
+	gui.Size = UDim2.fromOffset(160, 32)
 	gui.StudsOffsetWorldSpace = Vector3.new(0, height, 0)
 	gui.MaxDistance = 140
 	gui.LightInfluence = 0
@@ -99,9 +100,12 @@ local function icon(parent: BasePart, text: string, height: number)
 	label.Size = UDim2.fromScale(1, 1)
 	label.BackgroundTransparency = 1
 	label.TextScaled = true
-	label.Font = Enum.Font.GothamBlack
-	label.Text = text
-	label.TextColor3 = Color3.new(1, 1, 1)
+	label.Font = Enum.Font.GothamMedium
+	label.Text = locKey
+	label:SetAttribute("LocKey", locKey)
+	label.TextColor3 = Color3.fromRGB(239, 233, 222)
+	label.TextStrokeColor3 = Color3.fromRGB(18, 17, 15)
+	label.TextStrokeTransparency = 0.4
 	label.Parent = gui
 	gui.Parent = parent
 end
@@ -316,7 +320,7 @@ local function buildSmithy(parent: Instance, origin: Vector3)
 	anvil.PrimaryPart = top
 	anvil.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
 	CollectionService:AddTag(anvil, T.Forge)
-	icon(top, "⚒", 6)
+	sign(top, "UI_FORGE_TITLE", 6)
 
 	-- бочка для закалки
 	part(m, { Name = "Barrel", Shape = Enum.PartType.Cylinder, Size = Vector3.new(3, 3, 3), CFrame = CFrame.new(origin + Vector3.new(8, 2.5, 4)) * CFrame.Angles(0, 0, math.rad(90)), Material = M.Wood, Color = wood })
@@ -353,7 +357,7 @@ local function buildMerchant(parent: Instance, origin: Vector3)
 	npc.PrimaryPart = body
 	npc.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
 	CollectionService:AddTag(npc, T.Merchant)
-	icon(body, "💰", 6)
+	sign(body, "UI_MERCHANT_TITLE", 6)
 end
 
 local function buildLeaderboards(parent: Instance, origin: Vector3)
@@ -366,7 +370,7 @@ local function buildLeaderboards(parent: Instance, origin: Vector3)
 			-- лицевая сторона смотрит на центр площади
 			CFrame = CFrame.lookAt(pos, Vector3.new(0, pos.Y, 0)),
 			Material = M.Slate,
-			Color = Color3.fromRGB(25, 35, 60),
+			Color = Color3.fromRGB(28, 26, 24),
 		})
 		p:SetAttribute("Board", board)
 		CollectionService:AddTag(p, T.Leaderboard)

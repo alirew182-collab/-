@@ -32,7 +32,9 @@ local function render()
 	bossFrame.Visible = phase == "run" and state.Boss ~= nil
 	local stroke = card:FindFirstChildOfClass("UIStroke")
 	if stroke then
-		stroke.Color = if state.IsRed then Theme.Danger else Theme.Accent
+		-- обычная рамка — тонкая линия; у Красных врат — красная
+		stroke.Color = if state.IsRed then Theme.Danger else Theme.Text
+		stroke.Transparency = if state.IsRed then 0 else Theme.HairlineTransparency
 	end
 	line1.TextColor3 = if state.IsRed then Theme.Danger else Theme.Text
 	if phase == "lobby" then
@@ -70,7 +72,7 @@ local function build()
 	local hud = UIController.Layers.Hud
 	card = C.Panel({
 		Name = "GateCard",
-		Size = UDim2.fromOffset(S(300), S(66)),
+		Size = UDim2.fromOffset(S(300), S(68)),
 		Position = UDim2.new(0.5, 0, 0, S(8)),
 		AnchorPoint = Vector2.new(0.5, 0),
 		Transparency = 0.15,
@@ -81,22 +83,22 @@ local function build()
 	line1 = C.Text({
 		Font = Theme.FontBold,
 		TextSize = 15,
-		Size = UDim2.new(1, -S(100), 0, S(22)),
-		Position = UDim2.fromOffset(S(10), S(8)),
+		Size = UDim2.new(1, -S(100), 0, S(24)),
+		Position = UDim2.fromOffset(S(12), S(8)),
 		Parent = card,
 	})
 	line2 = C.Text({
 		TextSize = 13,
 		Color = Theme.TextDim,
 		Size = UDim2.new(1, -S(100), 0, S(20)),
-		Position = UDim2.fromOffset(S(10), S(34)),
+		Position = UDim2.fromOffset(S(12), S(36)),
 		Parent = card,
 	})
 	C.Button({
 		Key = "UI_GATE_LEAVE",
 		TextSize = 13,
-		Size = UDim2.fromOffset(S(80), S(26)),
-		Position = UDim2.new(1, -S(8), 0, S(6)),
+		Size = UDim2.fromOffset(S(80), S(28)),
+		Position = UDim2.new(1, -S(8), 0, S(8)),
 		AnchorPoint = Vector2.new(1, 0),
 		Color = Theme.PanelLight,
 		OnClick = function()
@@ -107,10 +109,10 @@ local function build()
 	startButton = C.Button({
 		Key = "UI_GATE_START",
 		TextSize = 13,
-		Size = UDim2.fromOffset(S(80), S(26)),
-		Position = UDim2.new(1, -S(8), 1, -S(6)),
+		Size = UDim2.fromOffset(S(80), S(28)),
+		Position = UDim2.new(1, -S(8), 1, -S(8)),
 		AnchorPoint = Vector2.new(1, 1),
-		Color = Theme.Success,
+		Color = Theme.Accent,
 		TextColor = Theme.Bg,
 		Visible = false,
 		OnClick = function()
@@ -121,7 +123,7 @@ local function build()
 
 	bossFrame = C.Make("Frame", {
 		Name = "BossBar",
-		Size = UDim2.fromOffset(S(360), S(34)),
+		Size = UDim2.fromOffset(S(360), S(36)),
 		Position = UDim2.new(0.5, 0, 0, S(80)),
 		AnchorPoint = Vector2.new(0.5, 0),
 		BackgroundTransparency = 1,
@@ -139,7 +141,7 @@ local function build()
 	})
 	local _, fill = C.Bar({
 		Size = UDim2.new(1, 0, 0, S(12)),
-		Position = UDim2.fromOffset(0, S(18)),
+		Position = UDim2.fromOffset(0, S(20)),
 		Color = Theme.Danger,
 		Value = 1,
 		Parent = bossFrame,

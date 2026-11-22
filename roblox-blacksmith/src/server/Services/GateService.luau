@@ -383,7 +383,7 @@ local function spawnPortal()
 	local label = Instance.new("TextLabel")
 	label.Size = UDim2.fromScale(1, 1)
 	label.BackgroundTransparency = 1
-	label.Font = Enum.Font.GothamBlack
+	label.Font = Enum.Font.GothamMedium
 	label.TextScaled = true
 	label.TextColor3 = Color3.new(1, 1, 1)
 	label.TextStrokeTransparency = 0.3
@@ -420,7 +420,10 @@ local function spawnPortal()
 			mult = G.RedGate.RewardMult,
 		})
 	else
-		SystemService:Announce("Info", "SYS_GATE_OPEN_TITLE", "SYS_GATE_OPEN_BODY", { gate = "@" .. gate.NameKey })
+		SystemService:Announce("Info", "SYS_GATE_OPEN_TITLE", "SYS_GATE_OPEN_BODY", {
+			gate = "@" .. gate.NameKey,
+			minutes = math.floor(G.PortalLifetimeSeconds / 60),
+		})
 	end
 end
 

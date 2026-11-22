@@ -76,12 +76,32 @@ function WeaponCard.Create(props: CardProps): TextButton
 	C.Text({
 		Key = "UI_QUALITY",
 		Args = { value = weapon.Quality },
-		TextSize = 12,
+		TextSize = 11,
 		Color = Theme.TextDim,
-		Size = UDim2.new(1, -S(18), 0, S(14)),
-		Position = UDim2.fromOffset(S(14), S(56)),
+		AlignX = Enum.TextXAlignment.Right,
+		Size = UDim2.new(1, -S(20), 0, S(13)),
+		Position = UDim2.fromOffset(S(14), S(23)),
 		Parent = card,
 	})
+	-- черты оружия
+	local traits = {}
+	for _, id in weapon.Traits or {} do
+		local t = Config.Traits[id]
+		if t then
+			table.insert(traits, Localization.Get(t.NameKey))
+		end
+	end
+	if #traits > 0 then
+		C.Text({
+			Text = table.concat(traits, " · "),
+			TextSize = 11,
+			Font = Theme.FontBold,
+			Color = Theme.Gold,
+			Size = UDim2.new(1, -S(18), 0, S(14)),
+			Position = UDim2.fromOffset(S(14), S(57)),
+			Parent = card,
+		})
+	end
 
 	if props.Equipped then
 		C.Text({

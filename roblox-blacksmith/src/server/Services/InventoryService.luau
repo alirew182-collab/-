@@ -14,7 +14,7 @@ local Types = require(ReplicatedStorage.Shared.Types)
 local Guards = require(script.Parent.Parent.Util.Guards)
 local DataService = require(script.Parent.DataService)
 local NetService = require(script.Parent.NetService)
-local TutorialService = require(script.Parent.TutorialService)
+local ProgressService = require(script.Parent.ProgressService)
 
 local InventoryService = {}
 
@@ -45,7 +45,8 @@ function InventoryService:AddWeapon(
 	weaponType: string,
 	oreId: string,
 	quality: number,
-	rarity: string
+	rarity: string,
+	traits: { string }?
 ): Types.WeaponData?
 	local data = DataService:Get(player)
 	if not data or InventoryService:IsFull(player) then
@@ -57,7 +58,7 @@ function InventoryService:AddWeapon(
 		Ore = oreId,
 		Quality = math.clamp(math.floor(quality), 0, 100),
 		Rarity = rarity,
-		Traits = {},
+		Traits = traits or {},
 		Xp = 0,
 		CreatedAt = os.time(),
 	}
@@ -189,6 +190,28 @@ function InventoryService:RefreshVisual(player: Player)
 		weld.C1 = CFrame.new(0, 0, primary.Size.Z / 2 - 0.4)
 	end
 	weld.Parent = primary
+
+	-- аура редкого оружия (Epic+): частицы цвета редкости, у Divine ещё и свет
+	local rarity = Config.Rarities[weapon.Rarity]
+	if rarity and rarity.Order >= 3 then
+		local aura = Instance.new("ParticleEmitter")
+		aura.Name = "RarityAura"
+		aura.Color = ColorSequence.new(rarity.Color)
+		aura.LightEmission = 1
+		aura.Rate = 4 + rarity.Order * 3
+		aura.Lifetime = NumberRange.new(0.4, 0.8)
+		aura.Speed = NumberRange.new(0.5, 1.5)
+		aura.Size = NumberSequence.new(0.25, 0)
+		aura.SpreadAngle = Vector2.new(180, 180)
+		aura.Parent = primary
+		if rarity.Order >= 6 then
+			local glow = Instance.new("PointLight")
+			glow.Color = rarity.Color
+			glow.Range = 8
+			glow.Brightness = 1.5
+			glow.Parent = primary
+		end
+	end
 	visual.Parent = character
 end
 
@@ -204,7 +227,7 @@ function InventoryService:Equip(player: Player, weaponId: string): (boolean, str
 	data.EquippedWeapon = weaponId
 	DataService:Replicate(player, "EquippedWeapon")
 	InventoryService:RefreshVisual(player)
-	TutorialService:Record(player, "WeaponEquipped")
+	ProgressService:Record(player, "WeaponEquipped")
 	return true, nil
 end
 

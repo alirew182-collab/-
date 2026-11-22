@@ -45,6 +45,77 @@ Localization.Changed:Connect(function()
 	end
 end)
 
+-- ===== Адаптивность =====
+-- Корневые блоки интерфейса получают UIScale: при изменении размера окна/повороте экрана
+-- UIController пересчитывает масштаб, и всё увеличивается/уменьшается от своей точки привязки.
+
+local adaptive: { [UIScale]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+local adaptiveFactor = 1
+
+function C.Adaptive(obj: GuiObject): GuiObject
+	local scale = Instance.new("UIScale")
+	scale.Name = "AdaptiveScale"
+	scale.Scale = adaptiveFactor
+	scale.Parent = obj
+	adaptive[scale] = true
+	return obj
+end
+
+function C.SetAdaptiveFactor(factor: number)
+	adaptiveFactor = factor
+	for scale in adaptive do
+		if scale.Parent then
+			scale.Scale = factor
+		end
+	end
+end
+
+-- Подсказки клавиш: { KeyboardMouse = "F", Gamepad = "L2" } — видны только в нужном режиме
+type Hint = { Label: TextLabel, Keys: { [string]: string } }
+local hints: { Hint } = {}
+local inputMode = "KeyboardMouse"
+
+local function applyHint(h: Hint)
+	local key = h.Keys[inputMode]
+	h.Label.Visible = key ~= nil
+	if key then
+		h.Label.Text = key
+	end
+end
+
+function C.SetInputMode(mode: string)
+	inputMode = mode
+	for i = #hints, 1, -1 do
+		local h = hints[i]
+		if h.Label.Parent then
+			applyHint(h)
+		else
+			table.remove(hints, i)
+		end
+	end
+end
+
+function C.KeyHint(parent: GuiObject, keys: { [string]: string }): TextLabel
+	local label = Instance.new("TextLabel")
+	label.Name = "KeyHint"
+	label.Size = UDim2.fromOffset(Theme.S(26), Theme.S(18))
+	label.Position = UDim2.new(1, Theme.S(4), 0, -Theme.S(4))
+	label.AnchorPoint = Vector2.new(1, 0)
+	label.BackgroundColor3 = Color3.fromRGB(240, 240, 250)
+	label.TextColor3 = Color3.fromRGB(20, 25, 40)
+	label.Font = Enum.Font.GothamBold
+	label.TextSize = Theme.S(11)
+	label.ZIndex = (parent.ZIndex or 1) + 2
+	label.Parent = parent
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, Theme.S(4))
+	corner.Parent = label
+	local h = { Label = label, Keys = keys }
+	table.insert(hints, h)
+	applyHint(h)
+	return label
+end
+
 -- ===== Базовые =====
 
 function C.Make(className: string, props: { [string]: any }, children: { Instance }?): any
@@ -118,6 +189,9 @@ function C.Panel(props: { [string]: any }): Frame
 		ZIndex = props.ZIndex or 1,
 		Parent = props.Parent,
 	})
+	if props.Adaptive then
+		C.Adaptive(frame)
+	end
 	C.Corner(frame, props.Radius or 10)
 	C.Stroke(frame, props.StrokeColor or Theme.Accent, props.StrokeThickness or 2, 0.1)
 	C.Make("UIGradient", {

@@ -13,6 +13,11 @@ local Forging = {
 	SessionTimeoutSeconds = 90, -- сессия ковки протухает
 	MinDurationTolerance = 0.85, -- сервер не примет результат быстрее 85% от минимальной длительности мини-игры
 
+	-- Редкость: удача = 1 + качество(0..1) * RarityLuckPerQuality + RarityLuck руды
+	RarityLuckPerQuality = 0.6,
+	AnnounceMinRarity = "Mythic", -- объявление на весь сервер
+	CelebrateMinRarity = "Legendary", -- большой эффект у самого игрока
+
 	XpBase = 10, -- опыт за ковку = XpBase + OreCost * XpPerOre руды * XpOreFactor
 	XpOreFactor = 0.5,
 

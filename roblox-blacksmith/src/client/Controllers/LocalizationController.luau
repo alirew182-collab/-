@@ -26,6 +26,35 @@ local function localizePrompt(prompt: ProximityPrompt)
 	end
 end
 
+-- ===== Тексты в мире (имена мобов, доски лидеров) =====
+-- Сервер ставит на TextLabel атрибут LocKey, остальные атрибуты — аргументы ({name}, {level}).
+local worldLabels: { [TextLabel]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+
+local function renderWorld(label: TextLabel)
+	local key = label:GetAttribute("LocKey")
+	if type(key) ~= "string" then
+		return
+	end
+	local args = {}
+	for name, value in label:GetAttributes() do
+		if name ~= "LocKey" then
+			args[name] = value
+		end
+	end
+	label.Text = Localization.Get(key, args)
+end
+
+local function trackWorld(inst: Instance)
+	if not inst:IsA("TextLabel") or worldLabels[inst] then
+		return
+	end
+	worldLabels[inst] = true
+	inst.AttributeChanged:Connect(function()
+		renderWorld(inst)
+	end)
+	renderWorld(inst)
+end
+
 function LocalizationController:Init()
 	-- до загрузки данных — язык аккаунта, чтобы первый экран был понятен
 	Localization.SetLanguage(Localization.Detect(Players.LocalPlayer.LocaleId))
@@ -34,6 +63,18 @@ end
 function LocalizationController:Start()
 	ProximityPromptService.PromptShown:Connect(function(prompt)
 		localizePrompt(prompt)
+	end)
+
+	workspace.DescendantAdded:Connect(trackWorld)
+	for _, inst in workspace:GetDescendants() do
+		trackWorld(inst)
+	end
+	Localization.Changed:Connect(function()
+		for label in worldLabels do
+			if label.Parent then
+				renderWorld(label)
+			end
+		end
 	end)
 
 	task.spawn(function()

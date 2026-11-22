@@ -25,7 +25,7 @@ local LevelService = require(script.Parent.LevelService)
 local MobService = require(script.Parent.MobService)
 local NetService = require(script.Parent.NetService)
 local SystemService = require(script.Parent.SystemService)
-local TutorialService = require(script.Parent.TutorialService)
+local ProgressService = require(script.Parent.ProgressService)
 
 local GateService = {}
 
@@ -34,6 +34,7 @@ local G = Config.Gates
 type Portal = {
 	Id: string,
 	Gate: any,
+	IsRed: boolean,
 	Part: BasePart,
 	Label: TextLabel,
 	SpawnPoint: Instance?,
@@ -54,6 +55,7 @@ type Arena = {
 type Run = {
 	Id: string,
 	Gate: any,
+	IsRed: boolean,
 	Slot: number,
 	Arena: Arena,
 	Players: { Player },
@@ -198,6 +200,7 @@ local function sendLobbyState(portal: Portal)
 	for i, player in portal.Party do
 		NetService:Fire(player, "GateState", {
 			Phase = "lobby",
+			IsRed = portal.IsRed,
 			GateNameKey = portal.Gate.NameKey,
 			Rank = portal.Gate.Rank,
 			Count = #portal.Party,
@@ -229,6 +232,7 @@ local function sendRunState(run: Run)
 	local boss = run.Boss
 	NetService:FireList(members, "GateState", {
 		Phase = "run",
+		IsRed = run.IsRed,
 		GateNameKey = run.Gate.NameKey,
 		Rank = run.Gate.Rank,
 		Wave = run.Wave,
@@ -331,10 +335,25 @@ local function spawnPortal()
 		baseCFrame = CFrame.new(0, 0.5, 45)
 	end
 
-	local gate = pickGateType()
+	-- новичкам всегда должны быть доступны Врата самого низкого ранга
+	local easiest: any = nil
+	for _, g in G.Types do
+		if not easiest or g.RequiredLevel < easiest.RequiredLevel then
+			easiest = g
+		end
+	end
+	local hasEasy = false
+	for _, p in portals do
+		if p.Gate == easiest then
+			hasEasy = true
+		end
+	end
+	local gate = if hasEasy then pickGateType() else easiest
 	if not gate then
 		return
 	end
+	local isRed = rng:NextNumber() < G.RedGate.Chance
+	local color = if isRed then G.RedGate.Color else gate.PortalColor
 
 	local part = Instance.new("Part")
 	part.Name = "GatePortal"
@@ -345,12 +364,12 @@ local function spawnPortal()
 	part.CanCollide = false
 	part.CanQuery = true
 	part.Material = Enum.Material.Neon
-	part.Color = gate.PortalColor
+	part.Color = color
 	part.Transparency = 0.2
 	part:SetAttribute("GateType", gate.Id)
 
 	local light = Instance.new("PointLight")
-	light.Color = gate.PortalColor
+	light.Color = color
 	light.Range = 18
 	light.Brightness = 3
 	light.Parent = part
@@ -369,12 +388,14 @@ local function spawnPortal()
 	label.TextColor3 = Color3.new(1, 1, 1)
 	label.TextStrokeTransparency = 0.3
 	label.Text = `[{gate.Rank}]`
+	label.TextColor3 = if isRed then Color3.fromRGB(255, 90, 90) else Color3.new(1, 1, 1)
 	label.Parent = billboard
 	billboard.Parent = part
 
 	local portal: Portal = {
 		Id = HttpService:GenerateGUID(false),
 		Gate = gate,
+		IsRed = isRed,
 		Part = part,
 		Label = label,
 		SpawnPoint = point,
@@ -393,7 +414,14 @@ local function spawnPortal()
 	CollectionService:AddTag(part, Config.Tags.GatePortal)
 	table.insert(portals, portal)
 
-	SystemService:Announce("Info", "SYS_GATE_OPEN_TITLE", "SYS_GATE_OPEN_BODY", { gate = "@" .. gate.NameKey })
+	if isRed then
+		SystemService:Announce("Warning", "SYS_REDGATE_TITLE", "SYS_REDGATE_BODY", {
+			gate = "@" .. gate.NameKey,
+			mult = G.RedGate.RewardMult,
+		})
+	else
+		SystemService:Announce("Info", "SYS_GATE_OPEN_TITLE", "SYS_GATE_OPEN_BODY", { gate = "@" .. gate.NameKey })
+	end
 end
 
 function GateService:Join(player: Player, portal: Portal)
@@ -476,12 +504,15 @@ local function spawnWave(run: Run, index: number)
 		return
 	end
 	run.Wave = index
-	local healthMult = 1 + math.max(0, #activeMembers(run) - 1) * G.HealthPerExtraPlayer
+	local healthMult = (1 + math.max(0, #activeMembers(run) - 1) * G.HealthPerExtraPlayer)
+		* (if run.IsRed then G.RedGate.HealthMult else 1)
+	local damageMult = if run.IsRed then G.RedGate.DamageMult else 1
 	for _, entry in run.Gate.Waves[index] do
 		for _ = 1, entry.Count do
 			local mob = MobService:Spawn(entry.Mob, randomMobSpawn(run), {
 				RunId = run.Id,
 				HealthMult = healthMult,
+				DamageMult = damageMult,
 				GetTargets = function()
 					return runTargets(run)
 				end,
@@ -500,10 +531,13 @@ local function spawnBoss(run: Run)
 		return
 	end
 	run.BossPhase = true
-	local healthMult = 1 + math.max(0, #activeMembers(run) - 1) * G.HealthPerExtraPlayer
+	local healthMult = (1 + math.max(0, #activeMembers(run) - 1) * G.HealthPerExtraPlayer)
+		* (if run.IsRed then G.RedGate.HealthMult else 1)
+	local damageMult = if run.IsRed then G.RedGate.DamageMult else 1
 	local boss = MobService:Spawn(run.Gate.Boss, CFrame.new(run.Arena.Center + Vector3.new(0, 6, -run.Arena.Size / 4)), {
 		RunId = run.Id,
 		HealthMult = healthMult,
+		DamageMult = damageMult,
 		GetTargets = function()
 			return runTargets(run)
 		end,
@@ -531,13 +565,14 @@ local function finishRun(run: Run, won: boolean)
 	if won then
 		local bonus = partyBonus(#members)
 		for _, player in members do
-			local gold = gate.Rewards.Gold
-			local xp = math.floor(gate.Rewards.Xp * bonus)
+			local rewardMult = if run.IsRed then G.RedGate.RewardMult else 1
+			local gold = math.floor(gate.Rewards.Gold * rewardMult)
+			local xp = math.floor(gate.Rewards.Xp * bonus * rewardMult)
 			EconomyService:AddGold(player, gold)
 			LevelService:AddXp(player, xp)
 			for _, drop in gate.Rewards.OreDrops do
 				if rng:NextNumber() <= drop.Chance then
-					local count = rng:NextInteger(drop.Min, drop.Max)
+					local count = math.floor(rng:NextInteger(drop.Min, drop.Max) * rewardMult + 0.5)
 					EconomyService:AddOre(player, drop.OreId, count)
 					SystemService:Toast(player, "TOAST_ORE", {
 						count = count,
@@ -548,7 +583,7 @@ local function finishRun(run: Run, won: boolean)
 			DataService:AddStat(player, "GatesCleared", 1)
 			DataService:AddStat(player, "BossesKilled", 1)
 			SystemService:Notify(player, "GateCleared", gate.NameKey, "SYS_GATE_CLEARED_BODY", { gold = gold, xp = xp })
-			TutorialService:Record(player, "GateCleared")
+			ProgressService:Record(player, "GateCleared")
 		end
 	else
 		SystemService:NotifyList(members, "GateFailed", gate.NameKey, "SYS_GATE_FAILED_BODY")
@@ -595,10 +630,12 @@ local function startRun(portal: Portal)
 	end
 
 	local gate = portal.Gate
+	local isRed = portal.IsRed
 	local arena = getArena(slot, gate)
 	local run: Run = {
 		Id = HttpService:GenerateGUID(false),
 		Gate = gate,
+		IsRed = isRed,
 		Slot = slot,
 		Arena = arena,
 		Players = members,
@@ -619,7 +656,7 @@ local function startRun(portal: Portal)
 		playerRun[player] = run
 		local spawnCf = arena.PlayerSpawns[((i - 1) % #arena.PlayerSpawns) + 1]
 		task.spawn(teleport, player, spawnCf)
-		TutorialService:Record(player, "GateEntered")
+		ProgressService:Record(player, "GateEntered")
 	end
 	sendRunState(run)
 	task.delay(G.WaveStartDelaySeconds, spawnWave, run, 1)
@@ -658,6 +695,7 @@ local function onMobDied(mob: any, killer: Player?)
 		LevelService:AddXp(killer, mob.Def.XpReward * bonus)
 		EconomyService:AddGold(killer, mob.Def.GoldReward)
 		DataService:AddStat(killer, "MobsKilled", 1)
+		ProgressService:Record(killer, "MobKilled")
 	end
 
 	if mob == run.Boss then
@@ -733,12 +771,12 @@ local function tick()
 				startRun(portal)
 				continue
 			end
-			portal.Label.Text = `[{portal.Gate.Rank}]  {Format.Time(portal.CountdownEndsAt - t)}`
+			portal.Label.Text = `[{portal.Gate.Rank}{if portal.IsRed then "!" else ""}]  {Format.Time(portal.CountdownEndsAt - t)}`
 			sendLobbyState(portal)
 		elseif t >= portal.ExpiresAt then
 			closePortal(portal)
 		else
-			portal.Label.Text = `[{portal.Gate.Rank}]  {Format.Time(portal.ExpiresAt - t)}`
+			portal.Label.Text = `[{portal.Gate.Rank}{if portal.IsRed then "!" else ""}]  {Format.Time(portal.ExpiresAt - t)}`
 		end
 	end
 

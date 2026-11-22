@@ -12,6 +12,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local ContextActionService = game:GetService("ContextActionService")
+local GuiService = game:GetService("GuiService")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local Localization = require(ReplicatedStorage.Shared.Localization)
@@ -71,6 +72,10 @@ local hammerCounter: TextLabel
 local resultQuality: TextLabel
 local resultName: TextLabel
 local resultDamage: TextLabel
+local resultRarity: TextLabel
+local resultTraits: TextLabel
+local oddsFrame: Frame
+local oddsText: TextLabel
 local lastWeaponId: string? = nil
 
 local function sortedKeys(tbl: { [string]: any }): { string }
@@ -329,6 +334,20 @@ local function showResult(result: any)
 		else Theme.Text
 	C.SetRaw(resultName, Localization.WeaponName(weapon.Type, weapon.Ore))
 	C.Bind(resultDamage, "UI_DMG", { value = result.damage })
+	local rarity = Config.Rarities[weapon.Rarity] or Config.Rarities.Common
+	C.Bind(resultRarity, rarity.NameKey)
+	resultRarity.TextColor3 = rarity.Color
+	local names = {}
+	for _, id in weapon.Traits or {} do
+		local t = Config.Traits[id]
+		if t then
+			table.insert(names, Localization.Get(t.NameKey))
+		end
+	end
+	C.SetRaw(resultTraits, table.concat(names, " · "))
+	if rarity.Order >= 4 then
+		Sound.Play("Celebrate")
+	end
 	showView("result")
 	resultQuality.TextSize = S(48)
 	TweenService:Create(resultQuality, TweenInfo.new(0.35, Enum.EasingStyle.Back), { TextSize = S(36) }):Play()
@@ -347,6 +366,7 @@ local function startForging()
 	end
 	showView("game")
 	-- ПК: пробел = кнопка действия (и не прыгать во время ковки)
+	GuiService.SelectedObject = nil -- иначе кнопка A геймпада нажмёт выделенную кнопку окна
 	ContextActionService:BindActionAtPriority("ForgeAction", function(_, state: Enum.UserInputState)
 		if state == Enum.UserInputState.Begin then
 			onPress()
@@ -469,6 +489,66 @@ local function build()
 		Position = UDim2.fromOffset(0, S(170)),
 		Parent = selectView,
 	})
+	-- шансы редкости (правила Roblox: шансы случайных наград должны быть видны)
+	C.Button({
+		Key = "UI_ODDS",
+		TextSize = 13,
+		Size = UDim2.fromOffset(S(84), S(30)),
+		Position = UDim2.new(1, 0, 0, S(160)),
+		AnchorPoint = Vector2.new(1, 0),
+		Color = Theme.PanelLight,
+		OnClick = function()
+			local lines = { Localization.Get("UI_ODDS_TITLE") }
+			local low = WeaponMath.RarityOdds(0, selectedOre)
+			local high = WeaponMath.RarityOdds(100, selectedOre)
+			for i, o in low do
+				local function pct(v: number): string
+					return if v >= 0.01 then string.format("%.1f", v * 100) else string.format("%.2f", v * 100)
+				end
+				table.insert(lines, Localization.Get("UI_ODDS_LINE", {
+					rarity = "@" .. Config.Rarities[o.Id].NameKey,
+					low = pct(o.Chance),
+					high = pct(high[i].Chance),
+				}))
+			end
+			table.insert(lines, Localization.Get("UI_ODDS_HINT"))
+			C.SetRaw(oddsText, table.concat(lines, "\n"))
+			oddsFrame.Visible = not oddsFrame.Visible
+		end,
+		Parent = selectView,
+	})
+	oddsFrame = C.Panel({
+		Name = "Odds",
+		Size = UDim2.new(1, 0, 1, 0),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Color = Theme.Bg,
+		Transparency = 0.02,
+		Visible = false,
+		ZIndex = 20,
+		Parent = selectView,
+	})
+	oddsText = C.Text({
+		TextSize = 14,
+		Wrapped = true,
+		ZIndex = 21,
+		AlignY = Enum.TextYAlignment.Top,
+		Size = UDim2.new(1, -S(20), 1, -S(60)),
+		Position = UDim2.fromOffset(S(10), S(8)),
+		Parent = oddsFrame,
+	})
+	C.Button({
+		Key = "UI_CLOSE",
+		TextSize = 14,
+		ZIndex = 21,
+		Size = UDim2.fromOffset(S(140), S(40)),
+		Position = UDim2.new(0.5, 0, 1, -S(8)),
+		AnchorPoint = Vector2.new(0.5, 1),
+		OnClick = function()
+			oddsFrame.Visible = false
+		end,
+		Parent = oddsFrame,
+	})
+
 	forgeButton = C.Button({
 		Key = "UI_FORGE_BUTTON",
 		Font = Theme.FontTitle,
@@ -653,6 +733,22 @@ local function build()
 		AlignX = Enum.TextXAlignment.Center,
 		Size = UDim2.new(1, 0, 0, S(22)),
 		Position = UDim2.fromOffset(0, S(96)),
+		Parent = resultView,
+	})
+	resultRarity = C.Text({
+		Font = Theme.FontTitle,
+		TextSize = 18,
+		AlignX = Enum.TextXAlignment.Center,
+		Size = UDim2.new(1, 0, 0, S(22)),
+		Position = UDim2.fromOffset(0, S(120)),
+		Parent = resultView,
+	})
+	resultTraits = C.Text({
+		TextSize = 14,
+		Color = Theme.Gold,
+		AlignX = Enum.TextXAlignment.Center,
+		Size = UDim2.new(1, 0, 0, S(20)),
+		Position = UDim2.fromOffset(0, S(144)),
 		Parent = resultView,
 	})
 	C.Button({

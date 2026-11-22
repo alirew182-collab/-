@@ -9,6 +9,7 @@ local Controllers = script:WaitForChild("Controllers")
 
 local ORDER = {
 	"DataController",
+	"InputController",
 	"UIController",
 	"LocalizationController",
 	"SystemWindowController",
@@ -20,6 +21,8 @@ local ORDER = {
 	"CombatController",
 	"GateController",
 	"FxController",
+	"MenuController",
+	"ZoneController",
 }
 
 local controllers: { [string]: any } = {}

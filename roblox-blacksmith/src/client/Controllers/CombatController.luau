@@ -12,11 +12,13 @@ local UserInputService = game:GetService("UserInputService")
 
 local Config = require(ReplicatedStorage.Shared.Config)
 local Net = require(ReplicatedStorage.Shared.Net)
+local WeaponMath = require(ReplicatedStorage.Shared.WeaponMath)
 local C = require(script.Parent.Parent.UI.Components)
 local Sound = require(script.Parent.Parent.UI.Sound)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local DataController = require(script.Parent.DataController)
 local ForgeController = require(script.Parent.ForgeController)
+local InputController = require(script.Parent.InputController)
 local UIController = require(script.Parent.UIController)
 
 local S = Theme.S
@@ -31,15 +33,20 @@ local blocking = false
 local lastAttack = 0
 local swingTrack: AnimationTrack? = nil
 
-local function weaponStats(): any
+local cluster: Frame
+
+-- пауза между ударами с учётом черт оружия (Быстрота, Тяжесть)
+local function attackCooldown(): number
 	local data = DataController:Get()
 	if data and data.EquippedWeapon ~= "" then
-		local weapon = data.Weapons[data.EquippedWeapon]
-		if weapon and Config.Weapons[weapon.Type] then
-			return Config.Weapons[weapon.Type]
-		end
+		return WeaponMath.Cooldown(data.Weapons[data.EquippedWeapon])
 	end
-	return Config.Combat.Fists
+	return WeaponMath.Cooldown(nil)
+end
+
+-- большие кнопки только на сенсорных экранах; на ПК/геймпаде — подсказка внизу экрана
+local function refreshMode()
+	cluster.Visible = InputController:IsTouch()
 end
 
 local function isAlive(): boolean
@@ -69,7 +76,7 @@ local function attack()
 		return
 	end
 	local now = os.clock()
-	if now - lastAttack < weaponStats().AttackCooldown then
+	if now - lastAttack < attackCooldown() then
 		return
 	end
 	lastAttack = now
@@ -102,7 +109,7 @@ local function isPointer(input: InputObject): boolean
 end
 
 local function build()
-	local cluster = C.Make("Frame", {
+	cluster = C.Make("Frame", {
 		Name = "CombatButtons",
 		Size = UDim2.fromOffset(S(190), S(100)),
 		Position = UDim2.new(1, -S(175), 1, -S(16)),
@@ -110,6 +117,7 @@ local function build()
 		BackgroundTransparency = 1,
 		Parent = UIController.Layers.Hud,
 	})
+	C.Adaptive(cluster)
 	attackButton = C.Button({
 		Name = "Attack",
 		Key = "UI_ATTACK",
@@ -164,6 +172,8 @@ end
 
 function CombatController:Start()
 	build()
+	refreshMode()
+	InputController.Changed:Connect(refreshMode)
 
 	UserInputService.InputBegan:Connect(function(input, processed)
 		if processed then

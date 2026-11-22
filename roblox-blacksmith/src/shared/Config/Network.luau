@@ -24,6 +24,8 @@ local Network: { Default: Limit, Limits: { [string]: Limit } } = {
 		SetLanguage = { PerSecond = 0.5, Burst = 2 },
 		GateStart = { PerSecond = 1, Burst = 2 },
 		GateLeave = { PerSecond = 1, Burst = 2 },
+		RedeemCode = { PerSecond = 0.3, Burst = 3 },
+		SetSetting = { PerSecond = 2, Burst = 6 },
 	},
 }
 

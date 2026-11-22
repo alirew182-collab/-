@@ -5,6 +5,8 @@
 		UIController:RegisterPanel("Forge", { Frame = frame, OnOpen = fn(payload), OnClose = fn() })
 ]]
 
+local ContextActionService = game:GetService("ContextActionService")
+local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
@@ -15,6 +17,7 @@ local Signal = require(ReplicatedStorage.Shared.Signal)
 local C = require(script.Parent.Parent.UI.Components)
 local Sound = require(script.Parent.Parent.UI.Sound)
 local Theme = require(script.Parent.Parent.UI.Theme)
+local InputController = require(script.Parent.InputController)
 
 local S = Theme.S
 
@@ -73,6 +76,7 @@ function UIController:Init()
 		Parent = UIController.Layers.Toasts,
 	})
 	C.List(toastContainer, Enum.FillDirection.Vertical, 4, Enum.HorizontalAlignment.Center, Enum.VerticalAlignment.Bottom)
+	C.Adaptive(toastContainer)
 
 	-- красная вспышка по краям экрана при получении урона
 	hitFlash = C.Make("Frame", {
@@ -93,7 +97,48 @@ function UIController:Init()
 	})
 end
 
+-- Геймпад: выделить первую кнопку открытого окна (кроме крестика)
+local function focusPanel(frame: GuiObject)
+	if not InputController:IsGamepad() then
+		return
+	end
+	local best: GuiObject? = nil
+	for _, d in frame:GetDescendants() do
+		if d:IsA("GuiButton") and d.Visible and d.Name ~= "Close" and d.Selectable then
+			best = d
+			break
+		end
+	end
+	GuiService.SelectedObject = best
+end
+
+local function watchViewport()
+	local connection: RBXScriptConnection? = nil
+	local function hook()
+		if connection then
+			connection:Disconnect()
+		end
+		local camera = workspace.CurrentCamera
+		if camera then
+			connection = camera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
+				C.SetAdaptiveFactor(Theme.ComputeScale() / Theme.Scale)
+			end)
+			C.SetAdaptiveFactor(Theme.ComputeScale() / Theme.Scale)
+		end
+	end
+	workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(hook)
+	hook()
+end
+
 function UIController:Start()
+	watchViewport()
+	InputController.Changed:Connect(function(mode: string)
+		if openName and mode == "Gamepad" then
+			focusPanel(panels[openName].Frame)
+		elseif mode ~= "Gamepad" then
+			GuiService.SelectedObject = nil
+		end
+	end)
 	Net.Event("Toast").OnClientEvent:Connect(function(payload: { [string]: any })
 		UIController:Toast(payload.Key, payload.Args, payload.Color)
 	end)
@@ -108,6 +153,7 @@ function UIController:RegisterPanel(name: string, panel: Panel)
 	panels[name] = panel
 	panel.Frame.Visible = false
 	panel.Frame.Parent = UIController.Layers.Panels
+	C.Adaptive(panel.Frame)
 end
 
 function UIController:OpenPanel(name: string, payload: any?)
@@ -123,6 +169,14 @@ function UIController:OpenPanel(name: string, payload: any?)
 	if panel.OnOpen then
 		panel.OnOpen(payload)
 	end
+	-- геймпад: B закрывает окно, фокус на первую кнопку
+	ContextActionService:BindActionAtPriority("UIClosePanel", function(_, state)
+		if state == Enum.UserInputState.Begin then
+			UIController:ClosePanel()
+		end
+		return Enum.ContextActionResult.Sink
+	end, false, 2500, Enum.KeyCode.ButtonB)
+	focusPanel(panel.Frame)
 	UIController.PanelChanged:Fire(name)
 end
 
@@ -132,6 +186,8 @@ function UIController:ClosePanel()
 		return
 	end
 	openName = nil
+	ContextActionService:UnbindAction("UIClosePanel")
+	GuiService.SelectedObject = nil
 	local panel = panels[name]
 	panel.Frame.Visible = false
 	if panel.OnClose then

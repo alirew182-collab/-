@@ -18,6 +18,7 @@ export type OreDef = {
 	XpPerOre: number,
 	SellPrice: number, -- цена 1 руды у торговца
 	PowerMult: number, -- множитель урона оружия из этой руды
+	RarityLuck: number, -- бонус к шансам редкости при ковке
 	Color: Color3,
 	Material: Enum.Material,
 }
@@ -36,6 +37,7 @@ local Ores: { [string]: OreDef } = {
 		XpPerOre = 4,
 		SellPrice = 3,
 		PowerMult = 1.0,
+		RarityLuck = 0,
 		Color = Color3.fromRGB(201, 116, 62),
 		Material = Enum.Material.Slate,
 	},
@@ -52,6 +54,7 @@ local Ores: { [string]: OreDef } = {
 		XpPerOre = 9,
 		SellPrice = 8,
 		PowerMult = 1.6,
+		RarityLuck = 0.15,
 		Color = Color3.fromRGB(140, 146, 156),
 		Material = Enum.Material.Slate,
 	},
@@ -68,6 +71,7 @@ local Ores: { [string]: OreDef } = {
 		XpPerOre = 20,
 		SellPrice = 22,
 		PowerMult = 2.6,
+		RarityLuck = 0.35,
 		Color = Color3.fromRGB(170, 210, 255),
 		Material = Enum.Material.Glass,
 	},

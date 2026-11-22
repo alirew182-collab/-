@@ -24,7 +24,7 @@ export type GateTypeDef = {
 local Gates = {
 	FirstSpawnDelaySeconds = 25,
 	SpawnIntervalSeconds = 90,
-	MaxActivePortals = 2,
+	MaxActivePortals = 3,
 	PortalLifetimeSeconds = 240,
 	LobbyCountdownSeconds = 20,
 	MaxPartySize = 4,
@@ -37,6 +37,15 @@ local Gates = {
 	HealthPerExtraPlayer = 0.6,
 	-- Бонус опыта за игру в группе: +10% за каждого игрока сверх первого
 	PartyXpBonusPerPlayer = 0.1,
+
+	-- КРАСНЫЕ ВРАТА: редкое событие — мобы сильнее, награда больше
+	RedGate = {
+		Chance = 0.1,
+		HealthMult = 1.6,
+		DamageMult = 1.3,
+		RewardMult = 2.5,
+		Color = Color3.fromRGB(255, 40, 40),
+	},
 
 	Arena = {
 		Origin = Vector3.new(6000, 300, 0), -- далеко от лобби
@@ -68,6 +77,51 @@ local Gates = {
 				},
 			},
 			PortalColor = Color3.fromRGB(60, 170, 255),
+		},
+		D = {
+			Id = "D",
+			Rank = "D",
+			NameKey = "GATE_D",
+			RequiredLevel = 8,
+			SpawnWeight = 0.6,
+			Arena = "GateArena",
+			Waves = {
+				{ { Mob = "QuarryCrawler", Count = 4 } },
+				{ { Mob = "QuarryCrawler", Count = 3 }, { Mob = "CinderHound", Count = 3 } },
+				{ { Mob = "CinderHound", Count = 5 } },
+			},
+			Boss = "StoneColossus",
+			Rewards = {
+				Gold = 180,
+				Xp = 600,
+				OreDrops = {
+					{ OreId = "Iron", Chance = 1.0, Min = 3, Max = 6 },
+					{ OreId = "Moonsilver", Chance = 0.4, Min = 1, Max = 2 },
+				},
+			},
+			PortalColor = Color3.fromRGB(120, 255, 140),
+		},
+		C = {
+			Id = "C",
+			Rank = "C",
+			NameKey = "GATE_C",
+			RequiredLevel = 15,
+			SpawnWeight = 0.35,
+			Arena = "GateArena",
+			Waves = {
+				{ { Mob = "FrostWisp", Count = 4 } },
+				{ { Mob = "FrostWisp", Count = 3 }, { Mob = "GraveSentinel", Count = 2 } },
+				{ { Mob = "GraveSentinel", Count = 4 } },
+			},
+			Boss = "RimeTyrant",
+			Rewards = {
+				Gold = 450,
+				Xp = 1500,
+				OreDrops = {
+					{ OreId = "Moonsilver", Chance = 1.0, Min = 2, Max = 4 },
+				},
+			},
+			PortalColor = Color3.fromRGB(190, 110, 255),
 		},
 	} :: { [string]: GateTypeDef },
 }

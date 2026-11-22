@@ -27,8 +27,9 @@ export type Mob = {
 	Model: Model,
 	Root: BasePart,
 	Humanoid: Humanoid,
-	Highlight: Highlight,
+	Alert: BillboardGui, -- «!» над головой во время замаха
 	BarFill: Frame,
+	Burn: ParticleEmitter,
 	Health: number,
 	MaxHealth: number,
 	DamageMult: number,
@@ -42,6 +43,13 @@ export type Mob = {
 	StunUntil: number,
 	SlamPosition: Vector3?,
 	SlamMarker: BasePart?,
+	Home: Vector3?,
+	LeashRadius: number?,
+	AggroRadius: number?,
+	BurnUntil: number,
+	BurnDps: number,
+	BurnAcc: number,
+	BurnAttacker: Player?,
 }
 
 export type SpawnOptions = {
@@ -49,6 +57,9 @@ export type SpawnOptions = {
 	HealthMult: number?,
 	DamageMult: number?,
 	GetTargets: () -> { Player },
+	Home: Vector3?, -- мобы открытого мира возвращаются сюда
+	LeashRadius: number?,
+	AggroRadius: number?,
 }
 
 local active: { [Mob]: boolean } = {}
@@ -63,13 +74,29 @@ local poolFolder: Folder
 local function addHealthBar(root: BasePart, def: any): Frame
 	local gui = Instance.new("BillboardGui")
 	gui.Name = "HealthBar"
-	gui.Size = UDim2.new(if def.IsBoss then 7 else 3.5, 0, if def.IsBoss then 0.6 else 0.4, 0)
-	gui.StudsOffsetWorldSpace = Vector3.new(0, def.Size.Y / 2 + 1.2, 0)
+	gui.Size = UDim2.new(if def.IsBoss then 8 else 4.5, 0, if def.IsBoss then 1.6 else 1.1, 0)
+	gui.StudsOffsetWorldSpace = Vector3.new(0, def.Size.Y / 2 + 1.4, 0)
 	gui.MaxDistance = 90
 	gui.LightInfluence = 0
 	gui.Adornee = root
+	-- имя переводит клиент (LocalizationController): атрибуты LocKey + name + level
+	local name = Instance.new("TextLabel")
+	name.Name = "MobName"
+	name.Size = UDim2.fromScale(1, 0.55)
+	name.BackgroundTransparency = 1
+	name.Font = Enum.Font.GothamBold
+	name.TextScaled = true
+	name.TextColor3 = if def.IsBoss then Color3.fromRGB(255, 120, 120) else Color3.new(1, 1, 1)
+	name.TextStrokeTransparency = 0.3
+	name.Text = def.Id
+	name:SetAttribute("LocKey", "UI_MOB_NAME")
+	name:SetAttribute("name", "@" .. def.NameKey)
+	name:SetAttribute("level", def.Level or 1)
+	name.Parent = gui
 	local bg = Instance.new("Frame")
-	bg.Size = UDim2.fromScale(1, 1)
+	bg.Name = "Bg"
+	bg.Size = UDim2.fromScale(1, 0.38)
+	bg.Position = UDim2.fromScale(0, 0.62)
 	bg.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
 	bg.BorderSizePixel = 0
 	bg.Parent = gui
@@ -144,15 +171,40 @@ local function prepareModel(def: any): Model
 	humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
 	humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
 
-	local highlight = Instance.new("Highlight")
-	highlight.Name = "WindupHighlight"
-	highlight.FillColor = Color3.fromRGB(255, 40, 40)
-	highlight.OutlineColor = Color3.fromRGB(255, 220, 220)
-	highlight.FillTransparency = 0.45
-	highlight.Enabled = false
-	highlight.Parent = model
+	local root = model.PrimaryPart :: BasePart
 
-	addHealthBar(model.PrimaryPart :: BasePart, def)
+	-- «!» над головой во время замаха (Highlight не используем: их максимум 31 на экране)
+	local alert = Instance.new("BillboardGui")
+	alert.Name = "Alert"
+	alert.Size = UDim2.fromScale(2.2, 2.2)
+	alert.StudsOffsetWorldSpace = Vector3.new(0, def.Size.Y / 2 + (if def.IsBoss then 4 else 3), 0)
+	alert.AlwaysOnTop = true
+	alert.LightInfluence = 0
+	alert.MaxDistance = 80
+	alert.Enabled = false
+	local mark = Instance.new("TextLabel")
+	mark.Size = UDim2.fromScale(1, 1)
+	mark.BackgroundTransparency = 1
+	mark.Font = Enum.Font.GothamBlack
+	mark.TextScaled = true
+	mark.Text = "!"
+	mark.TextColor3 = Color3.fromRGB(255, 60, 60)
+	mark.TextStrokeTransparency = 0
+	mark.Parent = alert
+	alert.Parent = root
+
+	local burn = Instance.new("ParticleEmitter")
+	burn.Name = "Burn"
+	burn.Enabled = false
+	burn.Rate = 15
+	burn.Lifetime = NumberRange.new(0.4, 0.8)
+	burn.Speed = NumberRange.new(2, 5)
+	burn.Color = ColorSequence.new(Color3.fromRGB(255, 160, 40), Color3.fromRGB(255, 50, 20))
+	burn.Size = NumberSequence.new(0.8, 0)
+	burn.LightEmission = 1
+	burn.Parent = root
+
+	addHealthBar(root, def)
 	return model
 end
 
@@ -175,13 +227,15 @@ function MobService:Spawn(mobId: string, cframe: CFrame, options: SpawnOptions):
 
 	local root = model.PrimaryPart :: BasePart
 	local humanoid = model:FindFirstChildOfClass("Humanoid") :: Humanoid
-	local highlight = model:FindFirstChild("WindupHighlight") :: Highlight
+	local alert = root:FindFirstChild("Alert") :: BillboardGui
+	local burn = root:FindFirstChild("Burn") :: ParticleEmitter
 	local bar = root:FindFirstChild("HealthBar") :: BillboardGui
-	local fill = (bar:FindFirstChildOfClass("Frame") :: Frame):FindFirstChild("Fill") :: Frame
+	local fill = (bar:FindFirstChild("Bg") :: Frame):FindFirstChild("Fill") :: Frame
 
 	local maxHealth = math.floor(def.MaxHealth * (options.HealthMult or 1))
 	fill.Size = UDim2.fromScale(1, 1)
-	highlight.Enabled = false
+	alert.Enabled = false
+	burn.Enabled = false
 	humanoid.WalkSpeed = def.WalkSpeed
 
 	model:PivotTo(cframe)
@@ -198,8 +252,9 @@ function MobService:Spawn(mobId: string, cframe: CFrame, options: SpawnOptions):
 		Model = model,
 		Root = root,
 		Humanoid = humanoid,
-		Highlight = highlight,
+		Alert = alert,
 		BarFill = fill,
+		Burn = burn,
 		Health = maxHealth,
 		MaxHealth = maxHealth,
 		DamageMult = options.DamageMult or 1,
@@ -213,6 +268,13 @@ function MobService:Spawn(mobId: string, cframe: CFrame, options: SpawnOptions):
 		StunUntil = 0,
 		SlamPosition = nil,
 		SlamMarker = nil,
+		Home = options.Home,
+		LeashRadius = options.LeashRadius,
+		AggroRadius = options.AggroRadius,
+		BurnUntil = 0,
+		BurnDps = 0,
+		BurnAcc = 0,
+		BurnAttacker = nil,
 	}
 	active[mob] = true
 	return mob
@@ -229,7 +291,9 @@ end
 local function release(mob: Mob)
 	active[mob] = nil
 	clearSlam(mob)
-	mob.Highlight.Enabled = false
+	mob.Alert.Enabled = false
+	mob.Burn.Enabled = false
+	mob.BurnUntil = 0
 	mob.Model.Parent = poolFolder
 	local list = pool[mob.Def.Id]
 	if not list then
@@ -237,6 +301,10 @@ local function release(mob: Mob)
 		pool[mob.Def.Id] = list
 	end
 	table.insert(list, mob.Model)
+end
+
+local function setBar(mob: Mob)
+	mob.BarFill.Size = UDim2.fromScale(math.clamp(mob.Health / mob.MaxHealth, 0, 1), 1)
 end
 
 function MobService:IsAlive(mob: Mob): boolean
@@ -249,7 +317,7 @@ function MobService:Damage(mob: Mob, amount: number, attacker: Player?): boolean
 		return false
 	end
 	mob.Health = math.max(0, mob.Health - amount)
-	mob.BarFill.Size = UDim2.fromScale(mob.Health / mob.MaxHealth, 1)
+	setBar(mob)
 	MobService.MobDamaged:Fire(mob, amount, attacker)
 	if mob.Health > 0 then
 		return false
@@ -257,7 +325,7 @@ function MobService:Damage(mob: Mob, amount: number, attacker: Player?): boolean
 
 	mob.State = "dead"
 	clearSlam(mob)
-	mob.Highlight.Enabled = false
+	mob.Alert.Enabled = false
 	mob.Humanoid:MoveTo(mob.Root.Position)
 	NetService:FxNear(mob.Root.Position, Config.Combat.DamageFxRadius, {
 		Kind = "MobDeath",
@@ -279,9 +347,20 @@ function MobService:Stun(mob: Mob, seconds: number)
 	end
 	mob.State = "stunned"
 	mob.StunUntil = os.clock() + seconds
-	mob.Highlight.Enabled = false
+	mob.Alert.Enabled = false
 	clearSlam(mob)
 	mob.Humanoid:MoveTo(mob.Root.Position)
+end
+
+-- Горение (черта оружия «Огонь»): dps урона в секунду в течение seconds
+function MobService:ApplyBurn(mob: Mob, dps: number, seconds: number, attacker: Player?)
+	if not MobService:IsAlive(mob) or dps <= 0 then
+		return
+	end
+	mob.BurnDps = math.max(mob.BurnDps, dps)
+	mob.BurnUntil = os.clock() + seconds
+	mob.BurnAttacker = attacker
+	mob.Burn.Enabled = true
 end
 
 -- Живые мобы в радиусе (с учётом их размера)
@@ -375,7 +454,7 @@ local function startSlam(mob: Mob, targetRoot: BasePart, now: number)
 	mob.ActionEndsAt = now + def.SlamWindup
 	mob.NextSlamAt = now + def.SlamCooldown
 	mob.SlamPosition = ground
-	mob.Highlight.Enabled = true
+	mob.Alert.Enabled = true
 	mob.Humanoid:MoveTo(mob.Root.Position)
 	face(mob, ground)
 
@@ -410,14 +489,42 @@ local function resolveSlam(mob: Mob)
 		NetService:FxNear(center, Config.Combat.DamageFxRadius, { Kind = "Slam", Position = center, Radius = mob.Def.SlamRadius })
 	end
 	clearSlam(mob)
-	mob.Highlight.Enabled = false
+	mob.Alert.Enabled = false
 	mob.State = "chase"
+end
+
+local function tickBurn(mob: Mob, now: number): boolean
+	if mob.BurnUntil <= 0 then
+		return false
+	end
+	if now >= mob.BurnUntil then
+		mob.BurnUntil = 0
+		mob.BurnDps = 0
+		mob.BurnAcc = 0
+		mob.Burn.Enabled = false
+		return false
+	end
+	mob.BurnAcc += mob.BurnDps * Config.Combat.MobAiTickSeconds
+	if mob.BurnAcc >= 1 then
+		local damage = math.floor(mob.BurnAcc)
+		mob.BurnAcc -= damage
+		NetService:FxNear(mob.Root.Position, Config.Combat.DamageFxRadius, {
+			Kind = "Burn",
+			Position = mob.Root.Position + Vector3.new(0, mob.Def.Size.Y / 2, 0),
+			Amount = damage,
+		})
+		return MobService:Damage(mob, damage, mob.BurnAttacker)
+	end
+	return false
 end
 
 local function tickMob(mob: Mob, now: number)
 	local state = mob.State
 	if state == "dead" then
 		return
+	end
+	if tickBurn(mob, now) then
+		return -- сгорел
 	end
 	if state == "stunned" then
 		if now < mob.StunUntil then
@@ -428,7 +535,7 @@ local function tickMob(mob: Mob, now: number)
 		if now < mob.ActionEndsAt then
 			return
 		end
-		mob.Highlight.Enabled = false
+		mob.Alert.Enabled = false
 		mob.State = "chase"
 		local target = mob.Target
 		local targetRoot = target and Char.Root(target)
@@ -445,8 +552,26 @@ local function tickMob(mob: Mob, now: number)
 
 	-- погоня
 	local target, targetRoot, dist = nearestTarget(mob)
+	if target and targetRoot then
+		-- мобы открытого мира: не видят далёких и не уходят далеко от дома
+		if mob.AggroRadius and dist > mob.AggroRadius then
+			target, targetRoot = nil, nil
+		elseif mob.Home and mob.LeashRadius and (targetRoot.Position - mob.Home).Magnitude > mob.LeashRadius then
+			target, targetRoot = nil, nil
+		end
+	end
 	if not target or not targetRoot then
-		mob.Humanoid:MoveTo(mob.Root.Position)
+		local home = mob.Home
+		if home and (mob.Root.Position - home).Magnitude > 4 then
+			mob.Humanoid:MoveTo(home)
+		else
+			mob.Humanoid:MoveTo(mob.Root.Position)
+		end
+		-- вне боя быстро восстанавливается (нельзя «кайтить» по чуть-чуть)
+		if home and mob.Health < mob.MaxHealth then
+			mob.Health = math.min(mob.MaxHealth, mob.Health + mob.MaxHealth * 0.08)
+			setBar(mob)
+		end
 		return
 	end
 	local def = mob.Def
@@ -459,7 +584,7 @@ local function tickMob(mob: Mob, now: number)
 		mob.Target = target
 		mob.ActionEndsAt = now + def.WindupSeconds
 		mob.NextAttackAt = now + def.AttackCooldown
-		mob.Highlight.Enabled = true
+		mob.Alert.Enabled = true
 		mob.Humanoid:MoveTo(mob.Root.Position)
 		face(mob, targetRoot.Position)
 	elseif dist > def.AttackRange * 0.6 + half then

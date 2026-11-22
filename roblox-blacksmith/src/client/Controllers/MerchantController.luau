@@ -313,13 +313,36 @@ local function build()
 	-- оружие
 	local weaponsFrame = C.Make("Frame", { Size = contentSize, Position = contentPos, BackgroundTransparency = 1, Parent = panel })
 	weaponGrid = WeaponCard.Grid(weaponsFrame, UDim2.new(1, 0, 1, -S(52)), UDim2.new())
+	-- быстро выбрать весь «мусор» (обычное оружие, кроме надетого)
+	C.Button({
+		Key = "UI_SELECT_COMMON",
+		TextSize = 13,
+		Size = UDim2.new(0.34, -S(4), 0, S(46)),
+		Position = UDim2.fromScale(0, 1),
+		AnchorPoint = Vector2.new(0, 1),
+		Color = Theme.PanelLight,
+		OnClick = function()
+			local data = DataController:Get()
+			if not data then
+				return
+			end
+			for id, w in data.Weapons do
+				if w.Rarity == "Common" and id ~= data.EquippedWeapon then
+					selected[id] = true
+				end
+			end
+			confirmUntil = 0
+			refresh()
+		end,
+		Parent = weaponsFrame,
+	})
 	sellButton = C.Button({
 		Font = Theme.FontTitle,
 		TextSize = 16,
 		TextColor = Theme.Bg,
-		Size = UDim2.new(1, 0, 0, S(46)),
-		Position = UDim2.fromScale(0, 1),
-		AnchorPoint = Vector2.new(0, 1),
+		Size = UDim2.new(0.66, -S(4), 0, S(46)),
+		Position = UDim2.fromScale(1, 1),
+		AnchorPoint = Vector2.new(1, 1),
 		Color = Theme.Gold,
 		OnClick = sellSelected,
 		Parent = weaponsFrame,

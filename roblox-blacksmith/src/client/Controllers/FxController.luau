@@ -10,6 +10,8 @@ local TweenService = game:GetService("TweenService")
 
 local Localization = require(ReplicatedStorage.Shared.Localization)
 local Net = require(ReplicatedStorage.Shared.Net)
+local Config = require(ReplicatedStorage.Shared.Config)
+local ClientSettings = require(script.Parent.Parent.UI.ClientSettings)
 local Sound = require(script.Parent.Parent.UI.Sound)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local UIController = require(script.Parent.UIController)
@@ -68,6 +70,9 @@ local function build()
 end
 
 local function popup(position: Vector3, text: string, color: Color3, big: boolean?)
+	if not ClientSettings.DamageNumbers and not big then
+		return
+	end
 	popupIndex = popupIndex % POOL_SIZE + 1
 	local p = popups[popupIndex]
 	local offset = Vector3.new(math.random() * 2 - 1, 0, math.random() * 2 - 1)
@@ -96,6 +101,9 @@ local function popup(position: Vector3, text: string, color: Color3, big: boolea
 end
 
 local function burst(position: Vector3, color: Color3, count: number)
+	if ClientSettings.LowGraphics then
+		count = math.ceil(count / 4)
+	end
 	burstIndex = burstIndex % PARTICLE_POOL + 1
 	local b = bursts[burstIndex]
 	b.Attachment.WorldPosition = position
@@ -113,7 +121,11 @@ local function onFx(payload: { [string]: any })
 
 	if kind == "Damage" then
 		local mine = payload.ByUserId == localId
-		popup(position, tostring(payload.Amount), if mine then Theme.Gold else Theme.Text, false)
+		if payload.Crit then
+			popup(position, `{Localization.Get("FX_CRIT")} {payload.Amount}!`, Color3.fromRGB(255, 120, 40), true)
+		else
+			popup(position, tostring(payload.Amount), if mine then Theme.Gold else Theme.Text, false)
+		end
 		burst(position, Color3.fromRGB(255, 220, 160), 6)
 		if mine then
 			Sound.Play("HitMob", 0.5, 0.9 + math.random() * 0.2)
@@ -149,6 +161,29 @@ local function onFx(payload: { [string]: any })
 		burst(position, Color3.fromRGB(255, 120, 60), if payload.Boss then 60 else 20)
 	elseif kind == "Slam" then
 		burst(position, Theme.Danger, 40)
+	elseif kind == "Burn" then
+		popup(position, tostring(payload.Amount), Color3.fromRGB(255, 140, 50), false)
+	elseif kind == "Celebrate" then
+		-- редкая ковка: столб света и взрыв частиц цвета редкости (виден всем рядом)
+		local rarity = Config.Rarities[payload.Rarity] or Config.Rarities.Legendary
+		burst(position, rarity.Color, 80)
+		burst(position + Vector3.new(0, 4, 0), Color3.new(1, 1, 1), 40)
+		popup(position + Vector3.new(0, 5, 0), Localization.Get(rarity.NameKey), rarity.Color, true)
+		local pillar = Instance.new("Part")
+		pillar.Anchored = true
+		pillar.CanCollide = false
+		pillar.CanQuery = false
+		pillar.CastShadow = false
+		pillar.Material = Enum.Material.Neon
+		pillar.Color = rarity.Color
+		pillar.Size = Vector3.new(3, 120, 3)
+		pillar.CFrame = CFrame.new(position + Vector3.new(0, 60, 0))
+		pillar.Transparency = 0.2
+		pillar.Parent = workspace.CurrentCamera -- только на этом клиенте
+		TweenService:Create(pillar, TweenInfo.new(2.5), { Transparency = 1, Size = Vector3.new(0.5, 120, 0.5) }):Play()
+		task.delay(2.6, function()
+			pillar:Destroy()
+		end)
 	end
 end
 

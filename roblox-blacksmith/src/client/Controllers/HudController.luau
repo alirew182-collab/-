@@ -1,9 +1,13 @@
 --!strict
 --[[
-	HUD: ранг, уровень, полоса опыта, золото, кнопка языка (слева сверху),
-	кнопка инвентаря (справа по центру — не мешает стику и прыжку на телефоне).
+	HUD: ранг, уровень, опыт, золото, бонус опыта, язык (слева сверху);
+	кнопки «Меню» и «Инвентарь» справа по центру (не мешают стику и прыжку на телефоне);
+	полоса подсказок управления внизу — только для ПК и геймпада.
+	Горячие клавиши: I / Y(геймпад) — инвентарь, M / ↑(геймпад) — меню.
 ]]
 
+local ContextActionService = game:GetService("ContextActionService")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 
@@ -14,10 +18,12 @@ local C = require(script.Parent.Parent.UI.Components)
 local Sound = require(script.Parent.Parent.UI.Sound)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local DataController = require(script.Parent.DataController)
+local InputController = require(script.Parent.InputController)
 local LocalizationController = require(script.Parent.LocalizationController)
 local UIController = require(script.Parent.UIController)
 
 local S = Theme.S
+local player = Players.LocalPlayer
 
 local HudController = {}
 
@@ -26,7 +32,9 @@ local levelLabel: TextLabel
 local xpFill: Frame
 local xpLabel: TextLabel
 local goldLabel: TextLabel
+local bonusLabel: TextLabel
 local inventoryButton: TextButton
+local controlsBar: TextLabel
 local pulseTween: Tween? = nil
 local lastGold = -1
 
@@ -35,7 +43,7 @@ local function refresh()
 	if not data then
 		return
 	end
-	C.SetRaw(rankLabel, data.Rank or "F")
+	C.SetRaw(rankLabel, WeaponMath.RankById(data.Rank or "F").Short)
 	C.Bind(levelLabel, "UI_LEVEL", { level = data.Level })
 	if data.Level >= Config.Leveling.MaxLevel then
 		xpFill.Size = UDim2.fromScale(1, 1)
@@ -55,6 +63,25 @@ local function refresh()
 	lastGold = data.Gold
 end
 
+local function refreshBonus()
+	local bonus = player:GetAttribute("XpBonus")
+	local pct = if type(bonus) == "number" then math.floor(bonus * 100 + 0.5) else 0
+	bonusLabel.Visible = pct > 0
+	if pct > 0 then
+		C.Bind(bonusLabel, "UI_XP_BONUS", { pct = pct })
+	end
+end
+
+local function refreshControls()
+	local mode = InputController.Mode
+	controlsBar.Visible = mode ~= "Touch"
+	if mode == "Gamepad" then
+		C.Bind(controlsBar, "CONTROLS_PAD")
+	else
+		C.Bind(controlsBar, "CONTROLS_KBM")
+	end
+end
+
 local function build()
 	local hud = UIController.Layers.Hud
 
@@ -65,6 +92,7 @@ local function build()
 		Position = UDim2.fromOffset(S(10), S(8)),
 		AnchorPoint = Vector2.zero,
 		Transparency = 0.2,
+		Adaptive = true,
 		Parent = hud,
 	})
 
@@ -92,6 +120,17 @@ local function build()
 		TextSize = 18,
 		Size = UDim2.new(1, -S(66), 0, S(20)),
 		Position = UDim2.fromOffset(S(62), S(6)),
+		Parent = top,
+	})
+	bonusLabel = C.Text({
+		Font = Theme.FontBold,
+		TextSize = 12,
+		Color = Theme.Success,
+		AlignX = Enum.TextXAlignment.Right,
+		Size = UDim2.new(0, S(90), 0, S(20)),
+		Position = UDim2.new(1, -S(8), 0, S(6)),
+		AnchorPoint = Vector2.new(1, 0),
+		Visible = false,
 		Parent = top,
 	})
 	local _, fill = C.Bar({
@@ -141,21 +180,61 @@ local function build()
 		Parent = top,
 	})
 
-	-- ===== кнопка инвентаря =====
+	-- ===== правая колонка: Меню и Инвентарь =====
+	local column = C.Make("Frame", {
+		Name = "RightButtons",
+		Size = UDim2.fromOffset(S(84), S(132)),
+		Position = UDim2.new(1, -S(10), 0.5, -S(30)),
+		AnchorPoint = Vector2.new(1, 0.5),
+		BackgroundTransparency = 1,
+		Parent = hud,
+	})
+	C.Adaptive(column)
+	C.List(column, Enum.FillDirection.Vertical, 8)
+	local menuButton = C.Button({
+		Name = "Menu",
+		Key = "UI_MENU",
+		TextSize = 13,
+		Size = UDim2.fromOffset(S(84), S(60)),
+		Color = Theme.Panel,
+		Transparency = 0.1,
+		LayoutOrder = 1,
+		OnClick = function()
+			UIController:TogglePanel("Menu")
+		end,
+		Parent = column,
+	})
+	C.KeyHint(menuButton, { KeyboardMouse = "M", Gamepad = "↑" })
 	inventoryButton = C.Button({
 		Name = "Inventory",
 		Key = "UI_INVENTORY",
 		TextSize = 13,
 		Size = UDim2.fromOffset(S(84), S(60)),
-		Position = UDim2.new(1, -S(10), 0.5, -S(40)),
-		AnchorPoint = Vector2.new(1, 0.5),
 		Color = Theme.Panel,
 		Transparency = 0.1,
+		LayoutOrder = 2,
 		OnClick = function()
 			UIController:TogglePanel("Inventory")
 		end,
+		Parent = column,
+	})
+	C.KeyHint(inventoryButton, { KeyboardMouse = "I", Gamepad = "Y" })
+
+	-- ===== подсказки управления (ПК / геймпад) =====
+	controlsBar = C.Make("TextLabel", {
+		Name = "Controls",
+		Size = UDim2.fromOffset(S(520), S(22)),
+		Position = UDim2.new(0.5, 0, 1, -S(6)),
+		AnchorPoint = Vector2.new(0.5, 1),
+		BackgroundColor3 = Theme.Bg,
+		BackgroundTransparency = 0.45,
+		Font = Theme.Font,
+		TextSize = S(13),
+		TextColor3 = Theme.TextDim,
 		Parent = hud,
 	})
+	C.Corner(controlsBar, 6)
+	C.Adaptive(controlsBar)
 end
 
 -- Пульсация кнопки инвентаря (подсказка обучения «надень оружие»)
@@ -185,6 +264,16 @@ function HudController:SetInventoryPulse(enabled: boolean)
 	end
 end
 
+local function bindShortcut(name: string, panel: string, ...: Enum.KeyCode)
+	ContextActionService:BindAction(name, function(_, state)
+		if state ~= Enum.UserInputState.Begin then
+			return Enum.ContextActionResult.Pass
+		end
+		UIController:TogglePanel(panel)
+		return Enum.ContextActionResult.Sink
+	end, false, ...)
+end
+
 function HudController:Start()
 	build()
 	DataController.Changed:Connect(function(key: string)
@@ -192,7 +281,14 @@ function HudController:Start()
 			refresh()
 		end
 	end)
+	player:GetAttributeChangedSignal("XpBonus"):Connect(refreshBonus)
+	InputController.Changed:Connect(refreshControls)
 	refresh()
+	refreshBonus()
+	refreshControls()
+
+	bindShortcut("ToggleInventory", "Inventory", Enum.KeyCode.I, Enum.KeyCode.ButtonY)
+	bindShortcut("ToggleMenu", "Menu", Enum.KeyCode.M, Enum.KeyCode.DPadUp)
 end
 
 return HudController

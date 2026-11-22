@@ -16,7 +16,7 @@ local DataService = require(script.Parent.DataService)
 local EconomyService = require(script.Parent.EconomyService)
 local InventoryService = require(script.Parent.InventoryService)
 local NetService = require(script.Parent.NetService)
-local TutorialService = require(script.Parent.TutorialService)
+local ProgressService = require(script.Parent.ProgressService)
 
 local MerchantService = {}
 
@@ -57,6 +57,7 @@ local function sellWeapons(player: Player, ids: any)
 	end
 	DataService:Replicate(player, "Weapons", "EquippedWeapon")
 	EconomyService:AddGold(player, total)
+	ProgressService:Record(player, "ItemSold", { Count = count })
 	return { ok = true, gold = total, count = count }
 end
 
@@ -76,6 +77,7 @@ local function sellOres(player: Player, oreId: any, count: any)
 	end
 	local gold = Config.Ores[oreId].SellPrice * count
 	EconomyService:AddGold(player, gold)
+	ProgressService:Record(player, "ItemSold", { Count = 1 })
 	return { ok = true, gold = gold, count = count }
 end
 
@@ -118,7 +120,7 @@ local function setupMerchant(instance: Instance)
 	prompt.Triggered:Connect(function(player: Player)
 		if DataService:IsLoaded(player) then
 			NetService:Fire(player, "OpenPanel", { Panel = "Merchant" })
-			TutorialService:Record(player, "MerchantOpened")
+			ProgressService:Record(player, "MerchantOpened")
 		end
 	end)
 end

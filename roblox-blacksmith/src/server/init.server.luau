@@ -6,6 +6,7 @@
 ]]
 
 local DevMap = require(script.Util.DevMap)
+local WorldBuilder = require(script.World.WorldBuilder)
 
 local ORDER = {
 	"NetService",
@@ -13,7 +14,10 @@ local ORDER = {
 	"SystemService",
 	"EconomyService",
 	"LevelService",
+	"SocialService",
 	"TutorialService",
+	"DailyService",
+	"ProgressService",
 	"InventoryService",
 	"MiningService",
 	"ForgeService",
@@ -22,9 +26,17 @@ local ORDER = {
 	"MobService",
 	"CombatService",
 	"GateService",
+	"WorldMobService",
+	"CodesService",
+	"LeaderboardService",
 }
 
-DevMap.BuildIfEmpty()
+-- карта: полный мир кодом (если нет своих объектов с тегами) или минимальные заглушки
+if WorldBuilder.ShouldBuild() then
+	WorldBuilder.Build()
+else
+	DevMap.BuildIfEmpty()
+end
 
 local services: { [string]: any } = {}
 for _, name in ORDER do

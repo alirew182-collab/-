@@ -25,13 +25,23 @@ local Theme = {
 	FontTitle = Enum.Font.GothamBlack,
 }
 
-function Theme.UpdateScale()
+-- Масштаб для текущего экрана (не меняет Theme.Scale)
+function Theme.ComputeScale(): number
 	local camera = workspace.CurrentCamera
 	local size = if camera then camera.ViewportSize else Vector2.new(1280, 720)
 	if size.X < 10 or size.Y < 10 then
 		size = Vector2.new(1280, 720)
 	end
-	Theme.Scale = math.clamp(math.min(size.X / 640, size.Y / 380), 0.75, 1.6)
+	-- телефон в портретной ориентации: ориентируемся на ширину
+	if size.Y > size.X then
+		return math.clamp(size.X / 600, 0.6, 1.3) -- окна 540 точек должны влезть по ширине
+	end
+	return math.clamp(math.min(size.X / 640, size.Y / 380), 0.75, 1.6)
+end
+
+-- Масштаб, с которым строится интерфейс (вызывается один раз при запуске)
+function Theme.UpdateScale()
+	Theme.Scale = Theme.ComputeScale()
 end
 
 function Theme.S(n: number): number

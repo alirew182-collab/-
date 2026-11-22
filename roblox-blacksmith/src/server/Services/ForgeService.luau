@@ -31,8 +31,9 @@ local EconomyService = require(script.Parent.EconomyService)
 local InventoryService = require(script.Parent.InventoryService)
 local LevelService = require(script.Parent.LevelService)
 local NetService = require(script.Parent.NetService)
+local ProgressService = require(script.Parent.ProgressService)
 local SystemService = require(script.Parent.SystemService)
-local TutorialService = require(script.Parent.TutorialService)
+local Char = require(script.Parent.Parent.Util.Char)
 
 local ForgeService = {}
 
@@ -108,6 +109,44 @@ local function scoreHammer(offsets: { number }, beats: number): number
 		end
 	end
 	return total / beats
+end
+
+-- Редкость по честным шансам (те же, что видит игрок в кузне)
+local function rollRarity(quality: number, oreId: string): string
+	local odds = WeaponMath.RarityOdds(quality, oreId)
+	local roll = rng:NextNumber()
+	local acc = 0
+	for _, o in odds do
+		acc += o.Chance
+		if roll <= acc then
+			return o.Id
+		end
+	end
+	return odds[#odds].Id
+end
+
+local function rollTraits(count: number): { string }
+	local pool = {}
+	for id, t in Config.Traits do
+		table.insert(pool, { Id = id, Weight = t.Weight })
+	end
+	local result = {}
+	for _ = 1, math.min(count, #pool) do
+		local total = 0
+		for _, t in pool do
+			total += t.Weight
+		end
+		local roll = rng:NextNumber(0, total)
+		for i, t in pool do
+			roll -= t.Weight
+			if roll <= 0 then
+				table.insert(result, t.Id)
+				table.remove(pool, i)
+				break
+			end
+		end
+	end
+	return result
 end
 
 local function startForge(player: Player, weaponType: any, oreId: any)
@@ -200,7 +239,9 @@ local function submitForge(player: Player, sessionId: any, results: any)
 	if not EconomyService:TrySpendOre(player, session.Ore, def.OreCost) then
 		return { ok = false, err = "ERR_NOT_ENOUGH_ORE" }
 	end
-	local weapon = InventoryService:AddWeapon(player, session.Type, session.Ore, quality, "Common")
+	local rarityId = rollRarity(quality, session.Ore)
+	local rarity = Config.Rarities[rarityId]
+	local weapon = InventoryService:AddWeapon(player, session.Type, session.Ore, quality, rarityId, rollTraits(rarity.Traits))
 	if not weapon then
 		EconomyService:AddOre(player, session.Ore, def.OreCost) -- вернуть руду
 		return { ok = false, err = "ERR_INVENTORY_FULL" }
@@ -214,6 +255,9 @@ local function submitForge(player: Player, sessionId: any, results: any)
 	LevelService:AddXp(player, F.XpBase + def.OreCost * ore.XpPerOre * F.XpOreFactor)
 
 	local damage = WeaponMath.Damage(weapon)
+	if data and damage > (data.Stats.BestDamage or 0) then
+		data.Stats.BestDamage = damage
+	end
 	SystemService:Notify(
 		player,
 		"Forge",
@@ -222,11 +266,36 @@ local function submitForge(player: Player, sessionId: any, results: any)
 		{
 			-- имя оружия переводит клиент на своём языке
 			weapon = `@WEAPON:{session.Type}:{session.Ore}`,
+			rarity = "@" .. rarity.NameKey,
 			quality = quality,
 			damage = damage,
 		}
 	)
-	TutorialService:Record(player, "WeaponForged")
+
+	-- редкое оружие: эффект у игрока, Mythic+ — объявление на весь сервер (моменты для видео)
+	local root = Char.Root(player)
+	if WeaponMath.RarityAtLeast(rarityId, F.CelebrateMinRarity) and root then
+		NetService:FxNear(root.Position, 250, {
+			Kind = "Celebrate",
+			Position = root.Position,
+			Rarity = rarityId,
+			UserId = player.UserId,
+		})
+	end
+	if WeaponMath.RarityAtLeast(rarityId, F.AnnounceMinRarity) then
+		DataService:AddStat(player, "MythicForged", 1)
+		SystemService:Announce("Legendary", "SYS_ANNOUNCE_FORGE_TITLE", "SYS_ANNOUNCE_FORGE_BODY", {
+			name = player.DisplayName,
+			rarity = "@" .. rarity.NameKey,
+			weapon = `@WEAPON:{session.Type}:{session.Ore}`,
+			damage = damage,
+		})
+	end
+
+	ProgressService:Record(player, "WeaponForged")
+	if quality >= 80 then
+		ProgressService:Record(player, "QualityForge80")
+	end
 
 	return {
 		ok = true,

@@ -138,6 +138,15 @@ function DataService:Start()
 		end
 	end)
 
+	-- настройки игрока (булевы, по белому списку)
+	local SETTINGS = { Sfx = true, Music = true, DamageNumbers = true, LowGraphics = true }
+	NetService:OnEvent("SetSetting", function(player: Player, key: any, value: any)
+		local data = DataService:Get(player)
+		if data and type(key) == "string" and SETTINGS[key] and type(value) == "boolean" then
+			data.Settings[key] = value
+		end
+	end)
+
 	Players.PlayerRemoving:Connect(onPlayerRemoving)
 end
 
@@ -190,6 +199,7 @@ function DataService:AddStat(player: Player, stat: string, amount: number)
 	local data = DataService:Get(player)
 	if data then
 		data.Stats[stat] = (data.Stats[stat] or 0) + amount
+		DataService:Replicate(player, "Stats")
 	end
 end
 

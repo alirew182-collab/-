@@ -34,10 +34,24 @@ local Template = {
 		GatesCleared = 0,
 		GoldEarned = 0,
 		Parries = 0,
+		BestDamage = 0,
+		EliteKills = 0,
+		MythicForged = 0,
 	} :: { [string]: number },
 	Settings = {
 		Language = "", -- "" = определить по языку Roblox
+		Sfx = true,
+		Music = true,
+		DamageNumbers = true,
+		LowGraphics = false,
 	},
+	Daily = {
+		LastClaimDay = 0, -- номер дня (UTC), когда забрана награда за вход
+		Streak = 0,
+		QuestDay = 0,
+		Quests = {} :: { any }, -- { { Id, Progress, Done } }
+	},
+	RedeemedCodes = {} :: { [string]: boolean },
 	ProcessedReceipts = {} :: { [string]: boolean }, -- для идемпотентного ProcessReceipt (Этап 3)
 	FirstJoinAt = 0,
 	LastJoinAt = 0,

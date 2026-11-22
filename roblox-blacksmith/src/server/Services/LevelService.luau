@@ -6,6 +6,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Config = require(ReplicatedStorage.Shared.Config)
 local WeaponMath = require(ReplicatedStorage.Shared.WeaponMath)
 local DataService = require(script.Parent.DataService)
+local SocialService = require(script.Parent.SocialService)
 local SystemService = require(script.Parent.SystemService)
 
 local LevelService = {}
@@ -27,10 +28,31 @@ local function applyStats(player: Player, heal: boolean)
 	end
 end
 
-function LevelService:AddXp(player: Player, amount: number)
+-- Ранг по уровню (Config/Ranks). notify = показать окно «Новый ранг».
+local function checkRank(player: Player, data: any, notify: boolean)
+	local rank = WeaponMath.RankFor(data.Level)
+	if data.Rank == rank.Id then
+		return
+	end
+	local old = WeaponMath.RankById(data.Rank)
+	data.Rank = rank.Id
+	DataService:Replicate(player, "Rank")
+	if notify and rank.MinLevel > old.MinLevel then
+		SystemService:Notify(player, "RankUp", "SYS_RANKUP_TITLE", "SYS_RANKUP_BODY", {
+			rank = "@" .. rank.NameKey,
+			bonus = math.floor(rank.DamageBonus * 100 + 0.5),
+		})
+	end
+end
+
+-- noBonus = true: не умножать на бонус друзей/группы (коды, фиксированные награды)
+function LevelService:AddXp(player: Player, amount: number, noBonus: boolean?)
 	local data = DataService:Get(player)
 	if not data or amount <= 0 then
 		return
+	end
+	if not noBonus then
+		amount *= SocialService:XpMult(player)
 	end
 	data.Xp += math.floor(amount)
 
@@ -54,6 +76,7 @@ function LevelService:AddXp(player: Player, amount: number)
 	if gained > 0 then
 		applyStats(player, true)
 		SystemService:Notify(player, "LevelUp", "SYS_LEVELUP_TITLE", "SYS_LEVELUP_BODY", { level = data.Level })
+		checkRank(player, data, true)
 	end
 end
 
@@ -67,7 +90,8 @@ function LevelService:DamageMult(player: Player): number
 end
 
 function LevelService:Start()
-	DataService.Loaded:Connect(function(player: Player)
+	DataService.Loaded:Connect(function(player: Player, data: any)
+		checkRank(player, data, false)
 		player.CharacterAdded:Connect(function(character)
 			character:WaitForChild("Humanoid", 10)
 			applyStats(player, true)

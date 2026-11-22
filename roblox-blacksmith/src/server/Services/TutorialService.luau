@@ -7,6 +7,7 @@
 		TutorialService:Record(player, "OreMined", { OreId = "Copper", Count = 2 })
 ]]
 
+local AnalyticsService = game:GetService("AnalyticsService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config)
@@ -51,7 +52,10 @@ function TutorialService:Record(player: Player, event: string, info: { OreId: st
 		return
 	end
 
-	-- шаг выполнен
+	-- шаг выполнен → воронка обучения в Creator Hub (Analytics → Funnels)
+	pcall(function()
+		AnalyticsService:LogOnboardingFunnelStepEvent(player, tutorial.Step + 1, step.Id)
+	end)
 	tutorial.Step += 1
 	tutorial.Progress = 0
 	local finished = tutorial.Step > #Steps
@@ -91,6 +95,9 @@ function TutorialService:Start()
 				return
 			end
 			if not data.Tutorial.Awakened then
+				pcall(function()
+					AnalyticsService:LogOnboardingFunnelStepEvent(player, 1, "Awakened")
+				end)
 				data.Tutorial.Awakened = true
 				DataService:Replicate(player, "Tutorial")
 				SystemService:Notify(player, "Awakening", "SYS_AWAKEN_TITLE", "SYS_AWAKEN_BODY")

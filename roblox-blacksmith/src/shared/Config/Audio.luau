@@ -23,6 +23,12 @@ local Audio: { [string]: string } = {
 	Parry = "",
 	Coins = "",
 	UiClick = "",
+	Celebrate = "", -- Legendary+ ковка
+	EliteAlarm = "", -- появление элитного монстра
+	-- Музыка (зацикленная) по зонам
+	MusicTown = "",
+	MusicWild = "",
+	MusicGate = "",
 }
 
 return Audio

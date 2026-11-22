@@ -30,15 +30,20 @@ local function render()
 	local phase = state.Phase
 	card.Visible = phase == "lobby" or phase == "run"
 	bossFrame.Visible = phase == "run" and state.Boss ~= nil
+	local stroke = card:FindFirstChildOfClass("UIStroke")
+	if stroke then
+		stroke.Color = if state.IsRed then Theme.Danger else Theme.Accent
+	end
+	line1.TextColor3 = if state.IsRed then Theme.Danger else Theme.Text
 	if phase == "lobby" then
-		C.Bind(line1, "UI_GATE_LOBBY", { gate = "@" .. state.GateNameKey, count = state.Count, max = state.Max })
+		local text = Localization.Get("UI_GATE_LOBBY", { gate = "@" .. state.GateNameKey, count = state.Count, max = state.Max })
+		C.SetRaw(line1, if state.IsRed then `{Localization.Get("UI_RED_PREFIX")} · {text}` else text)
 		startButton.Visible = state.IsLeader == true
 	elseif phase == "run" then
-		if state.BossPhase then
-			C.Bind(line1, "UI_GATE_BOSS")
-		else
-			C.Bind(line1, "UI_GATE_WAVE", { wave = state.Wave, total = state.TotalWaves })
-		end
+		local text = if state.BossPhase
+			then Localization.Get("UI_GATE_BOSS")
+			else Localization.Get("UI_GATE_WAVE", { wave = state.Wave, total = state.TotalWaves })
+		C.SetRaw(line1, if state.IsRed then `{Localization.Get("UI_RED_PREFIX")} · {text}` else text)
 		startButton.Visible = false
 		local boss = state.Boss
 		if boss then
@@ -70,6 +75,7 @@ local function build()
 		AnchorPoint = Vector2.new(0.5, 0),
 		Transparency = 0.15,
 		Visible = false,
+		Adaptive = true,
 		Parent = hud,
 	})
 	line1 = C.Text({
@@ -122,6 +128,7 @@ local function build()
 		Visible = false,
 		Parent = hud,
 	})
+	C.Adaptive(bossFrame)
 	bossName = C.Text({
 		Font = Theme.FontTitle,
 		TextSize = 14,
@@ -142,6 +149,7 @@ end
 
 function GateController:Start()
 	build()
+	Localization.Changed:Connect(render)
 	Net.Event("GateState").OnClientEvent:Connect(function(payload: { [string]: any })
 		state = payload
 		if payload.Phase == "lobby" then

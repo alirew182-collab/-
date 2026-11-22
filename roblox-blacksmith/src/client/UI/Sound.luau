@@ -5,6 +5,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local SoundService = game:GetService("SoundService")
 
 local Config = require(ReplicatedStorage.Shared.Config)
+local ClientSettings = require(script.Parent.ClientSettings)
 
 local Sound = {}
 
@@ -12,7 +13,7 @@ local cache: { [string]: Sound } = {}
 
 function Sound.Play(key: string, volume: number?, pitch: number?)
 	local id = Config.Audio[key]
-	if not id or id == "" then
+	if not ClientSettings.Sfx or not id or id == "" then
 		return
 	end
 	local sound = cache[key]

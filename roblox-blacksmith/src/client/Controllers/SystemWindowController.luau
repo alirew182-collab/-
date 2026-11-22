@@ -35,6 +35,11 @@ local KIND_STYLE: { [string]: { Color: Color3, Sound: string, Duration: number }
 	GateCleared = { Color = Theme.Gold, Sound = "SystemQuestDone", Duration = 4.5 },
 	GateFailed = { Color = Theme.Danger, Sound = "SystemWarning", Duration = 4 },
 	Forge = { Color = Theme.Accent, Sound = "ForgeDone", Duration = 3.5 },
+	Daily = { Color = Theme.Gold, Sound = "SystemQuestDone", Duration = 4 },
+	RankUp = { Color = Theme.Gold, Sound = "SystemLevelUp", Duration = 5 },
+	Legendary = { Color = Color3.fromRGB(255, 80, 110), Sound = "Celebrate", Duration = 5 },
+	Elite = { Color = Theme.Danger, Sound = "EliteAlarm", Duration = 5 },
+	Penalty = { Color = Theme.Danger, Sound = "SystemWarning", Duration = 4 },
 }
 
 -- элементы окна
@@ -57,6 +62,7 @@ local function build()
 		Visible = false,
 		Parent = UIController.Layers.Overlay,
 	})
+	C.Adaptive(root)
 
 	frame = C.Make("Frame", {
 		Size = UDim2.new(1, -S(8), 1, -S(8)),

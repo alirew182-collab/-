@@ -28,6 +28,7 @@ Net.Events = {
 	CombatBlock = true,
 	ForgeCancel = true,
 	SetLanguage = true,
+	SetSetting = true,
 	GateStart = true,
 	GateLeave = true,
 }
@@ -47,6 +48,7 @@ Net.Functions = {
 	SellWeapons = true,
 	SellOres = true,
 	BuyPickaxe = true,
+	RedeemCode = true,
 }
 
 local function getFolder(): Instance

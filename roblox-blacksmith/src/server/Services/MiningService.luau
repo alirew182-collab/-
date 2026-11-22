@@ -16,11 +16,12 @@ local Config = require(ReplicatedStorage.Shared.Config)
 local Proximity = require(script.Parent.Parent.Util.Proximity)
 local Prompts = require(script.Parent.Parent.Util.Prompts)
 local DataService = require(script.Parent.DataService)
+local InventoryService = require(script.Parent.InventoryService)
 local EconomyService = require(script.Parent.EconomyService)
 local LevelService = require(script.Parent.LevelService)
 local NetService = require(script.Parent.NetService)
 local SystemService = require(script.Parent.SystemService)
-local TutorialService = require(script.Parent.TutorialService)
+local ProgressService = require(script.Parent.ProgressService)
 
 local MiningService = {}
 
@@ -33,6 +34,7 @@ type NodeState = {
 	Prompt: ProximityPrompt,
 	Parts: { BasePart },
 	Transparency: { [BasePart]: number },
+	Collide: { [BasePart]: boolean },
 }
 
 local nodes: { [Instance]: NodeState } = {}
@@ -41,7 +43,7 @@ local lastHit: { [Player]: number } = {}
 local function setDepletedVisual(state: NodeState, depleted: boolean)
 	for _, part in state.Parts do
 		part.Transparency = if depleted then 0.85 else state.Transparency[part]
-		part.CanCollide = not depleted
+		part.CanCollide = if depleted then false else state.Collide[part]
 	end
 	state.Prompt.Enabled = not depleted
 end
@@ -94,12 +96,22 @@ local function onHit(player: Player, state: NodeState)
 	setDepletedVisual(state, true)
 
 	local amount = math.random(ore.YieldMin, ore.YieldMax)
+	-- черта «Удача» у надетого оружия
+	local weapon = InventoryService:GetEquipped(player)
+	if weapon and weapon.Traits then
+		for _, id in weapon.Traits do
+			local t = Config.Traits[id]
+			if t and t.ExtraOreChance and math.random() < t.ExtraOreChance then
+				amount += 1
+			end
+		end
+	end
 	EconomyService:AddOre(player, ore.Id, amount)
 	LevelService:AddXp(player, ore.XpPerOre * amount)
 	DataService:AddStat(player, "OresMined", amount)
 	SystemService:Toast(player, "TOAST_ORE", { count = amount, ore = "@" .. ore.NameKey }, "ore")
 	NetService:FxNear(state.Anchor.Position, 80, { Kind = "OreBreak", Position = state.Anchor.Position, Color = ore.Color })
-	TutorialService:Record(player, "OreMined", { OreId = ore.Id, Count = amount })
+	ProgressService:Record(player, "OreMined", { OreId = ore.Id, Count = amount })
 
 	task.delay(ore.RespawnSeconds, function()
 		if nodes[state.Instance] == state then
@@ -135,8 +147,10 @@ local function setupNode(instance: Instance)
 		end
 	end
 	local transparency = {}
+	local collide = {}
 	for _, part in parts do
 		transparency[part] = part.Transparency
+		collide[part] = part.CanCollide
 	end
 
 	if instance:GetAttribute("AutoStyle") ~= false then
@@ -157,6 +171,7 @@ local function setupNode(instance: Instance)
 		Prompt = prompt,
 		Parts = parts,
 		Transparency = transparency,
+		Collide = collide,
 	}
 	nodes[instance] = state
 

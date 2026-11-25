@@ -60,6 +60,11 @@
      */
     --bleach-text-faint: #8a8885;
     /**
+     * @name Белый (Steam)
+     * @description Чистый белый, которым Steam пишет основной текст и иконки
+     */
+    --bleach-white: #ffffff;
+    /**
      * @name Заголовки
      * @description Белые заголовки — хаори капитана
      */

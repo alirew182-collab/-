@@ -10,4 +10,5 @@ html:root {
     --bleach-accent-2: var(--bleach-getsuga-accent-2);
     --bleach-glow: var(--bleach-getsuga-glow);
     --bleach-on-accent: var(--bleach-getsuga-on-accent);
+    --bleach-accent-fill: var(--bleach-getsuga-accent);
 }

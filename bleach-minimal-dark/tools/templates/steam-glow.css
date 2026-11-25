@@ -1,0 +1,25 @@
+/*
+  Reiatsu-свечение для конкретных элементов Steam (подключается из
+  effects/reiatsu-glow.css через @import, только когда эффект включён).
+*/
+
+/* Кнопка «Играть» — свечение при наведении */
+{{PlayButtonContainer.Green}}>{{PlayButtonContainer.ButtonChild}}:hover:not(#\#):not(#\#) {
+    box-shadow:
+        0 0 0 var(--bleach-border-width) var(--bleach-glow-soft),
+        0 0 14px var(--bleach-glow-soft),
+        0 0 32px var(--bleach-glow-faint) !important;
+}
+
+/* Активная вкладка верхней навигации — аура вокруг текста */
+{{SuperNavMenu.SuperNavMenu}}{{SuperNavMenu.Selected}} {{SuperNavMenu.MenuButton}}:not(#\#):not(#\#) {
+    text-shadow: 0 0 10px var(--bleach-glow-soft), 0 0 2px var(--bleach-glow) !important;
+}
+
+/* Выбранная игра — лёгкое свечение полосы-клинка */
+{{GameListEntryName.Container}}{{GameListEntryName.Selected}}:not(#\#):not(#\#),
+{{GameListEntryName.Selected}} {{GameListEntryName.Container}}:not(#\#):not(#\#) {
+    box-shadow:
+        inset 2px 0 0 var(--bleach-accent),
+        -2px 0 12px -4px var(--bleach-glow-soft) !important;
+}

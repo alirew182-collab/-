@@ -1,0 +1,27 @@
+/*
+  СГЕНЕРИРОВАНО из tools/templates/steam-glow.css для Steam client 1794536281.
+
+  Reiatsu-свечение для конкретных элементов Steam (подключается из
+  effects/reiatsu-glow.css через @import, только когда эффект включён).
+*/
+
+/* Кнопка «Играть» — свечение при наведении */
+._3cI5TXsFX3bvpR-7EBOtxq>._2AzIX5kl9k6JnxLfR5H4kX:hover:not(#\#):not(#\#) {
+    box-shadow:
+        0 0 0 var(--bleach-border-width) var(--bleach-glow-soft),
+        0 0 14px var(--bleach-glow-soft),
+        0 0 32px var(--bleach-glow-faint) !important;
+}
+
+/* Активная вкладка верхней навигации — аура вокруг текста */
+._7AlhCx3XGzBeIrQaCneUD._1gqEjB5QsKT_NftD1dEsdZ ._19axKcqYRuaJ8vdYKYmtTQ:not(#\#):not(#\#) {
+    text-shadow: 0 0 10px var(--bleach-glow-soft), 0 0 2px var(--bleach-glow) !important;
+}
+
+/* Выбранная игра — лёгкое свечение полосы-клинка */
+._2-O4ZG0KrnSrzISHBKctFQ._1UBpAXP408Ez_L_mXhW5Q9:not(#\#):not(#\#),
+._1UBpAXP408Ez_L_mXhW5Q9 ._2-O4ZG0KrnSrzISHBKctFQ:not(#\#):not(#\#) {
+    box-shadow:
+        inset 2px 0 0 var(--bleach-accent),
+        -2px 0 12px -4px var(--bleach-glow-soft) !important;
+}

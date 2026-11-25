@@ -13,6 +13,8 @@
     --bleach-accent-2: var(--bleach-getsuga-accent-2);
     --bleach-glow: var(--bleach-getsuga-glow);
     --bleach-on-accent: var(--bleach-getsuga-on-accent);
+    /* Заливка, на которой белый текст Steam читается (≥ 4.5:1) в любом пресете */
+    --bleach-accent-fill: var(--bleach-getsuga-accent);
 
     /* Линии хаори: белый с прозрачностью */
     --bleach-line: color-mix(in srgb, var(--bleach-divider) 12%, transparent);
@@ -20,7 +22,8 @@
     --bleach-ink: color-mix(in srgb, var(--bleach-divider) 72%, transparent);
 
     /* Акцентные производные */
-    --bleach-accent-wash: color-mix(in srgb, var(--bleach-accent) 12%, var(--bleach-surface));
+    --bleach-accent-wash: color-mix(in srgb, var(--bleach-accent) 14%, var(--bleach-surface));
+    --bleach-surface-strong: color-mix(in srgb, var(--bleach-divider) 20%, var(--bleach-surface));
     --bleach-accent-hover: color-mix(in srgb, var(--bleach-accent) 85%, var(--bleach-heading));
     --bleach-glow-soft: color-mix(in srgb, var(--bleach-glow) 45%, transparent);
     --bleach-glow-faint: color-mix(in srgb, var(--bleach-glow) 18%, transparent);

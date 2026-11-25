@@ -4,6 +4,10 @@
   Селекторы с html:root, чтобы перебить base/*.css (они грузятся позже).
 */
 
+/* Свечение для элементов Steam с хэш-классами (генерируется tools/build_steam_palette.py) */
+@import url("../generated/steam-glow.css");
+
+
 /* ── Кнопки клиента и магазина ───────────────────────────────────────── */
 html:root :is(
     .DialogButton,

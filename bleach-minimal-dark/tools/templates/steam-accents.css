@@ -1,0 +1,49 @@
+/*
+  Bleach-акценты для конкретных элементов Steam.
+  Запись «Модуль.Класс» в двойных фигурных скобках — читаемое имя класса из карт webpack Steam; генератор
+  подставляет текущий хэш (Модуль — любой ключ, по которому модуль узнаётся).
+  Правила с ненайденными классами генератор выбрасывает с предупреждением.
+*/
+
+/* Выбранная игра в списке слева: оттенок акцента + полоса-клинок слева */
+{{GameListEntryName.Container}}{{GameListEntryName.Selected}}:not(#\#),
+{{GameListEntryName.Selected}} {{GameListEntryName.Container}}:not(#\#) {
+    background: var(--bleach-accent-wash) !important;
+    box-shadow: inset 2px 0 0 var(--bleach-accent) !important;
+    color: var(--bleach-heading) !important;
+}
+
+/* Наведение на игру — плоская подсветка без синевы */
+{{GameListEntryName.Container}}:hover:not(#\#),
+{{GameListEntryName.Container}}{{GameListEntryName.HoverOverlay}}:not(#\#) {
+    background: var(--bleach-surface-hover) !important;
+}
+
+/* Заголовки разделов списка («ИЗБРАННОЕ», «НЕДАВНИЕ») — белые, разрядкой */
+{{SectionHeaderContent.SectionName}}:not(#\#) {
+    color: var(--bleach-heading) !important;
+    letter-spacing: 0.1em;
+}
+
+{{SectionHeaderContent.Container}}{{SectionHeaderContent.Selected}}:not(#\#),
+{{SectionHeaderContent.Container}}:hover:not(#\#) {
+    background: var(--bleach-surface-hover) !important;
+    box-shadow: inset 2px 0 0 var(--bleach-accent-2) !important;
+}
+
+/* Кнопка «Играть»: плоская заливка акцентом, белая рамка-хаори */
+{{PlayButtonContainer.Green}}>{{PlayButtonContainer.ButtonChild}}:not(#\#) {
+    background: var(--bleach-accent-fill) !important;
+    outline: var(--bleach-border-width) solid var(--bleach-line-strong);
+    outline-offset: calc(-1 * var(--bleach-border-width));
+}
+
+/* Верхняя навигация МАГАЗИН / БИБЛИОТЕКА / СООБЩЕСТВО */
+{{SuperNavMenu.SuperNavMenu}} {{SuperNavMenu.MenuButton}}:not(#\#) {
+    color: var(--bleach-text-muted);
+    letter-spacing: 0.06em;
+}
+
+{{SuperNavMenu.SuperNavMenu}}{{SuperNavMenu.Selected}} {{SuperNavMenu.MenuButton}}:not(#\#) {
+    color: var(--bleach-heading) !important;
+}

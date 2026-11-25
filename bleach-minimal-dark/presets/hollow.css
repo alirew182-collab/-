@@ -10,6 +10,7 @@ html:root {
     --bleach-accent-2: var(--bleach-hollow-accent-2);
     --bleach-glow: var(--bleach-hollow-glow);
     --bleach-on-accent: var(--bleach-hollow-on-accent);
+    --bleach-accent-fill: var(--bleach-hollow-accent-2);
 }
 
 /* Hollow: заголовки «костяные», а не чисто белые (контраст 15:1) */

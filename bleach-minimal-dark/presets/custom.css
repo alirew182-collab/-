@@ -10,4 +10,5 @@ html:root {
     --bleach-accent-2: var(--bleach-custom-accent-2);
     --bleach-glow: var(--bleach-custom-glow);
     --bleach-on-accent: var(--bleach-custom-on-accent);
+    --bleach-accent-fill: color-mix(in srgb, var(--bleach-custom-accent) 60%, var(--bleach-bg));
 }

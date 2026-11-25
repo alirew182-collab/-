@@ -97,13 +97,15 @@ a {
     color: var(--bleach-text-faint) !important;
 }
 
-/* ── Кнопки: плоские, тонкая белая рамка ─────────────────────────────── */
-.DialogButton {
-    background: var(--bleach-surface-raised) !important;
-    color: var(--bleach-text) !important;
-    border: var(--bleach-border-width) solid var(--bleach-line-strong) !important;
-    border-radius: var(--bleach-radius) !important;
-    background-image: none !important;
+/* ── Кнопки: плоские, тонкая белая рамка ─────────────────────────────────
+   Заливку кнопок задаёт generated/steam-palette.css (серые → панели темы,
+   синие и зелёная «Играть» → акцент). Здесь только форма и рамка, без
+   !important на фон — иначе пропали бы акцентные кнопки Steam. */
+html .DialogButton {
+    /* outline вместо border: у кнопок Steam content-box, border сдвинул бы вёрстку */
+    outline: var(--bleach-border-width) solid var(--bleach-line-strong);
+    outline-offset: calc(-1 * var(--bleach-border-width));
+    border-radius: var(--bleach-radius);
     transition:
         background-color var(--bleach-fast) var(--bleach-ease),
         border-color var(--bleach-fast) var(--bleach-ease),
@@ -111,23 +113,8 @@ a {
         box-shadow var(--bleach-fast) var(--bleach-ease);
 }
 
-.DialogButton:hover:not(:disabled) {
-    background: var(--bleach-surface-hover) !important;
-    border-color: var(--bleach-accent) !important;
-    color: var(--bleach-heading) !important;
-}
-
-.DialogButton.Primary,
-.DialogButton[type="submit"] {
-    background: var(--bleach-accent) !important;
-    border-color: var(--bleach-accent) !important;
-    color: var(--bleach-on-accent) !important;
-}
-
-.DialogButton.Primary:hover:not(:disabled),
-.DialogButton[type="submit"]:hover:not(:disabled) {
-    background: var(--bleach-accent-hover) !important;
-    color: var(--bleach-on-accent) !important;
+html .DialogButton:hover:not(:disabled) {
+    outline-color: var(--bleach-accent);
 }
 
 .DialogButton:disabled {

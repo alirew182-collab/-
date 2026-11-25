@@ -2,7 +2,7 @@
     "name": "Bleach Minimal Dark",
     "description": "Тёмный минимализм с эстетикой Bleach: чёрное косоде, белое хаори, reiatsu-свечение, shunpo-анимации и мазки туши. Четыре пресета акцента и свой.",
     "author": "alirew182-collab",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "tags": [
         "Dark",
         "Minimal",
@@ -19,6 +19,9 @@
             "MatchRegexString": "^Steam$",
             "TargetCss": [
                 "base/variables.css",
+                "generated/steam-colors.css",
+                "generated/steam-palette.css",
+                "generated/steam-accents.css",
                 "base/global.css",
                 "windows/library.css"
             ]
@@ -27,6 +30,9 @@
             "MatchRegexString": ".friendsui-container",
             "TargetCss": [
                 "base/variables.css",
+                "generated/steam-colors.css",
+                "generated/steam-palette.css",
+                "generated/steam-accents.css",
                 "base/global.css",
                 "windows/friends.css"
             ]
@@ -35,6 +41,9 @@
             "MatchRegexString": ".ModalDialogPopup",
             "TargetCss": [
                 "base/variables.css",
+                "generated/steam-colors.css",
+                "generated/steam-palette.css",
+                "generated/steam-accents.css",
                 "base/global.css",
                 "windows/settings.css"
             ]
@@ -43,6 +52,9 @@
             "MatchRegexString": "Menu$",
             "TargetCss": [
                 "base/variables.css",
+                "generated/steam-colors.css",
+                "generated/steam-palette.css",
+                "generated/steam-accents.css",
                 "windows/menus.css"
             ]
         },
@@ -50,6 +62,9 @@
             "MatchRegexString": "Supernav$",
             "TargetCss": [
                 "base/variables.css",
+                "generated/steam-colors.css",
+                "generated/steam-palette.css",
+                "generated/steam-accents.css",
                 "windows/menus.css"
             ]
         },

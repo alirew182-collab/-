@@ -10,6 +10,7 @@ html:root {
     --bleach-accent-2: var(--bleach-quincy-accent-2);
     --bleach-glow: var(--bleach-quincy-glow);
     --bleach-on-accent: var(--bleach-quincy-on-accent);
+    --bleach-accent-fill: color-mix(in srgb, var(--bleach-quincy-glow) 50%, var(--bleach-bg));
 }
 
 /* Quincy: разделители холодного оттенка */

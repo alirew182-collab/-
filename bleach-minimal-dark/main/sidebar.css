@@ -1,0 +1,194 @@
+/*
+  Bleach Minimal Dark — левая колонка библиотеки: «Главная / Коллекции»,
+  поиск, фильтры, список игр и заголовки разделов.
+*/
+
+/* ── Колонка целиком ─────────────────────────────────────────────────── */
+/* library_LeftListSizableContainer · gamelistbar_Container · gamelist_Container */
+body.DesktopUI ._9sPoVBFyE_vE87mnZJ5aB,
+body.DesktopUI ._3x1HklzyDs4TEjACrRO2tB,
+body.DesktopUI ._1ijTaXJJA5YWl_fW2IxcaT {
+    background: var(--bleach-deep) !important;
+    background-image: none !important;
+}
+
+/* Разделитель колонки — тонкая белая линия */
+body.DesktopUI ._276E6ijBpjMA2_iTxNhhjc {
+    background: var(--bleach-line) !important;
+    width: var(--bleach-border-width) !important;
+    box-shadow: none !important;
+}
+
+/* ── «Главная» и «Коллекции» ─────────────────────────────────────────── */
+/* gamelistbar_GameListHomeAndSearch */
+body.DesktopUI ._2TKEazUUS3TlniZfpc8OOe {
+    background: transparent !important;
+    border-bottom: var(--bleach-border-width) solid var(--bleach-line) !important;
+}
+
+body.DesktopUI ._2TKEazUUS3TlniZfpc8OOe a,
+body.DesktopUI ._2TKEazUUS3TlniZfpc8OOe > div {
+    color: var(--bleach-text-muted) !important;
+    background: transparent !important;
+    transition: color var(--bleach-fast) linear, background-color var(--bleach-fast) linear;
+}
+
+body.DesktopUI ._2TKEazUUS3TlniZfpc8OOe a:hover,
+body.DesktopUI ._2TKEazUUS3TlniZfpc8OOe > div:hover {
+    color: var(--bleach-heading) !important;
+    background: var(--bleach-row-hover) !important;
+}
+
+/* ── Поиск ───────────────────────────────────────────────────────────── */
+/* gamelistbar_Container (поиск) · SearchInput · AdvancedSearchButton */
+body.DesktopUI ._20QAC4WMXm8qFE8waUT5oo {
+    background: transparent !important;
+}
+
+body.DesktopUI ._12vo5L1hsNGdao6_ssuirS {
+    background: var(--bleach-window) !important;
+    border: var(--bleach-border-width) solid var(--bleach-line) !important;
+    border-radius: var(--bleach-radius) !important;
+    box-shadow: none !important;
+}
+
+body.DesktopUI ._12vo5L1hsNGdao6_ssuirS:focus-within {
+    border-color: var(--bleach-accent) !important;
+}
+
+body.DesktopUI ._12vo5L1hsNGdao6_ssuirS input {
+    background: transparent !important;
+    border: 0 !important;
+    color: var(--bleach-text) !important;
+}
+
+body.DesktopUI ._1TxHdzOt3OD9ikR3xIseKe {
+    background: transparent !important;
+    color: var(--bleach-text-muted) !important;
+    border-radius: var(--bleach-radius) !important;
+}
+
+body.DesktopUI ._1TxHdzOt3OD9ikR3xIseKe:hover,
+body.DesktopUI ._1TxHdzOt3OD9ikR3xIseKe.Active {
+    background: var(--bleach-row-hover) !important;
+    color: var(--bleach-accent-text) !important;
+}
+
+/* ── Панель фильтров «ИГРЫ ▾ / сортировка» ───────────────────────────── */
+/* gamelistdropdown_Bar · SearchBar · MenuHeader */
+body.DesktopUI ._1ZS_xta5HMXzR8JgxDH6n7,
+body.DesktopUI ._2WgQEFvIzJw_SHNGbjtRFU {
+    background: transparent !important;
+}
+
+body.DesktopUI ._2PF_m-I5yte3WnQhpcz8RC {
+    background: transparent !important;
+    color: var(--bleach-text-muted) !important;
+    text-transform: uppercase;
+    letter-spacing: var(--bleach-tracking);
+    font-size: 11px !important;
+}
+
+body.DesktopUI ._2PF_m-I5yte3WnQhpcz8RC:hover {
+    background: var(--bleach-row-hover) !important;
+    color: var(--bleach-heading) !important;
+}
+
+/* ── Заголовки разделов списка («ИЗБРАННОЕ», «НЕДАВНИЕ») ─────────────── */
+/* gamelistsectionheader_Container · SectionName · SectionCount */
+body.DesktopUI ._2sYIghGVXJr6tsQVvcryy8 {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    color: var(--bleach-text-faint) !important;
+}
+
+body.DesktopUI ._2mZ8LlvoUiyeEUtIWuTri {
+    color: var(--bleach-text-muted) !important;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 11px !important;
+}
+
+body.DesktopUI ._29uten9Yy8q-n7woDEOXVF {
+    color: var(--bleach-text-faint) !important;
+}
+
+body.DesktopUI ._2sYIghGVXJr6tsQVvcryy8:hover ._2mZ8LlvoUiyeEUtIWuTri {
+    color: var(--bleach-heading) !important;
+}
+
+/* ── Строки игр ──────────────────────────────────────────────────────── */
+/* gamelistentry_Container · HoverOverlay · Selected · Uninstalled · Running */
+body.DesktopUI ._2-O4ZG0KrnSrzISHBKctFQ {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    color: var(--bleach-text) !important;
+    border-radius: 0 !important;
+}
+
+body.DesktopUI ._2-O4ZG0KrnSrzISHBKctFQ:hover,
+body.DesktopUI ._2-O4ZG0KrnSrzISHBKctFQ._3cMVyOc-9F9Jvp3uKF7_xj,
+body.DesktopUI ._2sYIghGVXJr6tsQVvcryy8:hover,
+body.DesktopUI ._2sYIghGVXJr6tsQVvcryy8._1dcGFHhye9BeEOg7CkFNQG {
+    background: var(--bleach-row-hover) !important;
+    color: var(--bleach-heading) !important;
+}
+
+/* Выбранная игра — тёмный оттенок акцента и «клинок» слева */
+body.DesktopUI ._2-O4ZG0KrnSrzISHBKctFQ._1UBpAXP408Ez_L_mXhW5Q9,
+body.DesktopUI ._1UBpAXP408Ez_L_mXhW5Q9 ._2-O4ZG0KrnSrzISHBKctFQ,
+body.DesktopUI ._2sYIghGVXJr6tsQVvcryy8.sXMOsx8OIRalBMxO9yFY5 {
+    background: var(--bleach-row-selected) !important;
+    color: var(--bleach-heading) !important;
+    box-shadow: inset var(--bleach-blade) 0 0 var(--bleach-accent) !important;
+}
+
+/* Открыто контекстное меню на строке */
+body.DesktopUI ._2-O4ZG0KrnSrzISHBKctFQ._3km84Vscc0uS91f0RN_30C {
+    background: var(--bleach-row-hover) !important;
+    box-shadow: inset 0 0 0 var(--bleach-border-width) var(--bleach-line-strong) !important;
+}
+
+/* Не установлена — приглушённо; запущена — акцентом */
+body.DesktopUI ._2-O4ZG0KrnSrzISHBKctFQ._5YTBr7WwIfzVU_3nUtAph {
+    color: var(--bleach-text-faint) !important;
+}
+
+body.DesktopUI ._2-O4ZG0KrnSrzISHBKctFQ._10GdoB3tQXXGFToQ3yY_SK {
+    color: var(--bleach-accent-text) !important;
+}
+
+/* Название игры наследует цвет строки (Steam красит его отдельно) */
+body.DesktopUI ._2-O4ZG0KrnSrzISHBKctFQ ._2SXJM0PeFEi3gbC7V3S5pE {
+    color: inherit !important;
+}
+
+/* Иконка не установленной игры — без цвета */
+body.DesktopUI ._2-O4ZG0KrnSrzISHBKctFQ._5YTBr7WwIfzVU_3nUtAph .ga1hyw11cdBVodrCAidPF {
+    filter: grayscale(1);
+    opacity: 0.6;
+}
+
+/* ── Ничего не найдено ───────────────────────────────────────────────── */
+body.DesktopUI ._2NXXf2ApmP4e6l42zekAGL {
+    color: var(--bleach-text-muted) !important;
+}
+
+body.DesktopUI .WMjaqaZQRSDfgd8VK8TOm {
+    color: var(--bleach-accent-text) !important;
+}
+
+/* ── Панель расширенных фильтров ─────────────────────────────────────── */
+/* appfilterpane_AdvancedSearchPane · Header · FilterBucketLabel */
+body.DesktopUI .Woh0kBQCmatzC1daBX9i6 {
+    background: var(--bleach-surface-raised) !important;
+    border: var(--bleach-border-width) solid var(--bleach-line-strong) !important;
+    box-shadow: 0 16px 40px var(--bleach-overlay) !important;
+}
+
+body.DesktopUI ._2DTdZVPQmiXaVGuTTpV7Ai {
+    color: var(--bleach-heading) !important;
+    border-bottom: var(--bleach-border-width) solid var(--bleach-line) !important;
+}

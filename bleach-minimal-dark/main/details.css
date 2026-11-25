@@ -1,0 +1,164 @@
+/*
+  Bleach Minimal Dark — страница игры: обложка-герой, панель «Играть»,
+  секции справа, лента активности.
+*/
+
+/* ── Полотно страницы ────────────────────────────────────────────────── */
+/* appdetails_ScrollContainer (и «стеклянный» вариант Glassy) */
+body.DesktopUI ._2l416KfEtI4CL0mCUEmOBw {
+    background: var(--bleach-window) !important;
+    background-image: none !important;
+}
+
+/* ── Панель «Играть» под обложкой ────────────────────────────────────── */
+/* appdetailsplaysection_PlayBar · InPage; липкая версия — PlayBar + StickyHeader */
+body.DesktopUI ._3fLo166MlaNqP8r8tTyRz,
+body.DesktopUI ._2L3s2nzh7yCnNESfI5_dN1,
+body.DesktopUI ._39RheXihcN6H2k2muQTjkI {
+    background: color-mix(in srgb, var(--bleach-deep) 88%, transparent) !important;
+    background-image: none !important;
+    border-top: var(--bleach-border-width) solid var(--bleach-line) !important;
+    border-bottom: var(--bleach-border-width) solid var(--bleach-line) !important;
+    box-shadow: none !important;
+}
+
+/* Подписи статистики: «ПОСЛЕДНИЙ ЗАПУСК», «ВЫ ИГРАЛИ» */
+body.DesktopUI ._34lrt5-Fc3usZU6trA1P0- {
+    color: var(--bleach-text-faint) !important;
+    text-transform: uppercase;
+    letter-spacing: var(--bleach-tracking);
+    font-size: 11px !important;
+}
+
+body.DesktopUI ._2TYVGoD27ZMfjRirKQNLfk {
+    color: var(--bleach-text) !important;
+}
+
+/* Название игры в липкой панели */
+body.DesktopUI ._3rpUkswF6xc_ste4Ros_xM {
+    color: var(--bleach-heading) !important;
+    font-family: var(--bleach-font-heading, inherit);
+}
+
+/* ── Кнопка «Играть / Установить / Обновить» ─────────────────────────── */
+/* appactionbutton_PlayButtonContainer > ButtonChild; Green — состояние «Играть» */
+body.DesktopUI ._1FnJ6dPuknQFQ2RTpKTI16 ._2AzIX5kl9k6JnxLfR5H4kX,
+body.DesktopUI ._3cI5TXsFX3bvpR-7EBOtxq > ._2AzIX5kl9k6JnxLfR5H4kX {
+    background: var(--bleach-accent-fill) !important;
+    background-image: none !important;
+    color: var(--bleach-white) !important;
+    border-radius: var(--bleach-radius) !important;
+    outline: var(--bleach-border-width) solid var(--bleach-line-strong);
+    outline-offset: calc(-1 * var(--bleach-border-width));
+    box-shadow: none !important;
+    letter-spacing: 0.1em;
+    transition: background-color var(--bleach-fast) var(--bleach-ease), box-shadow 160ms var(--bleach-ease) !important;
+}
+
+body.DesktopUI ._1FnJ6dPuknQFQ2RTpKTI16 ._2AzIX5kl9k6JnxLfR5H4kX:hover,
+body.DesktopUI ._3cI5TXsFX3bvpR-7EBOtxq > ._2AzIX5kl9k6JnxLfR5H4kX:hover {
+    background: var(--bleach-accent-hover) !important;
+    color: var(--bleach-on-accent) !important;
+}
+
+/* Недоступна (Disabled) */
+body.DesktopUI ._1FnJ6dPuknQFQ2RTpKTI16._1Pb6PMh_3L5p5NzuUz0Pp9 ._2AzIX5kl9k6JnxLfR5H4kX {
+    background: var(--bleach-surface-strong) !important;
+    color: var(--bleach-text-muted) !important;
+}
+
+/* Значки статистики (облако, достижения) */
+body.DesktopUI ._1tIg-QIrwMNtCm7NcYADyi,
+body.DesktopUI ._1tIg-QIrwMNtCm7NcYADyi svg {
+    color: var(--bleach-text-muted) !important;
+    fill: currentColor !important;
+}
+
+/* ── Ссылки под панелью: Магазин · Сообщество · Обсуждения… ──────────── */
+/* appdetailslinkssection_LinksSection · MenuButton */
+body.DesktopUI ._3-V8vjmrwuJM6Ws3tsjFJj,
+body.DesktopUI ._3-V8vjmrwuJM6Ws3tsjFJj ._31ptFGGMZrSQc5BCX1e5lm {
+    background: transparent !important;
+    border-image: none !important;
+    box-shadow: none !important;
+}
+
+body.DesktopUI ._3-V8vjmrwuJM6Ws3tsjFJj a,
+body.DesktopUI ._1bIMOmWaxKrMdVMWU21ku {
+    color: var(--bleach-text-muted) !important;
+    letter-spacing: 0.04em;
+    transition: color var(--bleach-fast) linear;
+}
+
+body.DesktopUI ._3-V8vjmrwuJM6Ws3tsjFJj a:hover,
+body.DesktopUI ._1bIMOmWaxKrMdVMWU21ku:hover {
+    color: var(--bleach-heading) !important;
+}
+
+/* ── Секции справа: достижения, друзья, заметки, DLC… ────────────────── */
+/* appdetailssection_AppDetailsSection · AppDetailsSectionContainer · Highlight */
+body.DesktopUI ._2r4TK4BAuU-J4FuF_O7v_5 {
+    color: var(--bleach-text) !important;
+}
+
+body.DesktopUI ._31ptFGGMZrSQc5BCX1e5lm,
+body.DesktopUI ._3KfxIwlXEvum7FCD_AM2_t {
+    background: var(--bleach-panel) !important;
+    background-image: none !important;
+    border: var(--bleach-border-width) solid var(--bleach-line) !important;
+    border-image: none !important;
+    border-radius: var(--bleach-radius) !important;
+    box-shadow: none !important;
+}
+
+body.DesktopUI ._38t1mljBjmJfqjpVzMT1CG {
+    background: var(--bleach-panel-raised) !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    border-bottom: var(--bleach-border-width) solid var(--bleach-line);
+}
+
+/* ── Лента активности ────────────────────────────────────────────────── */
+/* appactivity_AppActivityDate · Rule · Event · EventBody · ActorName */
+body.DesktopUI ._19LfMT7PFWg2xHOqNjR99q {
+    color: var(--bleach-text-muted) !important;
+    text-transform: uppercase;
+    letter-spacing: var(--bleach-tracking);
+}
+
+body.DesktopUI ._3pcPRPvuGH7hEM33zLknZO,
+body.DesktopUI .UVeN0kaD3zv1feMj_mMw5 .NaIUAhNNISCMZymTaSPtz {
+    background: var(--bleach-line) !important;
+    background-image: none !important;
+}
+
+body.DesktopUI .UVeN0kaD3zv1feMj_mMw5 .NEMXhMlqXOCJwfgWlHXhT {
+    background: var(--bleach-panel) !important;
+    background-image: none !important;
+    border: var(--bleach-border-width) solid var(--bleach-line) !important;
+    border-image: none !important;
+    border-radius: var(--bleach-radius) !important;
+}
+
+body.DesktopUI ._1t1iyV4uBG9M9tTM7rCFNu {
+    color: var(--bleach-heading) !important;
+}
+
+/* Заголовки событий разработчика */
+body.DesktopUI ._3fsjzvni7TQ1NphLHM_5r3,
+body.DesktopUI ._1gljEIuhbsQpFCWuVhdKTJ,
+body.DesktopUI ._1Cva_kor3lWBIoeu9cQxJq {
+    color: var(--bleach-heading) !important;
+    text-shadow: none !important;
+}
+
+body.DesktopUI ._1WX1kNsKXbF3qneCHh4kTv {
+    color: var(--bleach-text-muted) !important;
+}
+
+/* Кнопка «Наверх» */
+body.DesktopUI ._1J21tLst5SEhBPkVRT53UV {
+    background: var(--bleach-panel-raised) !important;
+    border: var(--bleach-border-width) solid var(--bleach-line-strong) !important;
+    box-shadow: none !important;
+}

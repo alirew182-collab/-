@@ -1,0 +1,155 @@
+/*
+  Bleach Minimal Dark — список друзей (.friendsui-container).
+  friendsui — старая часть клиента с читаемыми классами.
+  Статусы: в игре — акцент, в сети — белый, не в сети — серый.
+*/
+
+/* ── Полотно ─────────────────────────────────────────────────────────── */
+.friendsui-container,
+.friendlist,
+.friendlist.collapsed,
+.FriendsListContent,
+.friendlistListContainer,
+.chatRoomListContainer {
+    background: var(--bleach-window) !important;
+    background-image: none !important;
+}
+
+/* ── Шапка: текущий пользователь, поиск, кнопки ──────────────────────── */
+.friendListHeaderContainer,
+.titleBarContainer {
+    background: var(--bleach-deep) !important;
+    background-image: none !important;
+    border-bottom: var(--bleach-border-width) solid var(--bleach-line) !important;
+}
+
+.currentUserContainer .playerName {
+    color: var(--bleach-heading) !important;
+}
+
+.statusHeaderGlow {
+    display: none !important;
+}
+
+.socialTabSearchContainer,
+.friendsTabButtonsContainer {
+    background: transparent !important;
+}
+
+.friendsTabButtonsContainer > a,
+.friendListButton,
+.searchIconButton,
+.friendRequestButton {
+    color: var(--bleach-text-muted) !important;
+    background: transparent !important;
+    border-radius: var(--bleach-radius) !important;
+}
+
+.friendsTabButtonsContainer > a:hover,
+.friendListButton:hover,
+.searchIconButton:hover,
+.friendRequestButton:hover {
+    color: var(--bleach-heading) !important;
+    background: var(--bleach-row-hover) !important;
+}
+
+.friendsTabButtonsContainer > a.active {
+    color: var(--bleach-heading) !important;
+    box-shadow: inset 0 calc(-1 * var(--bleach-blade)) 0 var(--bleach-accent) !important;
+}
+
+/* ── Группы: «В ИГРЕ», «В СЕТИ», «НЕ В СЕТИ» ─────────────────────────── */
+.friendGroup,
+.friendGroup.onlineFriends,
+.friendGroup.offlineFriends {
+    background: transparent !important;
+    background-image: none !important;
+}
+
+.friendGroup .groupName,
+.friendCategoryContainer .groupName,
+.FriendsListContent .friendlistListContainer .friendGroup .groupName {
+    color: var(--bleach-text-muted) !important;
+    font-family: var(--bleach-font-heading, inherit);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 11px !important;
+    border-top: var(--bleach-border-width) solid var(--bleach-line);
+}
+
+.friendGroup .groupName:hover {
+    color: var(--bleach-heading) !important;
+}
+
+/* Заявки в друзья — акцентом */
+.FriendsListContent .friendlistListContainer .friendGroup.friendRequests .groupName {
+    color: var(--bleach-accent-text) !important;
+}
+
+/* ── Строка друга ────────────────────────────────────────────────────── */
+.friend {
+    background: transparent !important;
+    border-radius: 0 !important;
+    transition: background-color 80ms linear;
+}
+
+.friend:hover,
+.friend.gpfocus {
+    background: var(--bleach-row-hover) !important;
+}
+
+.friend.online,
+.friend.online .playerName {
+    color: var(--bleach-text) !important;
+}
+
+.friend.offline,
+.friend.offline .playerName {
+    color: var(--bleach-text-faint) !important;
+}
+
+/* В игре — имя белое, название игры акцентом */
+.friend.ingame,
+.friend.ingame .playerName {
+    color: var(--bleach-heading) !important;
+}
+
+.friend.ingame .richPresenceLabel,
+.friend.ingame .gameName,
+.friend.ingame .status {
+    color: var(--bleach-accent-text) !important;
+}
+
+.friend.online .status,
+.currentUserContainer.online .status {
+    color: var(--bleach-text-muted) !important;
+}
+
+.friend .richPresenceLabel {
+    color: var(--bleach-text-muted) !important;
+}
+
+/* Индикатор статуса у аватара — без зелёного/голубого градиента */
+.friend.ingame .avatarHolder .avatarStatus {
+    background: var(--bleach-accent) !important;
+}
+
+.friend.online .avatarHolder .avatarStatus {
+    background: var(--bleach-text) !important;
+}
+
+/* Счётчик непрочитанных */
+.FriendMessageCount,
+.unreadMessageViolator {
+    background: var(--bleach-accent-fill) !important;
+    color: var(--bleach-white) !important;
+}
+
+/* ── Групповые чаты в списке ─────────────────────────────────────────── */
+.ChatRoomListGroupItem {
+    background: transparent !important;
+}
+
+.ChatRoomListGroupItem:hover {
+    background: var(--bleach-row-hover) !important;
+}

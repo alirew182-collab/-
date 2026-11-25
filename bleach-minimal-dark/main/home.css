@@ -1,0 +1,110 @@
+/*
+  Bleach Minimal Dark — главная библиотеки: полки, заголовки полок,
+  карточки игр и всплывающая карточка при наведении.
+*/
+
+/* ── Фон главной (у Steam — синеватый градиент) ──────────────────────── */
+/* libraryhome_Container · LibraryHome · AppDetailsTransitionGroup */
+body.DesktopUI ._3xRRJfD2xy95i9NhJxLTp0,
+body.DesktopUI ._2gSXCB6PbOlMxslr8hm6dm,
+body.DesktopUI ._3Sb2o_mQ30IDRh0C72QUUu,
+body.DesktopUI ._2Dd4T78PcCTUVgOtDGFY5j {
+    background: var(--bleach-window) !important;
+    background-image: none !important;
+}
+
+/* ── Полки ───────────────────────────────────────────────────────────── */
+/* libraryhomeshowcases_Showcase · ShowcaseHeader */
+body.DesktopUI .V7RuDNUxhxoBRaiGWbk3B {
+    background: transparent !important;
+}
+
+/* Заголовок полки — белый, разрядкой; справа тонкая линия (Rule) */
+body.DesktopUI ._23SnllqT_AqZ1C_QHcNQ4Z,
+body.DesktopUI ._2hfibYuzyMOQ0sj2egsHh0,
+body.DesktopUI ._23SnllqT_AqZ1C_QHcNQ4Z .DialogDropDown_CurrentDisplay {
+    color: var(--bleach-heading) !important;
+    font-family: var(--bleach-font-heading, inherit);
+    letter-spacing: 0.06em;
+}
+
+body.DesktopUI ._23SnllqT_AqZ1C_QHcNQ4Z .DialogDropDown {
+    background: transparent !important;
+    border: 0 !important;
+}
+
+body.DesktopUI ._1PhK8scyztOxjJwWUpkiLJ {
+    background: var(--bleach-line) !important;
+    height: var(--bleach-border-width) !important;
+}
+
+/* Счётчик и подзаголовки («Вчера», «На этой неделе») */
+body.DesktopUI ._2qm05e8tWSAb-_fAHytQCP,
+body.DesktopUI ._1kdinbVqPuXSbJRQa_pAuw,
+body.DesktopUI ._1ANYFgwMyPpwJjIndAdGSr,
+body.DesktopUI ._33gR3fahL5J0_5r8o8YyOi {
+    color: var(--bleach-text-faint) !important;
+    text-transform: uppercase;
+    letter-spacing: var(--bleach-tracking);
+}
+
+/* Кнопки прокрутки полки ‹ › */
+body.DesktopUI ._14b-hQsLwSwYcELtknxCUX,
+body.DesktopUI ._3IIEUTw03Vm3Mk54jlnUaT {
+    background: var(--bleach-panel-raised) !important;
+    border: var(--bleach-border-width) solid var(--bleach-line-strong) !important;
+    border-radius: var(--bleach-radius) !important;
+    box-shadow: none !important;
+}
+
+body.DesktopUI ._14b-hQsLwSwYcELtknxCUX:hover,
+body.DesktopUI ._3IIEUTw03Vm3Mk54jlnUaT:hover {
+    border-color: var(--bleach-accent) !important;
+}
+
+body.DesktopUI ._14b-hQsLwSwYcELtknxCUX svg,
+body.DesktopUI ._3IIEUTw03Vm3Mk54jlnUaT svg {
+    fill: var(--bleach-heading) !important;
+}
+
+/* ── Карточки игр ────────────────────────────────────────────────────── */
+/* appportrait_LibraryItemBox — плоская карточка с тонкой рамкой.
+   Объёмный наклон Steam сохраняем, синеватый блик убираем. */
+body.DesktopUI .WYgDg9NyCcMIVuMyZ_NBC {
+    border-radius: var(--bleach-radius) !important;
+    outline: var(--bleach-border-width) solid var(--bleach-line);
+    outline-offset: -1px;
+}
+
+body.DesktopUI ._1pwP4eeP1zQD7PEgmsep0W:hover .WYgDg9NyCcMIVuMyZ_NBC {
+    outline-color: var(--bleach-line-strong);
+    box-shadow: 0 14px 24px -6px var(--bleach-overlay) !important;
+}
+
+/* LibraryItemBoxShine — стоковый «глянец» */
+body.DesktopUI .MyNb5dG3FsBnKdp8j_ntk {
+    display: none !important;
+}
+
+/* ── Всплывающая карточка при наведении (обложка, время в игре) ──────── */
+/* appportraithover_AppPortraitHover · Content · AppTitle */
+body.DesktopUI ._2sGn0cBsD44TjnUIh-lx9d {
+    background: var(--bleach-surface-raised) !important;
+    border: var(--bleach-border-width) solid var(--bleach-line-strong) !important;
+    border-radius: var(--bleach-radius-lg) !important;
+    box-shadow: 0 18px 40px var(--bleach-overlay) !important;
+}
+
+body.DesktopUI ._12UNIdjT-Kv1ib31jk6J37 {
+    background: var(--bleach-surface-raised) !important;
+    color: var(--bleach-text-muted) !important;
+}
+
+body.DesktopUI ._1Kdi2PBxcdQwDpa-48hrf2 {
+    color: var(--bleach-heading) !important;
+}
+
+/* Полоса аватаров друзей под карточкой */
+body.DesktopUI ._3dncOt2dhpnFYQn-WYQ3Mb {
+    background: transparent !important;
+}

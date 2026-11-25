@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
 """
-Bleach Minimal Dark — генератор перекраски палитры Steam.
+Bleach Minimal Dark — генератор страховочной перекраски (fallback).
 
-Что делает:
-  1. Берёт стили клиента Steam (sp.css + library.css) — из локальной папки
-     steamui или скачивает официальный пакет steamui_websrc_all с CDN Valve.
-  2. Находит все правила, где Steam задаёт цвета своей палитры (тёмно-синие
-     фоны, серый текст, синий акцент), и пишет те же селекторы с цветами
-     через переменные темы (--bleach-*). Зелёный/жёлтый/красный (статусы,
-     ошибки) не трогаются; исключение — кнопка «Играть».
-  3. Результат: generated/steam-palette.css. Только var(--bleach-*), ни одного
-     цвета значением.
+Основной вид темы задают ручные файлы (core/, widgets/, main/, friends/,
+settings/). Этот скрипт нужен для всего остального — экранов, которые тема
+не оформляет вручную (загрузки, коллекции, свойства игры, достижения…):
+он берёт CSS текущей версии Steam (sp.css + library.css) и для правил с
+цветами палитры Steam (тёмно-синие фоны, серый текст, синий акцент)
+выдаёт ТОЛЬКО изменённые объявления через переменные темы.
 
-Классы Steam хэшированы и иногда меняются с обновлениями клиента. Если после
-обновления Steam тема «слетела» — просто запустите скрипт ещё раз:
+  * без усиления специфичности — ручные стили темы всегда главнее;
+  * статусные цвета Steam (зелёный «в игре», жёлтый, красный) не меняются;
+  * Big Picture (.GamepadMode, .BasicUI) пропускается.
 
-    python tools/build_steam_palette.py              # скачать текущий Steam UI
+Результат: fallback/steam-palette.css и fallback/steam-colors.css.
+
+    python tools/build_steam_palette.py              # скачать текущий Steam UI с CDN Valve
     python tools/build_steam_palette.py --steamui "C:/Program Files (x86)/Steam/steamui"
 
 Нужен только Python 3.8+, без сторонних библиотек.
@@ -37,13 +37,19 @@ CSS_FILES = ("sp.css", "library.css")
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 THEME = os.path.dirname(HERE)
-OUT = os.path.join(THEME, "generated", "steam-palette.css")
-OUT_VARS = os.path.join(THEME, "generated", "steam-colors.css")
+OUT = os.path.join(THEME, "fallback", "steam-palette.css")
+OUT_VARS = os.path.join(THEME, "fallback", "steam-colors.css")
 
 # Статусные цвета Steam (зелёный «в игре», жёлтый, красный…), которые тема не
 # перекрашивает, выносятся в переменные --steam-RRGGBB (generated/steam-colors.css),
 # чтобы в правилах не было ни одного цвета значением.
 STEAM_VARS: dict[str, str] = {}
+
+# Страховка перекрашивает фоны, рамки и синий акцент; нейтральный серый текст
+# Steam на тёмном фоне читается и так — его не трогаем, чтобы файл был лёгким.
+FALLBACK_NEUTRAL_TEXT = False
+FALLBACK_NEUTRAL_LINES = False
+PENDING_VARS: dict[str, str] = {}
 
 # Селекторы Big Picture / Steam Deck — тема их не трогает.
 SKIP_SELECTOR = re.compile(r"\.(GamepadMode|BasicUI|gamepadui|SteamOS)\b")
@@ -69,7 +75,7 @@ LINE_PROPS = {
     "border-color", "border-top-color", "border-right-color", "border-bottom-color", "border-left-color",
     "outline", "outline-color", "column-rule", "column-rule-color",
 }
-SHADOW_PROPS = {"box-shadow", "text-shadow", "filter"}
+SHADOW_PROPS = {"box-shadow"}
 COLOR_PROPS = BG_PROPS | TEXT_PROPS | LINE_PROPS | SHADOW_PROPS
 
 
@@ -289,16 +295,16 @@ def role(kind: str, rgba, play_button: bool) -> str | None:
         if l < 0.55: return "--bleach-surface-strong"
         if l < 0.80: return "--bleach-text-muted"
         return "--bleach-text"
-    if kind == "text":
+    if kind == "text" and FALLBACK_NEUTRAL_TEXT:
         if l < 0.30: return "--bleach-bg"
         if l < 0.45: return "--bleach-text-faint"
         if l < 0.66: return "--bleach-text-muted"
         return "--bleach-text"  # в т.ч. body{color:#b8bcbf} — основной текст Steam
-    if kind == "line":
+    if kind == "line" and FALLBACK_NEUTRAL_LINES:
         if l < 0.30: return "--bleach-line"
         if l < 0.60: return "--bleach-line-strong"
         return "--bleach-text-muted"
-    return None  # нейтральные тени оставляем
+    return None  # нейтральный текст (на тёмном фоне он и так читается) и тени не трогаем
 
 
 def passthrough(rgba) -> str:
@@ -311,7 +317,7 @@ def passthrough(rgba) -> str:
     if (r, g, b) == (0, 0, 0):
         return with_alpha("--bleach-shadow", a)
     hx = f"{r:02x}{g:02x}{b:02x}"
-    STEAM_VARS[f"--steam-{hx}"] = "#" + hx
+    PENDING_VARS[f"--steam-{hx}"] = "#" + hx
     return with_alpha(f"--steam-{hx}", a)
 
 
@@ -408,16 +414,18 @@ def emit(nodes, play_hashes: set[str], stats: dict, indent: str = "") -> list[st
             if prop not in COLOR_PROPS:
                 continue
             val = val.strip()
+            PENDING_VARS.clear()
             new, changed = recolor_value(prop, val, is_play)
-            any_changed |= changed
-            # переносим ВСЕ цветовые объявления правила (с усилением), чтобы
-            # сохранить порядок «база → состояние» внутри самого Steam
-            decls.append(f"{prop}:{new}")
+            if changed:
+                any_changed = True
+                decls.append(f"{prop}:{new}")
+                STEAM_VARS.update(PENDING_VARS)
         if not any_changed:
             continue
-        sel = boost(selector)
-        if not sel:
+        parts = [p.strip() for p in split_top(selector, ",") if p.strip() and not SKIP_SELECTOR.search(p)]
+        if not parts:
             continue
+        sel = ",".join(parts)
         stats["rules"] += 1
         out.append(f"{indent}{sel}{{{';'.join(decls)}}}")
     return out
@@ -431,41 +439,6 @@ def play_button_hashes(js_text: str, css_text: str) -> set[str]:
         for val in re.findall(r':"([A-Za-z0-9_-]{18,30})"', obj):
             hashes.add(val)
     return {h for h in hashes if "." + h in css_text}
-
-
-# ── шаблоны акцентов: {{Модуль.Класс}} → .хэш ───────────────────────────
-TEMPLATES = (("steam-accents.css", "steam-accents.css"), ("steam-glow.css", "steam-glow.css"))
-
-
-def class_modules(js_text: str) -> list[dict[str, str]]:
-    mods = []
-    for obj in re.findall(r"\{[^{}]*\}", js_text):
-        pairs = re.findall(r'"?([\w$-]+)"?:"([A-Za-z0-9_ -]+)"', obj)
-        if len(pairs) >= 2 and any(re.fullmatch(r"[A-Za-z0-9_-]{18,30}", v.split(" ")[0]) for _, v in pairs):
-            mods.append({k: v.split(" ")[0] for k, v in pairs})
-    return mods
-
-
-def render_template(text: str, mods, css_text: str) -> tuple[str, list[str]]:
-    missing = []
-
-    def resolve(m):
-        anchor, key = m.group(1), m.group(2)
-        cands = [d[key] for d in mods if anchor in d and key in d]
-        used = [h for h in cands if "." + h in css_text]
-        if used or cands:
-            return "." + (used or cands)[0]
-        missing.append(f"{anchor}.{key}")
-        return "\0MISSING\0"
-
-    out = re.sub(r"\{\{([\w$-]+)\.([\w$-]+)\}\}", resolve, text)
-    # выбрасываем правила, где не нашёлся хоть один класс
-    kept = []
-    for chunk in re.split(r"\n\s*\n", out):  # блоки в шаблонах разделены пустой строкой
-        if "\0MISSING\0" in chunk:
-            continue
-        kept.append(chunk)
-    return "\n\n".join(kept).rstrip() + "\n", sorted(set(missing))
 
 
 def main():
@@ -488,6 +461,7 @@ def main():
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
     with open(args.out, "w", encoding="utf-8", newline="\n") as f:
         f.write("/*\n  СГЕНЕРИРОВАНО tools/build_steam_palette.py — не правьте вручную.\n"
+                "  Страховочная перекраска экранов, которые тема не оформляет вручную.\n"
                 f"  Источник: Steam client {version} ({', '.join(CSS_FILES)}).\n"
                 f"  Правил: {stats['rules']}. Цвета только через var(--bleach-*).\n*/\n")
         f.write("\n".join(body) + "\n")
@@ -501,16 +475,6 @@ def main():
         f.write("}\n")
     print(f"готово: {args.out} — {stats['rules']} правил, {len(STEAM_VARS)} статусных цветов", file=sys.stderr)
 
-    if args.out == OUT:
-        mods = class_modules(js_text)
-        for src, dst in TEMPLATES:
-            with open(os.path.join(HERE, "templates", src), encoding="utf-8") as f:
-                text, missing = render_template(f.read(), mods, all_css)
-            text = text.replace("/*", f"/*\n  СГЕНЕРИРОВАНО из tools/templates/{src} для Steam client {version}.\n", 1)
-            with open(os.path.join(THEME, "generated", dst), "w", encoding="utf-8", newline="\n") as f:
-                f.write(text)
-            note = f" (не найдены: {', '.join(missing)})" if missing else ""
-            print(f"готово: generated/{dst}{note}", file=sys.stderr)
 
 
 if __name__ == "__main__":

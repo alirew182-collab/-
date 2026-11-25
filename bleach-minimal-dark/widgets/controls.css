@@ -1,0 +1,179 @@
+/*
+  Bleach Minimal Dark — элементы управления: кнопки, поля, выпадающие списки,
+  чекбоксы, переключатели, ползунки, прогресс-бары.
+  Хэш-классы Steam подписаны читаемым именем (модуль_Класс); проверка того,
+  что все они есть в текущем Steam: python tools/check_classes.py
+*/
+
+/* ── Кнопки ───────────────────────────────────────────────────────────── */
+.DialogButton {
+    background: var(--bleach-panel-raised) !important;
+    color: var(--bleach-text) !important;
+    border-radius: var(--bleach-radius) !important;
+    /* outline вместо border: у кнопок Steam box-sizing: content-box */
+    outline: var(--bleach-border-width) solid var(--bleach-line-strong);
+    outline-offset: calc(-1 * var(--bleach-border-width));
+    box-shadow: none !important;
+    text-shadow: none !important;
+    transition:
+        background-color var(--bleach-fast) var(--bleach-ease),
+        outline-color var(--bleach-fast) var(--bleach-ease),
+        color var(--bleach-fast) var(--bleach-ease) !important;
+}
+
+.DialogButton:enabled:hover,
+.DialogButton:not(.Disabled):not(:disabled):hover {
+    background: var(--bleach-surface-hover) !important;
+    color: var(--bleach-heading) !important;
+    outline-color: var(--bleach-accent);
+}
+
+.DialogButton:disabled,
+.DialogButton.Disabled {
+    opacity: 0.45;
+}
+
+/* Основная кнопка диалога (Steam помечает её .Primary) — заливка акцентом */
+.DialogButton.Primary {
+    background: var(--bleach-accent-fill) !important;
+    color: var(--bleach-white) !important;
+    outline-color: transparent;
+}
+
+.DialogButton.Primary:enabled:hover,
+.DialogButton.Primary:not(.Disabled):hover {
+    background: var(--bleach-accent-hover) !important;
+    color: var(--bleach-on-accent) !important;
+}
+
+/* ── Текстовые поля ──────────────────────────────────────────────────── */
+.DialogInput,
+.DialogTextInputBase,
+.DialogInputPlaceholder,
+input[type="text"],
+input[type="search"],
+input[type="password"],
+input[type="number"],
+textarea {
+    background: var(--bleach-deep) !important;
+    color: var(--bleach-text) !important;
+    border: var(--bleach-border-width) solid var(--bleach-line) !important;
+    border-radius: var(--bleach-radius) !important;
+    box-shadow: none !important;
+    caret-color: var(--bleach-accent);
+}
+
+.DialogInput:focus,
+.DialogTextInputBase:focus,
+input:focus,
+textarea:focus {
+    border-color: var(--bleach-accent) !important;
+}
+
+::placeholder {
+    color: var(--bleach-text-faint) !important;
+}
+
+/* ── Выпадающие списки (кнопка) ──────────────────────────────────────── */
+.DialogDropDown {
+    background: var(--bleach-panel-raised) !important;
+    color: var(--bleach-text) !important;
+    border: var(--bleach-border-width) solid var(--bleach-line) !important;
+    border-radius: var(--bleach-radius) !important;
+    box-shadow: none !important;
+}
+
+.DialogDropDown:hover {
+    border-color: var(--bleach-accent) !important;
+    color: var(--bleach-heading) !important;
+}
+
+.DialogDropDown_Arrow,
+.DialogDropDown_Arrow svg {
+    fill: var(--bleach-text-muted) !important;
+    color: var(--bleach-text-muted) !important;
+}
+
+/* ── Чекбоксы ────────────────────────────────────────────────────────── */
+.DialogCheckbox {
+    background: var(--bleach-deep) !important;
+    border: var(--bleach-border-width) solid var(--bleach-line-strong) !important;
+    border-radius: var(--bleach-radius) !important;
+    box-shadow: none !important;
+}
+
+.DialogCheckbox:hover {
+    border-color: var(--bleach-accent) !important;
+}
+
+.DialogCheckbox.Active,
+.DialogCheckbox_Container:has(> .DialogCheckbox.Active) .DialogCheckbox {
+    background: var(--bleach-accent-fill) !important;
+    border-color: var(--bleach-accent) !important;
+}
+
+.DialogCheckbox svg,
+.DialogCheckbox path {
+    fill: var(--bleach-white) !important;
+}
+
+/* ── Переключатели (новые настройки Steam) ───────────────────────────── */
+/* gamepaddialog_Toggle · ToggleRail · ToggleSwitch · On */
+._9Ql-oVe_j8E-vsDdyVdWo ._2bl0iQ9xigbq4Zd1NI6NZl {
+    background: var(--bleach-surface-strong) !important;
+}
+
+._9Ql-oVe_j8E-vsDdyVdWo ._2bl0iQ9xigbq4Zd1NI6NZl::before {
+    background: var(--bleach-accent-fill) !important;
+}
+
+._9Ql-oVe_j8E-vsDdyVdWo ._1PQppcgkuXQAiFPar9AGi- {
+    background: var(--bleach-text-muted) !important;
+    box-shadow: none !important;
+}
+
+._9Ql-oVe_j8E-vsDdyVdWo.yLrDAetGoWx0GYqA6ShfS ._1PQppcgkuXQAiFPar9AGi- {
+    background: var(--bleach-white) !important;
+}
+
+._9Ql-oVe_j8E-vsDdyVdWo:not(.aIeh3X5T2M074RLW1qn6_):hover {
+    box-shadow: 0 0 0 3px var(--bleach-line) !important;
+}
+
+/* ── Ползунки ────────────────────────────────────────────────────────── */
+/* gamepadslider_SliderTrack (две версии) · SliderHandle */
+._2_vG6TwMW2XtyLlTEaODH9,
+._1AbErMQt3j46sNGHR3IoCb {
+    background-color: var(--bleach-surface-strong) !important;
+}
+
+._2_vG6TwMW2XtyLlTEaODH9::before,
+._1AbErMQt3j46sNGHR3IoCb::before {
+    background: var(--bleach-accent) !important;
+}
+
+._11PBfip2UlKlY3vWSz8PA4,
+._2tYbweNgKYhawAUtGhUcMC {
+    background: var(--bleach-white) !important;
+    box-shadow: 0 0 0 2px var(--bleach-accent) !important;
+}
+
+input[type="range"],
+input[type="checkbox"] {
+    accent-color: var(--bleach-accent);
+}
+
+/* ── Прогресс-бары ───────────────────────────────────────────────────── */
+/* steamtemplates_ProgressBar (универсальный, на CSS-переменных Steam) */
+._3szjUMH5QeRwtXAsLRcWt9 {
+    --color-progress-bar-background: var(--bleach-surface-strong) !important;
+    --color-progress-bar-foreground: var(--bleach-accent) !important;
+    border-radius: 0 !important;
+}
+
+/* ProgressBar в загрузках и достижениях */
+._1-nHjRywUoX7Mpyc6JOPaQ,
+._2VCd-2F_zasXcshwdbxHXo {
+    background: var(--bleach-surface-strong) !important;
+    border-radius: 0 !important;
+}

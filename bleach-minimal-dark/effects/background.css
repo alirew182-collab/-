@@ -3,19 +3,31 @@
   Картинку кладёте вы сами: assets/background.jpg (тема изображений не содержит).
   Нет файла — фон просто остаётся чёрным.
 
-  Путь задаётся здесь же, где используется: относительный url() в
-  CSS-переменной считается от этого файла (effects/), поэтому "../assets/…".
-  Хотите другой файл — поменяйте только эту строку.
+  Как работает: все области темы рисуются через переменные слоёв
+  (--bleach-window, --bleach-deep, --bleach-panel). Здесь они становятся
+  прозрачными или полупрозрачными, а под интерфейсом появляется картинка.
+
+  Производительность: картинка и размытие — один фиксированный слой
+  (body::before) в отдельном композиторном слое; при прокрутке он не
+  перерисовывается. Размытие 0 px — самый лёгкий вариант.
+
+  Путь задаётся в этом же файле: относительный url() в переменной
+  считается от effects/, поэтому "../assets/…".
 */
 html:root {
     --bleach-bg-image: url("../assets/background.jpg");
 
-    /* Панели становятся полупрозрачными, чтобы фон просвечивал */
-    --bleach-panel: color-mix(in srgb, var(--bleach-surface) 82%, transparent);
-    --bleach-panel-raised: color-mix(in srgb, var(--bleach-surface-raised) 92%, transparent);
+    --bleach-window: transparent;
+    --bleach-deep: color-mix(in srgb, var(--bleach-bg-deep) 72%, transparent);
+    --bleach-panel: color-mix(in srgb, var(--bleach-surface) 80%, transparent);
+    --bleach-panel-raised: color-mix(in srgb, var(--bleach-surface-raised) 94%, transparent);
 }
 
-/* Слои: картинка (::before) → затемнение (::after) → интерфейс */
+/* Полотно: html — чёрная подложка, body прозрачный, картинка между ними */
+html:root {
+    background-color: var(--bleach-bg) !important;
+}
+
 html:root body {
     background-color: transparent !important;
 }
@@ -34,6 +46,7 @@ html:root body::before {
     inset: calc(-2 * var(--bleach-bg-blur, 6px));
     background: var(--bleach-bg-image) center / cover no-repeat;
     filter: blur(var(--bleach-bg-blur, 6px)) saturate(0.85);
+    will-change: transform;
 }
 
 html:root body::after {

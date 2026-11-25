@@ -28,9 +28,14 @@
     --bleach-glow-soft: color-mix(in srgb, var(--bleach-glow) 45%, transparent);
     --bleach-glow-faint: color-mix(in srgb, var(--bleach-glow) 18%, transparent);
 
-    /* Панели (эффект «Фон» делает их полупрозрачными) */
+    /* Слои окна (эффект «Фон» делает их полупрозрачными):
+       window — основное полотно, deep — шапка и левая колонка, panel — карточки */
+    --bleach-window: var(--bleach-bg);
+    --bleach-deep: var(--bleach-bg-deep);
     --bleach-panel: var(--bleach-surface);
     --bleach-panel-raised: var(--bleach-surface-raised);
+    --bleach-row-hover: var(--bleach-surface-hover);
+    --bleach-row-selected: var(--bleach-accent-wash);
     --bleach-overlay: color-mix(in srgb, var(--bleach-shadow) 72%, transparent);
     --bleach-selection: color-mix(in srgb, var(--bleach-accent) 40%, transparent);
 
@@ -42,8 +47,11 @@
     --bleach-radius: 2px;
     --bleach-radius-lg: 4px;
     --bleach-border-width: 1px;
+    --bleach-blade: 2px;              /* ширина «клинка» — акцентной полосы выделения */
+    --bleach-tracking: 0.08em;        /* разрядка капительных подписей */
     --bleach-ease: cubic-bezier(0.2, 0.9, 0.1, 1);
     --bleach-fast: 120ms;
+    /* --bleach-font-heading задаётся только условием «Шрифт заголовков» (fonts/*.css) */
 }
 
 /*

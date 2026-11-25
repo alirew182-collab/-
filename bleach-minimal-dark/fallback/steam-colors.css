@@ -1,0 +1,36 @@
+/*
+  СГЕНЕРИРОВАНО tools/build_steam_palette.py — не правьте вручную.
+  Статусные цвета Steam, которые тема сохраняет как есть (зелёный «в игре»,
+  жёлтый, красный и т.п.). Вынесены в переменные, чтобы правила
+  steam-palette.css не содержали цветов значением.
+*/
+:root {
+    --steam-00ff00: #00ff00;
+    --steam-00ffff: #00ffff;
+    --steam-052f09: #052f09;
+    --steam-0c6e14: #0c6e14;
+    --steam-0e480c: #0e480c;
+    --steam-0f8718: #0f8718;
+    --steam-155c1c: #155c1c;
+    --steam-2d6020: #2d6020;
+    --steam-3d1616: #3d1616;
+    --steam-52fd1e: #52fd1e;
+    --steam-52ff42: #52ff42;
+    --steam-562d67: #562d67;
+    --steam-58306c: #58306c;
+    --steam-5a2820: #5a2820;
+    --steam-7d6ebc: #7d6ebc;
+    --steam-811e59: #811e59;
+    --steam-81399a: #81399a;
+    --steam-8751b8: #8751b8;
+    --steam-8e00d1: #8e00d1;
+    --steam-a16e1a: #a16e1a;
+    --steam-b01e54: #b01e54;
+    --steam-dff3ff: #dff3ff;
+    --steam-e34bba: #e34bba;
+    --steam-ebf5ff: #ebf5ff;
+    --steam-f5deb3: #f5deb3;
+    --steam-ff0000: #ff0000;
+    --steam-ff00ff: #ff00ff;
+    --steam-ffff00: #ffff00;
+}

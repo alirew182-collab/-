@@ -1,0 +1,68 @@
+/*
+  Bleach Minimal Dark — модальные окна и диалоги (подтверждения, свойства,
+  «О Steam», окна внутри главного окна).
+*/
+
+/* Затемнение под модальным окном */
+.ModalOverlayBackground {
+    background: var(--bleach-overlay) !important;
+}
+
+/* Панель диалога: плоская, тонкая белая рамка */
+.ModalPosition_Content,
+.DialogContent,
+.DialogContentTransition {
+    background: var(--bleach-panel-raised) !important;
+    color: var(--bleach-text) !important;
+    border-radius: var(--bleach-radius-lg) !important;
+}
+
+.FullModalOverlay .ModalPosition_Content {
+    border: var(--bleach-border-width) solid var(--bleach-line-strong) !important;
+    box-shadow: 0 24px 64px var(--bleach-overlay) !important;
+}
+
+/* Заголовок диалога — белый, разрядкой; линия снизу (мазок туши — в эффекте) */
+.DialogHeader {
+    color: var(--bleach-heading) !important;
+    font-family: var(--bleach-font-heading, inherit);
+    letter-spacing: 0.03em;
+    border-bottom: var(--bleach-border-width) solid var(--bleach-line) !important;
+    padding-bottom: 8px;
+}
+
+.DialogBody,
+.DialogBodyText,
+.DialogLabel,
+.DialogLabelStrong {
+    color: var(--bleach-text) !important;
+}
+
+.DialogLabelExplainer,
+.DialogBodyText.Secondary {
+    color: var(--bleach-text-muted) !important;
+}
+
+.DialogFooter {
+    border-top: var(--bleach-border-width) solid var(--bleach-line) !important;
+    background: transparent !important;
+}
+
+/* Заголовок окна-попапа (полоса с крестиком) */
+.title-area,
+.ModalPosition_TopBar {
+    background: var(--bleach-deep) !important;
+}
+
+.title-area-highlight {
+    background: transparent !important;
+}
+
+/* Кнопки закрыть/свернуть в попапах */
+.title-bar-actions .title-area-icon:hover {
+    background: var(--bleach-surface-hover) !important;
+}
+
+.title-bar-actions .title-area-icon.closeButton:hover {
+    background: var(--bleach-accent-fill) !important;
+}

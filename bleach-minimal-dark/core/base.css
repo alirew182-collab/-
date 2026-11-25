@@ -1,0 +1,59 @@
+/*
+  Bleach Minimal Dark — основа окон клиента: полотно, текст, скроллбары,
+  выделение, фокус. Только стандартные элементы и стабильные классы Steam.
+*/
+
+html {
+    color-scheme: dark;
+}
+
+html,
+body {
+    background-color: var(--bleach-window) !important;
+}
+
+::selection {
+    background: var(--bleach-selection);
+    color: var(--bleach-heading);
+}
+
+/* ── Скроллбары: тонкие, без стрелок, появляются при наведении ───────── */
+::-webkit-scrollbar {
+    width: 8px !important;
+    height: 8px !important;
+    background: transparent !important;
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+    background: transparent !important;
+    border: 0 !important;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--bleach-scroll-thumb) !important;
+    border: 2px solid transparent !important;
+    border-radius: 8px !important;
+    background-clip: padding-box !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--bleach-scroll-thumb-hover) !important;
+}
+
+::-webkit-scrollbar-button {
+    display: none !important;
+}
+
+/* ── Фокус с клавиатуры — тонкий контур акцентом ─────────────────────── */
+:focus-visible {
+    outline: var(--bleach-border-width) solid var(--bleach-accent) !important;
+    outline-offset: 1px;
+}
+
+/* ── Тонкие белые разделители вместо стоковых линий ──────────────────── */
+hr {
+    border: 0 !important;
+    height: var(--bleach-border-width) !important;
+    background: var(--bleach-line) !important;
+}

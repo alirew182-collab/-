@@ -1,8 +1,8 @@
 {
     "name": "Bleach Minimal Dark",
-    "description": "Тёмный минимализм с эстетикой Bleach: чёрное косоде, белое хаори, reiatsu-свечение, shunpo-анимации и мазки туши. Четыре пресета акцента и свой.",
+    "description": "Тёмный минимализм с эстетикой Bleach: чёрное косоде, белое хаори, reiatsu-свечение, shunpo-анимации и мазки туши. Ручная проработка библиотеки, страницы игры, друзей, чата, настроек и магазина. Пять пресетов акцента.",
     "author": "alirew182-collab",
-    "version": "1.1.0",
+    "version": "2.0.0",
     "tags": [
         "Dark",
         "Minimal",
@@ -11,68 +11,101 @@
         "Store",
         "Friends"
     ],
-    "credits": "Общий подход (минимализм, тёмные плоские панели) вдохновлён темой Minimal Dark by SaiyajinK — https://github.com/SaiyajinK/Minimal-Dark-for-Steam. Код написан с нуля, не скопирован.",
+    "credits": "Подход вдохновлён Minimal Dark (SaiyajinK). Карта классов Steam (какой хэш отвечает за какой элемент) сверена по Adwaita-for-Steam (tkashkin, MIT). Код темы написан с нуля.",
     "UseDefaultPatches": false,
     "RootColors": "colors.css",
     "Patches": [
         {
+            "MatchRegexString": ".DesktopUI",
+            "TargetCss": [
+                "core/tokens.css",
+                "fallback/steam-colors.css",
+                "fallback/steam-palette.css",
+                "core/base.css",
+                "widgets/controls.css",
+                "widgets/menus.css",
+                "widgets/dialogs.css",
+                "main/frame.css",
+                "main/sidebar.css",
+                "main/home.css",
+                "main/details.css"
+            ]
+        },
+        {
             "MatchRegexString": "^Steam$",
             "TargetCss": [
-                "base/variables.css",
-                "generated/steam-colors.css",
-                "generated/steam-palette.css",
-                "generated/steam-accents.css",
-                "base/global.css",
-                "windows/library.css"
+                "core/tokens.css",
+                "fallback/steam-colors.css",
+                "fallback/steam-palette.css",
+                "core/base.css",
+                "widgets/controls.css",
+                "widgets/menus.css",
+                "widgets/dialogs.css",
+                "main/frame.css",
+                "main/sidebar.css",
+                "main/home.css",
+                "main/details.css"
             ]
         },
         {
             "MatchRegexString": ".friendsui-container",
             "TargetCss": [
-                "base/variables.css",
-                "generated/steam-colors.css",
-                "generated/steam-palette.css",
-                "generated/steam-accents.css",
-                "base/global.css",
-                "windows/friends.css"
+                "core/tokens.css",
+                "fallback/steam-colors.css",
+                "fallback/steam-palette.css",
+                "core/base.css",
+                "widgets/controls.css",
+                "widgets/menus.css",
+                "widgets/dialogs.css",
+                "friends/friends.css",
+                "friends/chat.css"
             ]
         },
         {
             "MatchRegexString": ".ModalDialogPopup",
             "TargetCss": [
-                "base/variables.css",
-                "generated/steam-colors.css",
-                "generated/steam-palette.css",
-                "generated/steam-accents.css",
-                "base/global.css",
-                "windows/settings.css"
+                "core/tokens.css",
+                "fallback/steam-colors.css",
+                "fallback/steam-palette.css",
+                "core/base.css",
+                "widgets/controls.css",
+                "widgets/menus.css",
+                "widgets/dialogs.css",
+                "settings/settings.css"
+            ]
+        },
+        {
+            "MatchRegexString": ".FullModalOverlay",
+            "TargetCss": [
+                "core/tokens.css",
+                "fallback/steam-colors.css",
+                "fallback/steam-palette.css",
+                "core/base.css",
+                "widgets/controls.css",
+                "widgets/menus.css",
+                "widgets/dialogs.css",
+                "settings/settings.css"
             ]
         },
         {
             "MatchRegexString": "Menu$",
             "TargetCss": [
-                "base/variables.css",
-                "generated/steam-colors.css",
-                "generated/steam-palette.css",
-                "generated/steam-accents.css",
-                "windows/menus.css"
+                "core/tokens.css",
+                "widgets/menus.css"
             ]
         },
         {
             "MatchRegexString": "Supernav$",
             "TargetCss": [
-                "base/variables.css",
-                "generated/steam-colors.css",
-                "generated/steam-palette.css",
-                "generated/steam-accents.css",
-                "windows/menus.css"
+                "core/tokens.css",
+                "widgets/menus.css"
             ]
         },
         {
             "MatchRegexString": "https://store\\.steampowered\\.com/.*",
             "TargetCss": [
-                "base/variables.css",
-                "webkit/store.css"
+                "core/tokens.css",
+                "store/store.css"
             ]
         }
     ],
@@ -85,9 +118,11 @@
                 "Getsuga": {
                     "TargetCss": {
                         "affects": [
+                            ".DesktopUI",
                             "^Steam$",
                             ".friendsui-container",
                             ".ModalDialogPopup",
+                            ".FullModalOverlay",
                             "Menu$",
                             "Supernav$",
                             "https://store\\.steampowered\\.com/.*"
@@ -98,9 +133,11 @@
                 "Reiatsu": {
                     "TargetCss": {
                         "affects": [
+                            ".DesktopUI",
                             "^Steam$",
                             ".friendsui-container",
                             ".ModalDialogPopup",
+                            ".FullModalOverlay",
                             "Menu$",
                             "Supernav$",
                             "https://store\\.steampowered\\.com/.*"
@@ -111,9 +148,11 @@
                 "Hollow": {
                     "TargetCss": {
                         "affects": [
+                            ".DesktopUI",
                             "^Steam$",
                             ".friendsui-container",
                             ".ModalDialogPopup",
+                            ".FullModalOverlay",
                             "Menu$",
                             "Supernav$",
                             "https://store\\.steampowered\\.com/.*"
@@ -124,9 +163,11 @@
                 "Quincy": {
                     "TargetCss": {
                         "affects": [
+                            ".DesktopUI",
                             "^Steam$",
                             ".friendsui-container",
                             ".ModalDialogPopup",
+                            ".FullModalOverlay",
                             "Menu$",
                             "Supernav$",
                             "https://store\\.steampowered\\.com/.*"
@@ -137,9 +178,11 @@
                 "Свой": {
                     "TargetCss": {
                         "affects": [
+                            ".DesktopUI",
                             "^Steam$",
                             ".friendsui-container",
                             ".ModalDialogPopup",
+                            ".FullModalOverlay",
                             "Menu$",
                             "Supernav$",
                             "https://store\\.steampowered\\.com/.*"
@@ -157,9 +200,11 @@
                 "Вкл": {
                     "TargetCss": {
                         "affects": [
+                            ".DesktopUI",
                             "^Steam$",
                             ".friendsui-container",
                             ".ModalDialogPopup",
+                            ".FullModalOverlay",
                             "https://store\\.steampowered\\.com/.*"
                         ],
                         "src": "effects/reiatsu-glow.css"
@@ -170,12 +215,13 @@
         },
         "Shunpo-анимация карточек": {
             "tab": "Эффекты",
-            "description": "Резкий сдвиг с остаточным образом (120–180 мс) при наведении на карточки игр в библиотеке и магазине.",
+            "description": "Резкий сдвиг с остаточным образом (120–180 мс) при наведении на обложки в библиотеке и карточки магазина. Анимируется только translate — без нагрузки на раскладку.",
             "default": "Вкл",
             "values": {
                 "Вкл": {
                     "TargetCss": {
                         "affects": [
+                            ".DesktopUI",
                             "^Steam$",
                             "https://store\\.steampowered\\.com/.*"
                         ],
@@ -205,10 +251,13 @@
                 "Вкл": {
                     "TargetCss": {
                         "affects": [
+                            ".DesktopUI",
                             "^Steam$",
                             ".friendsui-container",
                             ".ModalDialogPopup",
+                            ".FullModalOverlay",
                             "Menu$",
+                            "Supernav$",
                             "https://store\\.steampowered\\.com/.*"
                         ],
                         "src": "effects/ink-strokes.css"
@@ -226,6 +275,7 @@
                 "Клиент": {
                     "TargetCss": {
                         "affects": [
+                            ".DesktopUI",
                             "^Steam$"
                         ],
                         "src": "effects/background.css"
@@ -234,6 +284,7 @@
                 "Клиент и друзья": {
                     "TargetCss": {
                         "affects": [
+                            ".DesktopUI",
                             "^Steam$",
                             ".friendsui-container"
                         ],
@@ -243,6 +294,7 @@
                 "Клиент, друзья и магазин": {
                     "TargetCss": {
                         "affects": [
+                            ".DesktopUI",
                             "^Steam$",
                             ".friendsui-container",
                             "https://store\\.steampowered\\.com/.*"
@@ -285,10 +337,13 @@
                 "Cinzel": {
                     "TargetCss": {
                         "affects": [
+                            ".DesktopUI",
                             "^Steam$",
                             ".friendsui-container",
                             ".ModalDialogPopup",
+                            ".FullModalOverlay",
                             "Menu$",
+                            "Supernav$",
                             "https://store\\.steampowered\\.com/.*"
                         ],
                         "src": "fonts/blade-cinzel.css"
@@ -297,10 +352,13 @@
                 "Shippori Mincho": {
                     "TargetCss": {
                         "affects": [
+                            ".DesktopUI",
                             "^Steam$",
                             ".friendsui-container",
                             ".ModalDialogPopup",
+                            ".FullModalOverlay",
                             "Menu$",
+                            "Supernav$",
                             "https://store\\.steampowered\\.com/.*"
                         ],
                         "src": "fonts/blade-shippori.css"

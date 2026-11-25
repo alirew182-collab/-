@@ -1,0 +1,85 @@
+/*
+  Bleach Minimal Dark — контекстные и выпадающие меню, подсказки.
+  Этот файл (вместе с core/tokens.css) — всё, что грузится в окна меню
+  («…Menu», «…Supernav»), поэтому он намеренно маленький.
+*/
+
+/* Окно меню само по себе прозрачное — фон рисует сама панель меню */
+html.MillenniumWindow_ContextMenu,
+html.MillenniumWindow_ContextMenu body {
+    background: transparent !important;
+}
+
+/* ── Панель меню ─────────────────────────────────────────────────────── */
+/* contextmenu_contextMenu · dropdown_DialogDropDownMenu · menu_MenuPopup */
+.PP7LM0Ow1K5qkR8WElLpt,
+._30wJO3MC4x-I1OWpy1TAeE,
+._3pofGqV0buiKAfMPEs3_82,
+.DialogMenuPosition {
+    background: var(--bleach-surface-raised) !important;
+    border: var(--bleach-border-width) solid var(--bleach-line-strong) !important;
+    border-radius: var(--bleach-radius-lg) !important;
+    box-shadow: 0 12px 32px var(--bleach-overlay) !important;
+    padding: 4px 0 !important;
+}
+
+/* ── Пункты меню ─────────────────────────────────────────────────────── */
+/* contextmenu_contextMenuItem · dropdown_DialogDropDownMenu_Item · menu_MenuItem */
+._1n7Wloe5jZ6fSuvV18NNWI,
+._2oAiZidGyUxL-hfupFDQ2m,
+._2jXHP0742MyApMUVUM8IFn {
+    background: transparent !important;
+    color: var(--bleach-text) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    transition: background-color 80ms linear, color 80ms linear !important;
+}
+
+/* Наведение: тёмный оттенок акцента + клинок слева, текст белый */
+._1n7Wloe5jZ6fSuvV18NNWI:not(.d8GPmAyQdRQwoHiPbc8Js):hover,
+._1n7Wloe5jZ6fSuvV18NNWI.active,
+._2oAiZidGyUxL-hfupFDQ2m:hover,
+._2jXHP0742MyApMUVUM8IFn:not(._1MAuQug6YmX05JxGIy637e):hover {
+    background: var(--bleach-row-selected) !important;
+    color: var(--bleach-heading) !important;
+    box-shadow: inset var(--bleach-blade) 0 0 var(--bleach-accent) !important;
+}
+
+/* Неактивные пункты */
+._1n7Wloe5jZ6fSuvV18NNWI.d8GPmAyQdRQwoHiPbc8Js,
+._2jXHP0742MyApMUVUM8IFn._1MAuQug6YmX05JxGIy637e {
+    color: var(--bleach-text-faint) !important;
+}
+
+/* Стрелки подменю и иконки */
+._1n7Wloe5jZ6fSuvV18NNWI ._114nFoGF7tZ4PpremDP2w0,
+._1n7Wloe5jZ6fSuvV18NNWI svg {
+    fill: currentColor !important;
+    color: inherit !important;
+}
+
+/* Разделители: тонкая белая линия */
+.WUOrULWKkGLl3ZUQdDXg8,
+.IjIBR_wDDi2N77Oz4KAT4,
+.PP7LM0Ow1K5qkR8WElLpt hr {
+    background: var(--bleach-line) !important;
+    border-color: var(--bleach-line) !important;
+    opacity: 1 !important;
+}
+
+/* Подзаголовки выпадающих пунктов (dropdownlabel_DropDownLabelDescription) */
+.cbinvNOoQE045ZV5gCk_N {
+    color: var(--bleach-text-muted) !important;
+}
+
+/* ── Подсказки ───────────────────────────────────────────────────────── */
+/* tooltip_TextToolTip · ToolTipCustom · ToolTipInsetContent */
+._2FxbHJzYoH024ko7zqcJOf,
+._3XGRklQrZMakU2xaYB0cLD,
+.i4LuYcvtfPgYKx3qqvKUq {
+    background: var(--bleach-surface-raised) !important;
+    color: var(--bleach-text) !important;
+    border: var(--bleach-border-width) solid var(--bleach-line-strong) !important;
+    border-radius: var(--bleach-radius) !important;
+    box-shadow: 0 6px 18px var(--bleach-overlay) !important;
+}

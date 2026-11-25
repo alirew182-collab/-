@@ -1,77 +1,51 @@
 /*
-  Эффект: reiatsu — мягкое свечение духовного давления на hover у кнопок
-  и на активных вкладках. Цвет — --bleach-glow текущего пресета.
-  Селекторы с html:root, чтобы перебить base/*.css (они грузятся позже).
+  Эффект: reiatsu — мягкое свечение духовного давления цвета пресета.
+  Адресно: кнопки, «Играть», активные вкладки, выбранная игра.
+  Анимируется только box-shadow/text-shadow и только на hover.
+  Селекторы с html:root — чтобы перебить основные файлы (они грузятся позже).
 */
 
-/* Свечение для элементов Steam с хэш-классами (генерируется tools/build_steam_palette.py) */
-@import url("../generated/steam-glow.css");
-
-
-/* ── Кнопки клиента и магазина ───────────────────────────────────────── */
-html:root :is(
-    .DialogButton,
-    button,
-    .btn_green_steamui,
-    .btn_blue_steamui,
-    .btnv6_blue_hoverfade,
-    .btn_grey_steamui,
-    .btnv6_lightblue_blue,
-    .app_tag
-) {
-    transition:
-        box-shadow 160ms var(--bleach-ease),
-        border-color var(--bleach-fast) var(--bleach-ease),
-        background-color var(--bleach-fast) var(--bleach-ease),
-        color var(--bleach-fast) var(--bleach-ease);
-}
-
-html:root :is(
-    .DialogButton,
-    button,
-    .btn_green_steamui,
-    .btn_blue_steamui,
-    .btnv6_blue_hoverfade,
-    .btn_grey_steamui,
-    .btnv6_lightblue_blue,
-    .app_tag
-):is(:hover, :focus-visible):not(:disabled) {
+/* Кнопки диалогов и магазина */
+html:root .DialogButton:enabled:hover,
+html:root .DialogButton:not(.Disabled):not(:disabled):hover,
+html:root :is(.btn_green_steamui, .btn_blue_steamui, .btnv6_blue_hoverfade, .btn_grey_steamui):hover {
     box-shadow:
         0 0 0 var(--bleach-border-width) var(--bleach-glow-soft),
-        0 0 10px var(--bleach-glow-soft),
-        0 0 24px var(--bleach-glow-faint) !important;
+        0 0 12px var(--bleach-glow-soft),
+        0 0 26px var(--bleach-glow-faint) !important;
 }
 
-/* ── Активные вкладки: свечение под линией ───────────────────────────── */
-html:root [role="tab"][aria-selected="true"],
-html:root #store_nav_area .store_nav .tab:hover,
-html:root .home_tabs_row .home_tab.active .tab_content {
+/* Кнопка «Играть» — сильнее (appactionbutton_ButtonChild) */
+html:root body.DesktopUI ._1FnJ6dPuknQFQ2RTpKTI16 ._2AzIX5kl9k6JnxLfR5H4kX:hover,
+html:root body.DesktopUI ._3cI5TXsFX3bvpR-7EBOtxq > ._2AzIX5kl9k6JnxLfR5H4kX:hover {
     box-shadow:
-        inset 0 -2px 0 var(--bleach-accent),
-        0 6px 14px -8px var(--bleach-glow-soft) !important;
+        0 0 0 var(--bleach-border-width) var(--bleach-glow-soft),
+        0 0 16px var(--bleach-glow-soft),
+        0 0 40px var(--bleach-glow-faint) !important;
 }
 
-html:root.MillenniumWindow_Settings :is(.PageListItem, [role="tab"]):is(.Selected, [aria-selected="true"]) {
+/* Активная вкладка верхней навигации — аура вокруг текста */
+html:root body.DesktopUI ._7AlhCx3XGzBeIrQaCneUD._1gqEjB5QsKT_NftD1dEsdZ:not(._2cO0HdvLEGAdhosLekWsmo) ._19axKcqYRuaJ8vdYKYmtTQ {
+    text-shadow: 0 0 12px var(--bleach-glow-soft) !important;
+}
+
+/* Выбранная игра в списке и выбранный раздел настроек — клинок светится */
+html:root body.DesktopUI ._2-O4ZG0KrnSrzISHBKctFQ._1UBpAXP408Ez_L_mXhW5Q9,
+html:root body.DesktopUI ._1UBpAXP408Ez_L_mXhW5Q9 ._2-O4ZG0KrnSrzISHBKctFQ,
+html:root ._1-vlriAtKYDViAEunue4VO._2DpXjzK3WWsOtUWUrcuOG7 {
     box-shadow:
-        inset 2px 0 0 var(--bleach-accent),
-        -4px 0 14px -6px var(--bleach-glow-soft) !important;
+        inset var(--bleach-blade) 0 0 var(--bleach-accent),
+        inset 14px 0 18px -14px var(--bleach-glow-soft) !important;
 }
 
-/* Активная вкладка чата и выбранный друг */
-html:root :is(.chatTab, .ChatTab):is(.active, .Active, .focused, .selected),
-html:root :is(.friend, .friendListItem):is(.selected, .active, .focused) {
+/* Активная вкладка чата */
+html:root .chatTabList .chatTab.active {
     box-shadow:
-        inset 0 -2px 0 var(--bleach-accent),
-        0 0 14px var(--bleach-glow-faint) !important;
+        inset 0 calc(-1 * var(--bleach-blade)) 0 var(--bleach-accent),
+        inset 0 -12px 14px -12px var(--bleach-glow-soft) !important;
 }
 
-/* Поля ввода в фокусе — едва заметная аура */
-html:root :is(.DialogTextInputBase, .DialogInput, input, textarea):focus {
-    box-shadow: 0 0 0 var(--bleach-border-width) var(--bleach-glow-soft), 0 0 12px var(--bleach-glow-faint) !important;
-}
-
-@media (prefers-reduced-motion: reduce) {
-    html:root :is(.DialogButton, button) {
-        transition: none;
-    }
+/* Поле в фокусе — едва заметная аура */
+html:root :is(.DialogInput, .DialogTextInputBase, .chatTextarea):focus {
+    box-shadow: 0 0 10px var(--bleach-glow-faint) !important;
 }

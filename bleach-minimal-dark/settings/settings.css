@@ -1,0 +1,116 @@
+/*
+  Bleach Minimal Dark — окна настроек (Steam, свойства игры, настройки чата)
+  и Millennium: у них общий компонент PagedSettingsDialog.
+*/
+
+/* ── Левая колонка разделов ──────────────────────────────────────────── */
+/* pagedsettings_PagedSettingsDialog_PageListColumn */
+._2kwFFHckg8jvnwJfg9-la8 {
+    background: var(--bleach-deep) !important;
+    box-shadow: inset calc(-1 * var(--bleach-border-width)) 0 0 var(--bleach-line) !important;
+}
+
+/* Заголовок колонки («НАСТРОЙКИ STEAM») — PagedSettingsDialog_Title */
+._2rjVTGz8aLvqOdz5v2gq5C {
+    color: var(--bleach-heading) !important;
+    font-family: var(--bleach-font-heading, inherit);
+    letter-spacing: 0.1em;
+}
+
+/* Пункт раздела · Active · DisabledItem · иконка */
+._1-vlriAtKYDViAEunue4VO {
+    color: var(--bleach-text-muted) !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+    transition: background-color 80ms linear, color 80ms linear;
+}
+
+._1-vlriAtKYDViAEunue4VO ._1rD8X96FdnksZLvRRlEiCR {
+    color: inherit !important;
+}
+
+._1-vlriAtKYDViAEunue4VO:hover:not(._2DpXjzK3WWsOtUWUrcuOG7) {
+    background: var(--bleach-row-hover) !important;
+    color: var(--bleach-heading) !important;
+}
+
+._1-vlriAtKYDViAEunue4VO:hover:not(._2DpXjzK3WWsOtUWUrcuOG7) ._1rD8X96FdnksZLvRRlEiCR {
+    color: var(--bleach-heading) !important;
+}
+
+._1-vlriAtKYDViAEunue4VO._2DpXjzK3WWsOtUWUrcuOG7 {
+    background: var(--bleach-row-selected) !important;
+    color: var(--bleach-heading) !important;
+    box-shadow: inset var(--bleach-blade) 0 0 var(--bleach-accent) !important;
+}
+
+._1-vlriAtKYDViAEunue4VO._2DpXjzK3WWsOtUWUrcuOG7 ._1rD8X96FdnksZLvRRlEiCR {
+    color: var(--bleach-accent-text) !important;
+}
+
+._1-vlriAtKYDViAEunue4VO.oUzYn48NLkHPRjiT8W86M {
+    background: transparent !important;
+    color: var(--bleach-text-faint) !important;
+}
+
+/* Разделитель групп разделов — PageListSeparator */
+._1Hye7o1wYIfc9TE9QKRW4T {
+    background: var(--bleach-line) !important;
+    height: var(--bleach-border-width) !important;
+}
+
+/* ── Правая часть со строками настроек ───────────────────────────────── */
+/* PagedSettingsDialog_PageContent */
+.CFTLX2wIKOK3hNV-fS7_V,
+.DesktopUI .CFTLX2wIKOK3hNV-fS7_V {
+    background: var(--bleach-window) !important;
+    background-image: none !important;
+}
+
+/* Подзаголовки групп */
+._2rK4YqGvSzXLj1bPZL8xMJ,
+._2rK4YqGvSzXLj1bPZL8xMJ.DesktopUI,
+.DesktopUI ._2rK4YqGvSzXLj1bPZL8xMJ {
+    color: var(--bleach-heading) !important;
+    font-family: var(--bleach-font-heading, inherit);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-bottom: var(--bleach-border-width) solid var(--bleach-line);
+    padding-bottom: 6px;
+}
+
+/* Строка настройки (gamepaddialog_Field) — тонкий разделитель снизу */
+.eKmEXJCm_lgme24Fp_HWt {
+    border-bottom: var(--bleach-border-width) solid var(--bleach-line);
+}
+
+.eKmEXJCm_lgme24Fp_HWt._2CCdODv0vfzOMrEBUzZwfI {
+    background: transparent !important;
+}
+
+/* Заголовок и описание строки */
+._3jMlJm4PQCA8SfNlUR99Fo {
+    color: var(--bleach-text) !important;
+}
+
+._1W1to_azoBRG95oNAFpf9Q,
+._1W1to_azoBRG95oNAFpf9Q.DesktopUI,
+.DesktopUI ._1W1to_azoBRG95oNAFpf9Q {
+    color: var(--bleach-text-muted) !important;
+}
+
+/* Отключённая строка */
+.eKmEXJCm_lgme24Fp_HWt.aIeh3X5T2M074RLW1qn6_ ._3jMlJm4PQCA8SfNlUR99Fo,
+.eKmEXJCm_lgme24Fp_HWt.aIeh3X5T2M074RLW1qn6_ ._1W1to_azoBRG95oNAFpf9Q {
+    color: var(--bleach-text-faint) !important;
+}
+
+/* Фокус с геймпада/клавиатуры — подсветка строки вместо серо-синей */
+.eKmEXJCm_lgme24Fp_HWt._2HFrmMgB38Ike5w4rVxzEX.gpfocus {
+    background: var(--bleach-row-hover) !important;
+}
+
+/* ── Millennium: его собственные настройки внутри этого же окна ──────── */
+html.MillenniumWindow_Settings body {
+    background: var(--bleach-window) !important;
+}

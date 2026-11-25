@@ -1,0 +1,151 @@
+/*
+  Bleach Minimal Dark — рамка главного окна: шапка, меню Steam, верхняя
+  навигация, кнопки справа, адресная строка, нижняя панель.
+  Всё внутри body.DesktopUI, чтобы не задеть Big Picture.
+*/
+
+/* ── Полотно окна ────────────────────────────────────────────────────── */
+/* steamdesktop_Wrapper · ContentFrame · LocalContentContainer */
+body.DesktopUI ._1ENHEsrSLcTRtPQFl1F-wL,
+body.DesktopUI ._1rDh5rXSFZJOqCa4UpnI4z,
+body.DesktopUI .RGNMWtyj73_-WdhflrmuY {
+    background: var(--bleach-window) !important;
+    border-color: var(--bleach-line) !important;
+}
+
+/* Полоса фокуса окна (FocusBar) — убираем */
+body.DesktopUI ._3pXasCUulX4jjqO79s4q_F {
+    background: none !important;
+}
+
+/* ── Шапка (TopBar) ──────────────────────────────────────────────────── */
+body.DesktopUI ._3Z7VQ1IMk4E3HsHvrkLNgo {
+    background: var(--bleach-deep) !important;
+    box-shadow: inset 0 calc(-1 * var(--bleach-border-width)) 0 var(--bleach-line) !important;
+}
+
+/* Меню «Steam  Вид  Друзья  Игры  Справка» */
+body.DesktopUI ._2UyOBeiSdBayaFdRa39N2O {
+    color: var(--bleach-text-muted) !important;
+    border-radius: var(--bleach-radius) !important;
+    transition: color var(--bleach-fast) linear, background-color var(--bleach-fast) linear;
+}
+
+body.DesktopUI ._2UyOBeiSdBayaFdRa39N2O:hover,
+body.DesktopUI ._2UyOBeiSdBayaFdRa39N2O._3rgV8pPmQvZC-01x9l-q-N {
+    color: var(--bleach-heading) !important;
+    background: var(--bleach-surface-hover) !important;
+}
+
+/* ── Верхняя навигация: МАГАЗИН / БИБЛИОТЕКА / СООБЩЕСТВО / профиль ─── */
+/* supernav_SuperNavMenu · MenuButton · Selected · Disabled */
+body.DesktopUI ._7AlhCx3XGzBeIrQaCneUD ._19axKcqYRuaJ8vdYKYmtTQ {
+    color: var(--bleach-text-muted) !important;
+    font-weight: 500 !important;
+    letter-spacing: var(--bleach-tracking);
+    text-shadow: none !important;
+    transition: color var(--bleach-fast) linear;
+}
+
+body.DesktopUI ._7AlhCx3XGzBeIrQaCneUD:hover ._19axKcqYRuaJ8vdYKYmtTQ {
+    color: var(--bleach-heading) !important;
+}
+
+/* Активная вкладка — белая, под ней тонкий «клинок» акцентом */
+body.DesktopUI ._7AlhCx3XGzBeIrQaCneUD._1gqEjB5QsKT_NftD1dEsdZ:not(._2cO0HdvLEGAdhosLekWsmo) ._19axKcqYRuaJ8vdYKYmtTQ {
+    color: var(--bleach-heading) !important;
+    text-shadow: none !important;
+}
+
+body.DesktopUI ._7AlhCx3XGzBeIrQaCneUD._1gqEjB5QsKT_NftD1dEsdZ:not(._2cO0HdvLEGAdhosLekWsmo) ._19axKcqYRuaJ8vdYKYmtTQ::after {
+    background: var(--bleach-accent) !important;
+    height: var(--bleach-blade) !important;
+    border-radius: 0 !important;
+}
+
+/* Стрелки назад/вперёд */
+body.DesktopUI ._25lBLzuVeYAUG279up4xP8 {
+    fill: var(--bleach-text-muted) !important;
+}
+
+body.DesktopUI ._25lBLzuVeYAUG279up4xP8:hover {
+    fill: var(--bleach-heading) !important;
+}
+
+body.DesktopUI ._25lBLzuVeYAUG279up4xP8._2cO0HdvLEGAdhosLekWsmo {
+    fill: var(--bleach-text-faint) !important;
+    opacity: 0.5;
+}
+
+/* ── Кнопки справа: уведомления, друзья, аккаунт, загрузки ───────────── */
+/* titlebar_Button · AccountMenu · FriendsButton · DownloadStatusContent */
+body.DesktopUI ._2Szzh5sKyGgnLUR870zbDE,
+body.DesktopUI ._3yD46y5pd3zOGR7CzKs0mC,
+body.DesktopUI ._1TdaAqMFadi0UTqilrkelR,
+body.DesktopUI .ip-YZhijAMZcuRoXBGiye {
+    background: transparent !important;
+    color: var(--bleach-text-muted) !important;
+    border-radius: var(--bleach-radius) !important;
+    box-shadow: none !important;
+    transition: background-color var(--bleach-fast) linear, color var(--bleach-fast) linear;
+}
+
+body.DesktopUI ._2Szzh5sKyGgnLUR870zbDE:hover,
+body.DesktopUI ._3yD46y5pd3zOGR7CzKs0mC:hover,
+body.DesktopUI ._1TdaAqMFadi0UTqilrkelR:hover,
+body.DesktopUI .ip-YZhijAMZcuRoXBGiye:hover,
+body.DesktopUI ._3rgV8pPmQvZC-01x9l-q-N ._2Szzh5sKyGgnLUR870zbDE,
+body.DesktopUI ._3rgV8pPmQvZC-01x9l-q-N ._3yD46y5pd3zOGR7CzKs0mC {
+    background: var(--bleach-surface-hover) !important;
+    color: var(--bleach-heading) !important;
+}
+
+body.DesktopUI ._2Szzh5sKyGgnLUR870zbDE svg,
+body.DesktopUI ._1TdaAqMFadi0UTqilrkelR svg,
+body.DesktopUI ._3yD46y5pd3zOGR7CzKs0mC svg {
+    fill: currentColor !important;
+}
+
+/* Новые уведомления — колокольчик акцентом (NotificationsButton.HasNew) */
+body.DesktopUI .RtSv39ZoBOySnb8XQ5hJf._3L1c8C0o_xXzPy26aoLBFd svg {
+    fill: var(--bleach-accent-text) !important;
+}
+
+/* Мини-прогресс загрузки в шапке */
+body.DesktopUI .wi0pDywRgOCxhG7OqQNaA {
+    --color-progress-bar-foreground: var(--bleach-accent) !important;
+    --color-progress-bar-background: var(--bleach-line) !important;
+}
+
+/* ── Адресная строка во встроенном браузере ──────────────────────────── */
+/* steamdesktop_URLBar · URLBarText · ReloadButton */
+body.DesktopUI .UkR3sY319PuaUNuUWks2K {
+    background: var(--bleach-deep) !important;
+    border-bottom: var(--bleach-border-width) solid var(--bleach-line) !important;
+}
+
+body.DesktopUI ._2m_orETo6AghzAnc0sISCt {
+    color: var(--bleach-text-muted) !important;
+}
+
+body.DesktopUI ._3KaB94Jl4r0hFkthDPJy09 svg {
+    fill: var(--bleach-text-muted) !important;
+}
+
+/* ── Нижняя панель: «Добавить игру», загрузки, друзья ────────────────── */
+/* steamdesktop_BottomBarContainer · BottomBar · AddGameButton */
+body.DesktopUI ._1_yS5UP7el0aN4vntx3dx,
+body.DesktopUI ._3vCzSrrXZzZjVJFZNg9SGu {
+    background: var(--bleach-deep) !important;
+    box-shadow: inset 0 var(--bleach-border-width) 0 var(--bleach-line) !important;
+    color: var(--bleach-text-muted) !important;
+}
+
+body.DesktopUI ._2foCkpRXhqq0UGVE50BWqj {
+    color: var(--bleach-text-muted) !important;
+    transition: color var(--bleach-fast) linear;
+}
+
+body.DesktopUI ._2foCkpRXhqq0UGVE50BWqj:hover {
+    color: var(--bleach-heading) !important;
+}

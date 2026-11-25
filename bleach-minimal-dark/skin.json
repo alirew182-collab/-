@@ -1,0 +1,297 @@
+{
+    "name": "Bleach Minimal Dark",
+    "description": "Тёмный минимализм с эстетикой Bleach: чёрное косоде, белое хаори, reiatsu-свечение, shunpo-анимации и мазки туши. Четыре пресета акцента и свой.",
+    "author": "alirew182-collab",
+    "version": "1.0.0",
+    "tags": [
+        "Dark",
+        "Minimal",
+        "Anime",
+        "Library",
+        "Store",
+        "Friends"
+    ],
+    "credits": "Общий подход (минимализм, тёмные плоские панели) вдохновлён темой Minimal Dark by SaiyajinK — https://github.com/SaiyajinK/Minimal-Dark-for-Steam. Код написан с нуля, не скопирован.",
+    "UseDefaultPatches": false,
+    "RootColors": "colors.css",
+    "Patches": [
+        {
+            "MatchRegexString": "^Steam$",
+            "TargetCss": [
+                "base/variables.css",
+                "base/global.css",
+                "windows/library.css"
+            ]
+        },
+        {
+            "MatchRegexString": ".friendsui-container",
+            "TargetCss": [
+                "base/variables.css",
+                "base/global.css",
+                "windows/friends.css"
+            ]
+        },
+        {
+            "MatchRegexString": ".ModalDialogPopup",
+            "TargetCss": [
+                "base/variables.css",
+                "base/global.css",
+                "windows/settings.css"
+            ]
+        },
+        {
+            "MatchRegexString": "Menu$",
+            "TargetCss": [
+                "base/variables.css",
+                "windows/menus.css"
+            ]
+        },
+        {
+            "MatchRegexString": "Supernav$",
+            "TargetCss": [
+                "base/variables.css",
+                "windows/menus.css"
+            ]
+        },
+        {
+            "MatchRegexString": "https://store\\.steampowered\\.com/.*",
+            "TargetCss": [
+                "base/variables.css",
+                "webkit/store.css"
+            ]
+        }
+    ],
+    "Conditions": {
+        "Пресет акцента": {
+            "tab": "Пресет",
+            "description": "Getsuga — алый, Reiatsu — голубой, Hollow — кость и красный, Quincy — холодный бело-голубой, Свой — цвета «Свой · …» из редактора цветов.",
+            "default": "Getsuga",
+            "values": {
+                "Getsuga": {
+                    "TargetCss": {
+                        "affects": [
+                            "^Steam$",
+                            ".friendsui-container",
+                            ".ModalDialogPopup",
+                            "Menu$",
+                            "Supernav$",
+                            "https://store\\.steampowered\\.com/.*"
+                        ],
+                        "src": "presets/getsuga.css"
+                    }
+                },
+                "Reiatsu": {
+                    "TargetCss": {
+                        "affects": [
+                            "^Steam$",
+                            ".friendsui-container",
+                            ".ModalDialogPopup",
+                            "Menu$",
+                            "Supernav$",
+                            "https://store\\.steampowered\\.com/.*"
+                        ],
+                        "src": "presets/reiatsu.css"
+                    }
+                },
+                "Hollow": {
+                    "TargetCss": {
+                        "affects": [
+                            "^Steam$",
+                            ".friendsui-container",
+                            ".ModalDialogPopup",
+                            "Menu$",
+                            "Supernav$",
+                            "https://store\\.steampowered\\.com/.*"
+                        ],
+                        "src": "presets/hollow.css"
+                    }
+                },
+                "Quincy": {
+                    "TargetCss": {
+                        "affects": [
+                            "^Steam$",
+                            ".friendsui-container",
+                            ".ModalDialogPopup",
+                            "Menu$",
+                            "Supernav$",
+                            "https://store\\.steampowered\\.com/.*"
+                        ],
+                        "src": "presets/quincy.css"
+                    }
+                },
+                "Свой": {
+                    "TargetCss": {
+                        "affects": [
+                            "^Steam$",
+                            ".friendsui-container",
+                            ".ModalDialogPopup",
+                            "Menu$",
+                            "Supernav$",
+                            "https://store\\.steampowered\\.com/.*"
+                        ],
+                        "src": "presets/custom.css"
+                    }
+                }
+            }
+        },
+        "Reiatsu-свечение": {
+            "tab": "Эффекты",
+            "description": "Мягкое свечение цвета пресета на hover у кнопок и на активных вкладках.",
+            "default": "Вкл",
+            "values": {
+                "Вкл": {
+                    "TargetCss": {
+                        "affects": [
+                            "^Steam$",
+                            ".friendsui-container",
+                            ".ModalDialogPopup",
+                            "https://store\\.steampowered\\.com/.*"
+                        ],
+                        "src": "effects/reiatsu-glow.css"
+                    }
+                },
+                "Выкл": {}
+            }
+        },
+        "Shunpo-анимация карточек": {
+            "tab": "Эффекты",
+            "description": "Резкий сдвиг с остаточным образом (120–180 мс) при наведении на карточки игр в библиотеке и магазине.",
+            "default": "Вкл",
+            "values": {
+                "Вкл": {
+                    "TargetCss": {
+                        "affects": [
+                            "^Steam$",
+                            "https://store\\.steampowered\\.com/.*"
+                        ],
+                        "src": "effects/shunpo.css"
+                    }
+                },
+                "Выкл": {}
+            }
+        },
+        "Скорость shunpo": {
+            "tab": "Эффекты",
+            "description": "Длительность shunpo-анимации в миллисекундах.",
+            "default": "150",
+            "slider": {
+                "min": 120,
+                "max": 180,
+                "step": 10,
+                "unit": "ms",
+                "cssVariable": "--bleach-shunpo-duration"
+            }
+        },
+        "Мазки туши": {
+            "tab": "Эффекты",
+            "description": "Абстрактные мазки кисти вместо прямых разделителей под заголовками и в меню.",
+            "default": "Вкл",
+            "values": {
+                "Вкл": {
+                    "TargetCss": {
+                        "affects": [
+                            "^Steam$",
+                            ".friendsui-container",
+                            ".ModalDialogPopup",
+                            "Menu$",
+                            "https://store\\.steampowered\\.com/.*"
+                        ],
+                        "src": "effects/ink-strokes.css"
+                    }
+                },
+                "Выкл": {}
+            }
+        },
+        "Фоновое изображение": {
+            "tab": "Фон",
+            "description": "Ваша картинка assets/background.jpg с затемнением и размытием. Без файла фон остаётся чёрным.",
+            "default": "Выкл",
+            "values": {
+                "Выкл": {},
+                "Клиент": {
+                    "TargetCss": {
+                        "affects": [
+                            "^Steam$"
+                        ],
+                        "src": "effects/background.css"
+                    }
+                },
+                "Клиент и друзья": {
+                    "TargetCss": {
+                        "affects": [
+                            "^Steam$",
+                            ".friendsui-container"
+                        ],
+                        "src": "effects/background.css"
+                    }
+                },
+                "Клиент, друзья и магазин": {
+                    "TargetCss": {
+                        "affects": [
+                            "^Steam$",
+                            ".friendsui-container",
+                            "https://store\\.steampowered\\.com/.*"
+                        ],
+                        "src": "effects/background.css"
+                    }
+                }
+            }
+        },
+        "Затемнение фона": {
+            "tab": "Фон",
+            "description": "Насколько сильно фон перекрыт чёрным (выше — лучше читается текст).",
+            "default": "78",
+            "slider": {
+                "min": 40,
+                "max": 95,
+                "step": 1,
+                "unit": "%",
+                "cssVariable": "--bleach-bg-dim"
+            }
+        },
+        "Размытие фона": {
+            "tab": "Фон",
+            "description": "Размытие картинки в пикселях.",
+            "default": "6",
+            "slider": {
+                "min": 0,
+                "max": 24,
+                "step": 1,
+                "unit": "px",
+                "cssVariable": "--bleach-bg-blur"
+            }
+        },
+        "Шрифт заголовков": {
+            "tab": "Шрифт",
+            "description": "Шрифт с острыми «клинковыми» засечками для заголовков (Google Fonts). Кириллица подставляется из Cormorant.",
+            "default": "Стандартный",
+            "values": {
+                "Стандартный": {},
+                "Cinzel": {
+                    "TargetCss": {
+                        "affects": [
+                            "^Steam$",
+                            ".friendsui-container",
+                            ".ModalDialogPopup",
+                            "Menu$",
+                            "https://store\\.steampowered\\.com/.*"
+                        ],
+                        "src": "fonts/blade-cinzel.css"
+                    }
+                },
+                "Shippori Mincho": {
+                    "TargetCss": {
+                        "affects": [
+                            "^Steam$",
+                            ".friendsui-container",
+                            ".ModalDialogPopup",
+                            "Menu$",
+                            "https://store\\.steampowered\\.com/.*"
+                        ],
+                        "src": "fonts/blade-shippori.css"
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,13 @@
+/*
+  Пресет: Getsuga — чёрный + алое свечение (Гэцуга Тэнсё)
+  Только переназначение переменных. Значения цветов — в colors.css (--bleach-getsuga-*).
+  html:root сильнее, чем :root в base/variables.css, поэтому пресет побеждает
+  независимо от порядка подключения.
+*/
+html:root {
+    --bleach-accent: var(--bleach-getsuga-accent);
+    --bleach-accent-text: var(--bleach-getsuga-accent-text);
+    --bleach-accent-2: var(--bleach-getsuga-accent-2);
+    --bleach-glow: var(--bleach-getsuga-glow);
+    --bleach-on-accent: var(--bleach-getsuga-on-accent);
+}

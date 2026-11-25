@@ -1,0 +1,63 @@
+/*
+  Bleach Minimal Dark — контекстные и выпадающие меню (окна «…Menu» и «…Supernav»).
+*/
+
+body {
+    background: transparent;
+    color: var(--bleach-text);
+}
+
+.contextMenuSectionContent {
+    background: var(--bleach-surface-raised) !important;
+}
+
+.contextMenu {
+    background: var(--bleach-surface-raised) !important;
+    border: var(--bleach-border-width) solid var(--bleach-line-strong) !important;
+    border-radius: var(--bleach-radius);
+    box-shadow: 0 10px 30px var(--bleach-overlay);
+}
+
+.contextMenuItem {
+    color: var(--bleach-text) !important;
+    border-radius: var(--bleach-radius);
+}
+
+.contextMenuItem:hover,
+.contextMenuItem.active {
+    background: var(--bleach-accent) !important;
+    color: var(--bleach-on-accent) !important;
+}
+
+.contextMenuItemHR {
+    background: var(--bleach-line) !important;
+    border-color: var(--bleach-line) !important;
+}
+
+.contextMenuLabel,
+.contextMenuUnselectable {
+    color: var(--bleach-text-faint) !important;
+}
+
+.contextMenuGameHeader {
+    background: var(--bleach-surface) !important;
+    border-bottom: var(--bleach-border-width) solid var(--bleach-line);
+}
+
+.contextMenuGameName,
+.contextMenuGameTitle {
+    color: var(--bleach-heading) !important;
+}
+
+.contextMenuCheckMark {
+    color: var(--bleach-accent-text) !important;
+}
+
+/* Supernav — выпадающее меню под «МАГАЗИН / СООБЩЕСТВО» */
+html:not(.MillenniumWindow_ContextMenu) body a {
+    color: var(--bleach-text);
+}
+
+html:not(.MillenniumWindow_ContextMenu) body a:hover {
+    color: var(--bleach-accent-text);
+}

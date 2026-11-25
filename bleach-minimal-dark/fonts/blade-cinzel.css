@@ -1,0 +1,32 @@
+/*
+  Шрифт заголовков: Cinzel — римские «клинковые» засечки
+  Подключается из Google Fonts (лицензия SIL Open Font License).
+  Кириллица: у Cinzel её нет, поэтому русские буквы берутся из Cormorant SC
+  (тоже Google Fonts, OFL, с кириллицей и острыми засечками).
+  Если Steam не пускает к fonts.googleapis.com — установите шрифты в систему,
+  имена ниже подхватятся локально; иначе останется запасной serif.
+*/
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Cormorant+SC:wght@500;700&display=swap");
+
+html:root {
+    --bleach-font-heading: "Cinzel", "Cormorant SC", Georgia, serif;
+}
+
+html:root :is(
+    h1,
+    h2,
+    h3,
+    .DialogHeader,
+    .DialogSubHeader,
+    .MillenniumWindow_Settings .DialogLabelStrong,
+    .friendsListSectionTitle,
+    .friendGroup .groupName,
+    .contextMenuGameName,
+    .home_page_content h2,
+    .pageheader,
+    .apphub_AppName
+) {
+    font-family: var(--bleach-font-heading) !important;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}

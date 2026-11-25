@@ -1,0 +1,84 @@
+/*
+  Bleach Minimal Dark — производные переменные.
+  Подключается во все окна темы. Цвета здесь только через var() на colors.css.
+
+  Порядок загрузки в Millennium: сначала CSS из Conditions (пресеты, эффекты),
+  потом CSS из Patches (этот файл), в конце — RootColors. Поэтому пресеты
+  пишутся с селектором html:root (он сильнее, чем :root здесь).
+*/
+:root {
+    /* Пресет по умолчанию — Getsuga (переопределяется файлами presets/*.css) */
+    --bleach-accent: var(--bleach-getsuga-accent);
+    --bleach-accent-text: var(--bleach-getsuga-accent-text);
+    --bleach-accent-2: var(--bleach-getsuga-accent-2);
+    --bleach-glow: var(--bleach-getsuga-glow);
+    --bleach-on-accent: var(--bleach-getsuga-on-accent);
+
+    /* Линии хаори: белый с прозрачностью */
+    --bleach-line: color-mix(in srgb, var(--bleach-divider) 12%, transparent);
+    --bleach-line-strong: color-mix(in srgb, var(--bleach-divider) 28%, transparent);
+    --bleach-ink: color-mix(in srgb, var(--bleach-divider) 72%, transparent);
+
+    /* Акцентные производные */
+    --bleach-accent-wash: color-mix(in srgb, var(--bleach-accent) 12%, var(--bleach-surface));
+    --bleach-accent-hover: color-mix(in srgb, var(--bleach-accent) 85%, var(--bleach-heading));
+    --bleach-glow-soft: color-mix(in srgb, var(--bleach-glow) 45%, transparent);
+    --bleach-glow-faint: color-mix(in srgb, var(--bleach-glow) 18%, transparent);
+
+    /* Панели (эффект «Фон» делает их полупрозрачными) */
+    --bleach-panel: var(--bleach-surface);
+    --bleach-panel-raised: var(--bleach-surface-raised);
+    --bleach-overlay: color-mix(in srgb, var(--bleach-shadow) 72%, transparent);
+    --bleach-selection: color-mix(in srgb, var(--bleach-accent) 40%, transparent);
+
+    /* Скроллбар */
+    --bleach-scroll-thumb: color-mix(in srgb, var(--bleach-divider) 16%, transparent);
+    --bleach-scroll-thumb-hover: var(--bleach-accent);
+
+    /* Геометрия и движение */
+    --bleach-radius: 2px;
+    --bleach-radius-lg: 4px;
+    --bleach-border-width: 1px;
+    --bleach-ease: cubic-bezier(0.2, 0.9, 0.1, 1);
+    --bleach-fast: 120ms;
+}
+
+/*
+  Новые модули Steam (модалки, часть настроек) красятся шкалами
+  --color-dull-1…12 и --color-accent-1…12 (стиль Radix: 1–2 фон, 3–5 элементы,
+  6–8 рамки, 9–10 заливка, 11–12 текст). Подменяем их на палитру темы.
+  Семантические шкалы (red/green/yellow для ошибок и успеха) не трогаем.
+*/
+html:root,
+html:root [data-dull-color]:not([data-dull-color="accent"]) {
+    --color-dull-1: var(--bleach-bg-deep);
+    --color-dull-2: var(--bleach-bg);
+    --color-dull-3: var(--bleach-surface);
+    --color-dull-4: var(--bleach-surface-raised);
+    --color-dull-5: var(--bleach-surface-hover);
+    --color-dull-6: color-mix(in srgb, var(--bleach-divider) 10%, var(--bleach-surface));
+    --color-dull-7: color-mix(in srgb, var(--bleach-divider) 16%, var(--bleach-surface));
+    --color-dull-8: color-mix(in srgb, var(--bleach-divider) 26%, var(--bleach-surface));
+    --color-dull-9: var(--bleach-text-faint);
+    --color-dull-10: color-mix(in srgb, var(--bleach-text-faint) 50%, var(--bleach-text-muted));
+    --color-dull-11: var(--bleach-text-muted);
+    --color-dull-12: var(--bleach-text);
+}
+
+html:root,
+html:root:is([data-accent-color="blue"], [data-accent-color="sky"], [data-accent-color="cyan"], [data-accent-color="indigo"], [data-accent-color="iris"]),
+html:root :is([data-accent-color="blue"], [data-accent-color="sky"], [data-accent-color="cyan"], [data-accent-color="indigo"], [data-accent-color="iris"]) {
+    --color-accent-1: color-mix(in srgb, var(--bleach-accent) 5%, var(--bleach-bg));
+    --color-accent-2: color-mix(in srgb, var(--bleach-accent) 9%, var(--bleach-bg));
+    --color-accent-3: color-mix(in srgb, var(--bleach-accent) 14%, var(--bleach-bg));
+    --color-accent-4: color-mix(in srgb, var(--bleach-accent) 20%, var(--bleach-bg));
+    --color-accent-5: color-mix(in srgb, var(--bleach-accent) 26%, var(--bleach-bg));
+    --color-accent-6: color-mix(in srgb, var(--bleach-accent) 34%, var(--bleach-bg));
+    --color-accent-7: color-mix(in srgb, var(--bleach-accent) 45%, var(--bleach-bg));
+    --color-accent-8: color-mix(in srgb, var(--bleach-accent) 60%, var(--bleach-bg));
+    --color-accent-9: var(--bleach-accent);
+    --color-accent-10: var(--bleach-accent-hover);
+    --color-accent-11: var(--bleach-accent-text);
+    --color-accent-12: color-mix(in srgb, var(--bleach-accent-text) 45%, var(--bleach-heading));
+    --color-accent-contrast: var(--bleach-on-accent);
+}

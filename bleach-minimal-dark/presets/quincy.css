@@ -1,0 +1,19 @@
+/*
+  Пресет: Quincy — холодный бело-голубой
+  Только переназначение переменных. Значения цветов — в colors.css (--bleach-quincy-*).
+  html:root сильнее, чем :root в base/variables.css, поэтому пресет побеждает
+  независимо от порядка подключения.
+*/
+html:root {
+    --bleach-accent: var(--bleach-quincy-accent);
+    --bleach-accent-text: var(--bleach-quincy-accent-text);
+    --bleach-accent-2: var(--bleach-quincy-accent-2);
+    --bleach-glow: var(--bleach-quincy-glow);
+    --bleach-on-accent: var(--bleach-quincy-on-accent);
+}
+
+/* Quincy: разделители холодного оттенка */
+html:root {
+    --bleach-line: color-mix(in srgb, var(--bleach-quincy-glow) 16%, transparent);
+    --bleach-line-strong: color-mix(in srgb, var(--bleach-quincy-glow) 32%, transparent);
+}

@@ -1,0 +1,69 @@
+/*
+  Эффект: мазки японской туши вместо прямых разделителей.
+  Мазок — абстрактная SVG-маска (сужающийся штрих с «сухой кистью» и парой
+  брызг), без текста и символов. Цвет задаёт фон под маской:
+  --bleach-ink (белый с прозрачностью), так что пресеты и редактор цветов
+  на него влияют. В самой SVG цветов нет — маска использует только форму.
+*/
+html:root {
+    --bleach-ink-stroke: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 14' preserveAspectRatio='none'%3E%3Cpath fill-rule='evenodd' d='M4 8C40 3 120 2 220 4S420 5 520 6C560 6.5 585 7 597 6C586 9 560 9.5 520 9C420 10 320 11 220 10S50 12 4 8ZM70 5.6C170 4.4 270 5 370 5.8L370 6.4C270 5.7 170 5.2 70 6.2ZM250 8.2C330 8.6 400 8.4 470 7.9L470 8.4C400 8.9 330 9.1 250 8.8Z'/%3E%3Ccircle cx='589' cy='2.6' r='1.3'/%3E%3Ccircle cx='572' cy='12' r='0.9'/%3E%3Ccircle cx='598' cy='10.5' r='0.6'/%3E%3C/svg%3E");
+    --bleach-ink-height: 7px;
+}
+
+/* ── Мазок под заголовками ───────────────────────────────────────────── */
+html:root :is(
+    .DialogHeader,
+    .MillenniumWindow_Settings .DialogSubHeader,
+    .home_page_content h2,
+    .page_content h2
+) {
+    position: relative;
+    border-bottom-color: transparent !important;
+}
+
+html:root :is(
+    .DialogHeader,
+    .MillenniumWindow_Settings .DialogSubHeader,
+    .home_page_content h2,
+    .page_content h2
+)::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 15%;
+    bottom: -4px;
+    height: var(--bleach-ink-height);
+    background: var(--bleach-ink);
+    -webkit-mask: var(--bleach-ink-stroke) no-repeat center / 100% 100%;
+    mask: var(--bleach-ink-stroke) no-repeat center / 100% 100%;
+    pointer-events: none;
+}
+
+/* ── Горизонтальные разделители ──────────────────────────────────────── */
+html:root hr,
+html:root .contextMenuItemHR {
+    height: var(--bleach-ink-height) !important;
+    border: 0 !important;
+    background: var(--bleach-ink) !important;
+    -webkit-mask: var(--bleach-ink-stroke) no-repeat center / 100% 100%;
+    mask: var(--bleach-ink-stroke) no-repeat center / 100% 100%;
+}
+
+/* ── Мазок над подвалом магазина ─────────────────────────────────────── */
+html:root #footer {
+    position: relative;
+    border-top-color: transparent !important;
+}
+
+html:root #footer::before {
+    content: "";
+    position: absolute;
+    top: -4px;
+    left: 10%;
+    right: 10%;
+    height: var(--bleach-ink-height);
+    background: var(--bleach-ink);
+    -webkit-mask: var(--bleach-ink-stroke) no-repeat center / 100% 100%;
+    mask: var(--bleach-ink-stroke) no-repeat center / 100% 100%;
+    pointer-events: none;
+}

@@ -1,0 +1,193 @@
+/*
+  Bleach Minimal Dark — общее для окон клиента (библиотека, друзья, диалоги).
+  Только стабильные классы Steam (Dialog*, ModalPosition*, contextMenu*) и
+  стандартные элементы. Цвета — только переменные.
+*/
+
+/* ── Основа: чёрное косоде ───────────────────────────────────────────── */
+html {
+    background-color: var(--bleach-bg);
+    color-scheme: dark;
+}
+
+body {
+    background-color: var(--bleach-bg);
+    color: var(--bleach-text);
+}
+
+::selection {
+    background: var(--bleach-selection);
+    color: var(--bleach-heading);
+}
+
+:focus-visible {
+    outline: var(--bleach-border-width) solid var(--bleach-accent);
+    outline-offset: 2px;
+}
+
+a {
+    color: var(--bleach-accent-text);
+}
+
+/* ── Скроллбары: тонкие, без стрелок ─────────────────────────────────── */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    background: transparent;
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--bleach-scroll-thumb);
+    border: 2px solid transparent;
+    border-radius: var(--bleach-radius-lg);
+    background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--bleach-scroll-thumb-hover);
+    background-clip: padding-box;
+}
+
+::-webkit-scrollbar-button {
+    display: none;
+}
+
+/* ── Модальные окна и диалоги: плоские панели ────────────────────────── */
+.ModalPosition_Content,
+.DialogContent,
+.DialogContentTransition {
+    background: var(--bleach-panel-raised) !important;
+    border: var(--bleach-border-width) solid var(--bleach-line);
+    border-radius: var(--bleach-radius-lg);
+    box-shadow: 0 16px 48px var(--bleach-overlay);
+}
+
+.DialogBody {
+    background: transparent;
+    color: var(--bleach-text);
+}
+
+.DialogHeader {
+    color: var(--bleach-heading) !important;
+    letter-spacing: 0.04em;
+    border-bottom: var(--bleach-border-width) solid var(--bleach-line);
+}
+
+.DialogFooter {
+    border-top: var(--bleach-border-width) solid var(--bleach-line);
+}
+
+.DialogLabel,
+.DialogLabelStrong {
+    color: var(--bleach-text) !important;
+}
+
+.DialogLabelExplainer,
+.DialogBodyText {
+    color: var(--bleach-text-muted) !important;
+}
+
+.DialogInputPlaceholder,
+::placeholder {
+    color: var(--bleach-text-faint) !important;
+}
+
+/* ── Кнопки: плоские, тонкая белая рамка ─────────────────────────────── */
+.DialogButton {
+    background: var(--bleach-surface-raised) !important;
+    color: var(--bleach-text) !important;
+    border: var(--bleach-border-width) solid var(--bleach-line-strong) !important;
+    border-radius: var(--bleach-radius) !important;
+    background-image: none !important;
+    transition:
+        background-color var(--bleach-fast) var(--bleach-ease),
+        border-color var(--bleach-fast) var(--bleach-ease),
+        color var(--bleach-fast) var(--bleach-ease),
+        box-shadow var(--bleach-fast) var(--bleach-ease);
+}
+
+.DialogButton:hover:not(:disabled) {
+    background: var(--bleach-surface-hover) !important;
+    border-color: var(--bleach-accent) !important;
+    color: var(--bleach-heading) !important;
+}
+
+.DialogButton.Primary,
+.DialogButton[type="submit"] {
+    background: var(--bleach-accent) !important;
+    border-color: var(--bleach-accent) !important;
+    color: var(--bleach-on-accent) !important;
+}
+
+.DialogButton.Primary:hover:not(:disabled),
+.DialogButton[type="submit"]:hover:not(:disabled) {
+    background: var(--bleach-accent-hover) !important;
+    color: var(--bleach-on-accent) !important;
+}
+
+.DialogButton:disabled {
+    opacity: 0.45;
+}
+
+/* ── Поля ввода ──────────────────────────────────────────────────────── */
+.DialogTextInputBase,
+.DialogInput,
+.DialogListBuilderInput,
+input[type="text"],
+input[type="search"],
+input[type="password"],
+textarea {
+    background: var(--bleach-bg-deep) !important;
+    color: var(--bleach-text) !important;
+    border: var(--bleach-border-width) solid var(--bleach-line) !important;
+    border-radius: var(--bleach-radius) !important;
+    caret-color: var(--bleach-accent);
+}
+
+.DialogTextInputBase:focus,
+.DialogInput:focus,
+input:focus,
+textarea:focus {
+    border-color: var(--bleach-accent) !important;
+    outline: none;
+}
+
+/* ── Выпадающие списки, чекбоксы, переключатели ──────────────────────── */
+.DialogDropDown {
+    background: var(--bleach-surface-raised) !important;
+    color: var(--bleach-text) !important;
+    border: var(--bleach-border-width) solid var(--bleach-line) !important;
+    border-radius: var(--bleach-radius) !important;
+    background-image: none !important;
+}
+
+.DialogDropDown:hover {
+    border-color: var(--bleach-accent) !important;
+}
+
+.DialogCheckbox {
+    accent-color: var(--bleach-accent);
+}
+
+.DialogMenuPosition {
+    background: var(--bleach-panel-raised) !important;
+    border: var(--bleach-border-width) solid var(--bleach-line-strong);
+    border-radius: var(--bleach-radius);
+}
+
+/* ── Таблицы в диалогах ──────────────────────────────────────────────── */
+.DialogSpanningTable {
+    border-color: var(--bleach-line);
+}
+
+/* ── Горизонтальные разделители: тонкая белая линия ──────────────────── */
+hr {
+    border: 0;
+    height: var(--bleach-border-width);
+    background: var(--bleach-line);
+}

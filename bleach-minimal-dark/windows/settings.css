@@ -1,0 +1,62 @@
+/*
+  Bleach Minimal Dark — настройки Steam и всплывающие диалоги (.ModalDialogPopup).
+  Общие Dialog*-элементы уже покрашены в base/global.css, здесь — раскладка
+  окна настроек. html.MillenniumWindow_Settings Millennium ставит сам
+  (по локализованному заголовку окна), так что работает на любом языке.
+*/
+
+html.MillenniumWindow_Settings body,
+html.MillenniumWindow_GameProperties body {
+    background: var(--bleach-bg) !important;
+}
+
+/* ── Левая колонка разделов ──────────────────────────────────────────── */
+html.MillenniumWindow_Settings :is(.PageListColumn, [role="tablist"]) {
+    background: var(--bleach-bg-deep) !important;
+    border-right: var(--bleach-border-width) solid var(--bleach-line);
+    border-bottom: 0;
+}
+
+html.MillenniumWindow_Settings :is(.PageListItem, [role="tab"]) {
+    color: var(--bleach-text-muted) !important;
+    border-radius: var(--bleach-radius);
+    box-shadow: none;
+}
+
+html.MillenniumWindow_Settings :is(.PageListItem, [role="tab"]):hover {
+    background: var(--bleach-surface-hover) !important;
+    color: var(--bleach-heading) !important;
+}
+
+html.MillenniumWindow_Settings :is(.PageListItem, [role="tab"]):is(.Selected, [aria-selected="true"]) {
+    background: var(--bleach-accent-wash) !important;
+    color: var(--bleach-heading) !important;
+    box-shadow: inset 2px 0 0 var(--bleach-accent);
+}
+
+/* ── Правая панель ───────────────────────────────────────────────────── */
+html.MillenniumWindow_Settings :is(.DialogContent, .DialogContentTransition, .DialogBody) {
+    background: var(--bleach-panel) !important;
+    border: 0;
+    box-shadow: none;
+}
+
+/* Подзаголовки разделов — белые, с тонкой линией снизу */
+html.MillenniumWindow_Settings :is(.DialogHeader, .DialogSubHeader, h2) {
+    color: var(--bleach-heading) !important;
+    border-bottom: var(--bleach-border-width) solid var(--bleach-line);
+    padding-bottom: 6px;
+}
+
+/* Строки настроек: тонкие разделители вместо полос */
+html.MillenniumWindow_Settings .DialogToggleField,
+html.MillenniumWindow_Settings .DialogInputLabelGroup {
+    border-bottom: var(--bleach-border-width) solid var(--bleach-line);
+}
+
+/* Переключатели в новых настройках используют --color-accent-* (см. variables.css),
+   плюс подстраховка для чекбоксов */
+html.MillenniumWindow_Settings input[type="checkbox"],
+html.MillenniumWindow_Settings input[type="range"] {
+    accent-color: var(--bleach-accent);
+}

@@ -1,0 +1,56 @@
+/*
+  Эффект: фоновое изображение с затемнением и размытием.
+  Картинку кладёте вы сами: assets/background.jpg (тема изображений не содержит).
+  Нет файла — фон просто остаётся чёрным.
+
+  Путь задаётся здесь же, где используется: относительный url() в
+  CSS-переменной считается от этого файла (effects/), поэтому "../assets/…".
+  Хотите другой файл — поменяйте только эту строку.
+*/
+html:root {
+    --bleach-bg-image: url("../assets/background.jpg");
+
+    /* Панели становятся полупрозрачными, чтобы фон просвечивал */
+    --bleach-panel: color-mix(in srgb, var(--bleach-surface) 82%, transparent);
+    --bleach-panel-raised: color-mix(in srgb, var(--bleach-surface-raised) 92%, transparent);
+}
+
+/* Слои: картинка (::before) → затемнение (::after) → интерфейс */
+html:root body {
+    background-color: transparent !important;
+}
+
+html:root body::before,
+html:root body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+}
+
+html:root body::before {
+    /* запас по краям, чтобы размытие не давало светлую кайму */
+    inset: calc(-2 * var(--bleach-bg-blur, 6px));
+    background: var(--bleach-bg-image) center / cover no-repeat;
+    filter: blur(var(--bleach-bg-blur, 6px)) saturate(0.85);
+}
+
+html:root body::after {
+    background: var(--bleach-bg);
+    /* ползунок «Затемнение фона»: 40–95 % */
+    opacity: var(--bleach-bg-dim, 78%);
+}
+
+/* Магазин: убираем собственные фоны страниц, чтобы был виден ваш */
+html:root :is(
+    body.v6,
+    .responsive_page_frame,
+    .responsive_page_content,
+    .page_content_ctn,
+    .home_page_body_ctn,
+    .game_page_background
+) {
+    background-color: transparent !important;
+    background-image: none !important;
+}

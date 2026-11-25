@@ -1,0 +1,47 @@
+/*
+  Эффект: shunpo — «мгновенный шаг». При наведении на карточку игры она
+  резко смещается с полупрозрачным «остаточным образом» и встаёт на место
+  чуть выше. Длительность — ползунок «Скорость шунпо» (120–180 мс).
+*/
+
+@keyframes bleach-shunpo {
+    0% {
+        transform: translate3d(0, 0, 0);
+        opacity: 1;
+    }
+    30% {
+        transform: translate3d(-6px, 0, 0);
+        opacity: 0.4;
+    }
+    65% {
+        transform: translate3d(3px, -4px, 0);
+        opacity: 1;
+    }
+    100% {
+        transform: translate3d(0, -3px, 0);
+        opacity: 1;
+    }
+}
+
+/*
+  Карточки клиента ищем по обложке: прямой родитель картинки library_600x900
+  (это и есть «карточка» — не зависит от хэш-классов Steam).
+  Карточки магазина — по стабильным классам.
+*/
+html:root :where(div, a):has(> img[src*="library_600x900"]):hover,
+html:root :is(.store_capsule, .tab_item, .search_result_row, .recommendation, .home_area_spotlight, .store_main_capsule):hover {
+    animation: bleach-shunpo var(--bleach-shunpo-duration, 150ms) var(--bleach-ease) forwards;
+    will-change: transform, opacity;
+}
+
+/* Остаточный образ: тонкая вспышка рамки цвета свечения */
+html:root :where(div, a):has(> img[src*="library_600x900"]):hover > img[src*="library_600x900"] {
+    box-shadow: -8px 0 0 -6px var(--bleach-glow-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html:root :where(div, a):has(> img[src*="library_600x900"]):hover,
+    html:root :is(.store_capsule, .tab_item, .search_result_row, .recommendation, .home_area_spotlight, .store_main_capsule):hover {
+        animation: none;
+    }
+}

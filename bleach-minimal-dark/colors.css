@@ -1,0 +1,197 @@
+/*
+  Bleach Minimal Dark — RootColors
+  Единственное место, где цвета записаны значениями. Все остальные файлы
+  темы берут их только через var(--bleach-…).
+
+  Millennium читает этот блок :root построчно: комментарий с @name/@description
+  на отдельной строке перед переменной даёт ей имя и подсказку в редакторе
+  цветов (Millennium → Темы → Bleach Minimal Dark → Цвета).
+  Пишите только #hex (без rgba с дробной альфой — Millennium её не сохраняет).
+*/
+:root {
+    /**
+     * @name Фон: косоде (основной)
+     * @description Почти чёрный фон окон
+     */
+    --bleach-bg: #0b0b0b;
+    /**
+     * @name Фон: глубокий
+     * @description Поля ввода, подложки, самый тёмный слой
+     */
+    --bleach-bg-deep: #070707;
+    /**
+     * @name Панель
+     * @description Плоские панели и карточки
+     */
+    --bleach-surface: #131313;
+    /**
+     * @name Панель: приподнятая
+     * @description Кнопки, выпадающие меню, модальные окна
+     */
+    --bleach-surface-raised: #1a1a1a;
+    /**
+     * @name Панель: наведение
+     * @description Фон элемента под курсором
+     */
+    --bleach-surface-hover: #222222;
+    /**
+     * @name Разделители (хаори)
+     * @description Белые тонкие линии и мазки туши; прозрачность задаётся в теме
+     */
+    --bleach-divider: #f2f2f2;
+    /**
+     * @name Тень
+     * @description Цвет теней и затемнения фона
+     */
+    --bleach-shadow: #000000;
+    /**
+     * @name Текст
+     * @description Основной текст (контраст с фоном 16:1)
+     */
+    --bleach-text: #ecebe8;
+    /**
+     * @name Текст: вторичный
+     * @description Подписи и описания (контраст 7:1+)
+     */
+    --bleach-text-muted: #a8a6a2;
+    /**
+     * @name Текст: тихий
+     * @description Метаданные и плейсхолдеры (контраст 4.5:1+)
+     */
+    --bleach-text-faint: #8a8885;
+    /**
+     * @name Заголовки
+     * @description Белые заголовки — хаори капитана
+     */
+    --bleach-heading: #ffffff;
+
+    /**
+     * @name Getsuga · акцент
+     * @description Алый — основной акцент пресета Getsuga
+     */
+    --bleach-getsuga-accent: #c1121f;
+    /**
+     * @name Getsuga · текст акцента
+     * @description Светлее акцента, чтобы ссылки читались на чёрном (6:1)
+     */
+    --bleach-getsuga-accent-text: #ff5a64;
+    /**
+     * @name Getsuga · второй акцент
+     * @description Тонкие индикаторы и полосы
+     */
+    --bleach-getsuga-accent-2: #f2f2f2;
+    /**
+     * @name Getsuga · свечение
+     * @description Цвет reiatsu-свечения
+     */
+    --bleach-getsuga-glow: #e3242f;
+    /**
+     * @name Getsuga · текст на акценте
+     * @description Текст на алых кнопках
+     */
+    --bleach-getsuga-on-accent: #ffffff;
+
+    /**
+     * @name Reiatsu · акцент
+     * @description Голубое духовное давление
+     */
+    --bleach-reiatsu-accent: #4cc9f0;
+    /**
+     * @name Reiatsu · текст акцента
+     * @description Ссылки и активные подписи
+     */
+    --bleach-reiatsu-accent-text: #4cc9f0;
+    /**
+     * @name Reiatsu · второй акцент
+     * @description Тонкие индикаторы и полосы
+     */
+    --bleach-reiatsu-accent-2: #ffffff;
+    /**
+     * @name Reiatsu · свечение
+     * @description Цвет reiatsu-свечения
+     */
+    --bleach-reiatsu-glow: #4cc9f0;
+    /**
+     * @name Reiatsu · текст на акценте
+     * @description Текст на голубых кнопках
+     */
+    --bleach-reiatsu-on-accent: #04131a;
+
+    /**
+     * @name Hollow · акцент
+     * @description Костяной белый
+     */
+    --bleach-hollow-accent: #e9e4d8;
+    /**
+     * @name Hollow · текст акцента
+     * @description Ссылки и активные подписи
+     */
+    --bleach-hollow-accent-text: #e9e4d8;
+    /**
+     * @name Hollow · второй акцент
+     * @description Красные индикаторы и полосы
+     */
+    --bleach-hollow-accent-2: #d00000;
+    /**
+     * @name Hollow · свечение
+     * @description Красное свечение пустого
+     */
+    --bleach-hollow-glow: #d00000;
+    /**
+     * @name Hollow · текст на акценте
+     * @description Текст на костяных кнопках
+     */
+    --bleach-hollow-on-accent: #140c0c;
+
+    /**
+     * @name Quincy · акцент
+     * @description Холодный бело-голубой
+     */
+    --bleach-quincy-accent: #cfe8ff;
+    /**
+     * @name Quincy · текст акцента
+     * @description Ссылки и активные подписи
+     */
+    --bleach-quincy-accent-text: #cfe8ff;
+    /**
+     * @name Quincy · второй акцент
+     * @description Тонкие индикаторы и полосы
+     */
+    --bleach-quincy-accent-2: #ffffff;
+    /**
+     * @name Quincy · свечение
+     * @description Холодное голубое свечение
+     */
+    --bleach-quincy-glow: #7cc4ff;
+    /**
+     * @name Quincy · текст на акценте
+     * @description Текст на светлых кнопках
+     */
+    --bleach-quincy-on-accent: #0a1520;
+
+    /**
+     * @name Свой · акцент
+     * @description Акцент пресета «Свой» — меняйте как угодно
+     */
+    --bleach-custom-accent: #c77dff;
+    /**
+     * @name Свой · текст акцента
+     * @description Держите контраст с фоном не ниже 4.5:1
+     */
+    --bleach-custom-accent-text: #d4a5ff;
+    /**
+     * @name Свой · второй акцент
+     * @description Тонкие индикаторы и полосы
+     */
+    --bleach-custom-accent-2: #ffffff;
+    /**
+     * @name Свой · свечение
+     * @description Цвет reiatsu-свечения
+     */
+    --bleach-custom-glow: #c77dff;
+    /**
+     * @name Свой · текст на акценте
+     * @description Текст на кнопках с акцентом
+     */
+    --bleach-custom-on-accent: #14081f;
+}

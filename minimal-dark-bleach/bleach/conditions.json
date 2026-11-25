@@ -1,0 +1,223 @@
+{
+    "Bleach · Цвет :": {
+        "tab": "Bleach",
+        "description": "> Акцент Bleach для всего Minimal Dark (клиент, друзья, меню, магазин).\n\n- Getsuga : алый.\n- Reiatsu : голубое духовное давление.\n- Hollow : красный, установленные игры — костяным белым.\n- Quincy : холодный бело-голубой.\n- Как в Minimal Dark : цвет из настроек Millennium.",
+        "default": "Getsuga",
+        "values": {
+            "Getsuga": {
+                "TargetCss": {
+                    "affects": [
+                        "^Steam$",
+                        ".DesktopUI",
+                        ".friendsui-container",
+                        ".ModalDialogPopup",
+                        ".FullModalOverlay",
+                        "Menu$",
+                        "Supernav$",
+                        "^notificationtoasts_",
+                        "https://store\\.steampowered\\.com/.*",
+                        "https://steamcommunity\\.com/.*"
+                    ],
+                    "src": "bleach/presets/getsuga.css"
+                }
+            },
+            "Reiatsu": {
+                "TargetCss": {
+                    "affects": [
+                        "^Steam$",
+                        ".DesktopUI",
+                        ".friendsui-container",
+                        ".ModalDialogPopup",
+                        ".FullModalOverlay",
+                        "Menu$",
+                        "Supernav$",
+                        "^notificationtoasts_",
+                        "https://store\\.steampowered\\.com/.*",
+                        "https://steamcommunity\\.com/.*"
+                    ],
+                    "src": "bleach/presets/reiatsu.css"
+                }
+            },
+            "Hollow": {
+                "TargetCss": {
+                    "affects": [
+                        "^Steam$",
+                        ".DesktopUI",
+                        ".friendsui-container",
+                        ".ModalDialogPopup",
+                        ".FullModalOverlay",
+                        "Menu$",
+                        "Supernav$",
+                        "^notificationtoasts_",
+                        "https://store\\.steampowered\\.com/.*",
+                        "https://steamcommunity\\.com/.*"
+                    ],
+                    "src": "bleach/presets/hollow.css"
+                }
+            },
+            "Quincy": {
+                "TargetCss": {
+                    "affects": [
+                        "^Steam$",
+                        ".DesktopUI",
+                        ".friendsui-container",
+                        ".ModalDialogPopup",
+                        ".FullModalOverlay",
+                        "Menu$",
+                        "Supernav$",
+                        "^notificationtoasts_",
+                        "https://store\\.steampowered\\.com/.*",
+                        "https://steamcommunity\\.com/.*"
+                    ],
+                    "src": "bleach/presets/quincy.css"
+                }
+            },
+            "Как в Minimal Dark": {}
+        }
+    },
+    "Bleach · Обложки игр :": {
+        "tab": "Bleach",
+        "description": "> Ваши Bleach-арты вместо обложек игр в библиотеке (картинки из bleach/assets/covers, по кругу).\n\n- С обложкой при наведении : арт, а при наведении — настоящая обложка игры.\n- Только арт : всегда арт.\n- Обычные : обложки Steam.",
+        "default": "С обложкой при наведении",
+        "values": {
+            "С обложкой при наведении": {
+                "TargetCss": {
+                    "affects": [
+                        "^Steam$",
+                        ".DesktopUI"
+                    ],
+                    "src": "bleach/generated/covers-hover.css"
+                }
+            },
+            "Только арт": {
+                "TargetCss": {
+                    "affects": [
+                        "^Steam$",
+                        ".DesktopUI"
+                    ],
+                    "src": "bleach/generated/covers.css"
+                }
+            },
+            "Обычные": {}
+        }
+    },
+    "Bleach · Шапка страницы игры :": {
+        "tab": "Bleach",
+        "description": "> Bleach-арт (bleach/assets/hero.*) вместо широкой картинки игры вверху страницы. Логотип игры остаётся.",
+        "default": "Bleach-арт",
+        "values": {
+            "Bleach-арт": {
+                "TargetCss": {
+                    "affects": [
+                        "^Steam$",
+                        ".DesktopUI"
+                    ],
+                    "src": "bleach/generated/hero.css"
+                }
+            },
+            "Обычная": {}
+        }
+    },
+    "Bleach · Фон библиотеки :": {
+        "tab": "Bleach",
+        "description": "> Затемнённый Bleach-арт (bleach/assets/background.*) на главной библиотеки и арт внизу левой колонки (bleach/assets/sidebar.*).",
+        "default": "Вкл",
+        "values": {
+            "Вкл": {
+                "TargetCss": {
+                    "affects": [
+                        "^Steam$",
+                        ".DesktopUI"
+                    ],
+                    "src": "bleach/generated/library-bg.css"
+                }
+            },
+            "Выкл": {}
+        }
+    },
+    "Bleach · Иероглифы :": {
+        "tab": "Bleach",
+        "description": "> Крупные полупрозрачные водяные знаки: 卍解 (банкай) на главной, 死神 (синигами) в левой колонке, 斬魄刀 (дзанпакто) на странице игры.",
+        "default": "Вкл",
+        "values": {
+            "Вкл": {
+                "TargetCss": {
+                    "affects": [
+                        "^Steam$",
+                        ".DesktopUI"
+                    ],
+                    "src": "bleach/kanji.css"
+                }
+            },
+            "Выкл": {}
+        }
+    },
+    "Bleach · Reiatsu-свечение :": {
+        "tab": "Bleach",
+        "description": "> Мягкая аура цвета акцента на кнопке «Играть», кнопках, выбранной игре и карточках при наведении.",
+        "default": "Вкл",
+        "values": {
+            "Вкл": {
+                "TargetCss": {
+                    "affects": [
+                        "^Steam$",
+                        ".DesktopUI",
+                        ".friendsui-container",
+                        ".ModalDialogPopup",
+                        ".FullModalOverlay"
+                    ],
+                    "src": "bleach/effects/reiatsu-glow.css"
+                }
+            },
+            "Выкл": {}
+        }
+    },
+    "Bleach · Shunpo :": {
+        "tab": "Bleach",
+        "description": "> «Мгновенный шаг»: резкий сдвиг карточки игры с остаточным образом при наведении. Анимируется только translate — без нагрузки.",
+        "default": "Вкл",
+        "values": {
+            "Вкл": {
+                "TargetCss": {
+                    "affects": [
+                        "^Steam$",
+                        ".DesktopUI"
+                    ],
+                    "src": "bleach/effects/shunpo.css"
+                }
+            },
+            "Выкл": {}
+        }
+    },
+    "Bleach · Скорость shunpo :": {
+        "tab": "Bleach",
+        "description": "> Длительность shunpo в миллисекундах.",
+        "default": "150",
+        "slider": {
+            "min": 120,
+            "max": 180,
+            "step": 10,
+            "unit": "ms",
+            "cssVariable": "--bleach-shunpo-duration"
+        }
+    },
+    "Bleach · Мазки туши :": {
+        "tab": "Bleach",
+        "description": "> Линии у заголовков полок и разделители меню — абстрактный штрих кисти.",
+        "default": "Вкл",
+        "values": {
+            "Вкл": {
+                "TargetCss": {
+                    "affects": [
+                        "^Steam$",
+                        ".DesktopUI",
+                        "Menu$",
+                        "Supernav$"
+                    ],
+                    "src": "bleach/effects/ink-strokes.css"
+                }
+            },
+            "Выкл": {}
+        }
+    }
+}

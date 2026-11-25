@@ -1,0 +1,20 @@
+/*
+  Bleach · shunpo — «мгновенный шаг» карточки игры при наведении: резкий сдвиг
+  с полупрозрачным остаточным образом. Анимируется только translate у обёртки
+  appportrait_Draggable (у Steam она уже в отдельном слое), поэтому без нагрузки
+  на раскладку и без конфликта с наклоном карточки. Длительность — ползунок.
+*/
+@keyframes bleach-shunpo {
+    0%   { translate: 0 0;      opacity: 1; }
+    30%  { translate: -6px 0;   opacity: 0.45; }
+    65%  { translate: 3px -4px; opacity: 1; }
+    100% { translate: 0 -3px;   opacity: 1; }
+}
+
+html:root body.DesktopUI ._1pwP4eeP1zQD7PEgmsep0W:hover {
+    animation: bleach-shunpo var(--bleach-shunpo-duration, 150ms) cubic-bezier(0.2, 0.9, 0.1, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html:root body.DesktopUI ._1pwP4eeP1zQD7PEgmsep0W:hover { animation: none; }
+}

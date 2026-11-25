@@ -1,0 +1,30 @@
+/*
+  Bleach · пресет Quincy — холодный бело-голубой.
+  Minimal Dark строит весь акцент из системного цвета Millennium
+  (--SystemAccentColor в клиенте, --SystemAccentColorAccent в магазине) и
+  своих --minimal_dark_color*. Здесь они переопределяются на палитру Bleach.
+  html:root + !important — сильнее, чем :root { … !important } у Minimal Dark
+  и у Millennium, независимо от порядка подключения.
+  Это единственное место, где цвета пресета записаны значениями.
+*/
+html:root {
+    --bleach-accent: #9fd3ff !important;
+    --bleach-accent-rgb: 159, 211, 255 !important;
+    --bleach-glow: #7cc4ff !important;
+    --bleach-bone: #f4f9ff !important;
+
+    /* клиент */
+    --SystemAccentColor: var(--bleach-accent) !important;
+    --SystemAccentColor-RGB: var(--bleach-accent-rgb) !important;
+    --minimal_dark_color: var(--bleach-accent) !important;
+    --minimal_dark_color_rgb: var(--bleach-accent-rgb) !important;
+
+    /* магазин и сообщество (webkit.css Minimal Dark) */
+    --SystemAccentColorAccent: var(--bleach-accent) !important;
+    --SystemAccentColorAccent-RGB: var(--bleach-accent-rgb) !important;
+    --minimal_dark_color1: var(--bleach-accent) !important;
+    --minimal_dark_color_rgb1: var(--bleach-accent-rgb) !important;
+
+    /* установленные игры в списке — «костяной» вместо бежевого */
+    --minimal_dark_installed_games: var(--bleach-bone) !important;
+}

@@ -1,0 +1,31 @@
+/*
+  Bleach · reiatsu-свечение: мягкая аура цвета акцента на кнопке «Играть»,
+  кнопках диалогов и выбранной игре. Только box-shadow, только на hover.
+*/
+html:root {
+    --bleach-glow-soft: color-mix(in srgb, var(--bleach-glow, var(--minimal_dark_color)) 45%, transparent);
+    --bleach-glow-faint: color-mix(in srgb, var(--bleach-glow, var(--minimal_dark_color)) 18%, transparent);
+}
+
+/* «Играть» (appactionbutton_PlayButtonContainer > ButtonChild) */
+html:root body.DesktopUI ._1FnJ6dPuknQFQ2RTpKTI16 ._2AzIX5kl9k6JnxLfR5H4kX:hover {
+    box-shadow:
+        0 0 0 1px var(--bleach-glow-soft),
+        0 0 16px var(--bleach-glow-soft),
+        0 0 40px var(--bleach-glow-faint) !important;
+}
+
+/* Кнопки диалогов */
+html:root .DialogButton:not(:disabled):not(.Disabled):hover {
+    box-shadow: 0 0 0 1px var(--bleach-glow-soft), 0 0 12px var(--bleach-glow-faint) !important;
+}
+
+/* Выбранная игра в списке слева (gamelistentry_Container.Selected) */
+html:root body.DesktopUI ._2-O4ZG0KrnSrzISHBKctFQ._1UBpAXP408Ez_L_mXhW5Q9 {
+    box-shadow: inset 14px 0 18px -14px var(--bleach-glow-soft) !important;
+}
+
+/* Карточка игры при наведении — аура вместо тени (appportrait_LibraryItemBox) */
+html:root body.DesktopUI ._1pwP4eeP1zQD7PEgmsep0W:hover .WYgDg9NyCcMIVuMyZ_NBC {
+    box-shadow: 0 0 0 1px var(--bleach-glow-soft), 0 10px 28px -6px var(--bleach-glow-faint) !important;
+}

@@ -1,0 +1,70 @@
+/*
+  Bleach · иероглифы: крупные полупрозрачные водяные знаки в пустых местах.
+  Это обычные японские слова (не логотипы):
+    卍解 — банкай,  死神 — синигами,  斬魄刀 — дзанпакто.
+  Не перехватывают клики (pointer-events: none) и не влияют на раскладку.
+*/
+/* Общие свойства всех водяных знаков. Steam и Minimal Dark местами обнуляют
+   размеры ::before/::after, поэтому размеры заданы явно и с !important. */
+html:root body.DesktopUI ._3Sb2o_mQ30IDRh0C72QUUu::after,
+html:root body.DesktopUI ._9sPoVBFyE_vE87mnZJ5aB::after,
+html:root body.DesktopUI ._2l416KfEtI4CL0mCUEmOBw::before {
+    display: block !important;
+    width: auto !important;
+    height: auto !important;
+    line-height: 1 !important;
+    background: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    white-space: pre !important;   /* символы столбиком через \A */
+    text-align: center;
+}
+
+html:root {
+    --bleach-kanji-color: color-mix(in srgb, var(--bleach-accent, var(--minimal_dark_color)) 9%, transparent);
+    --bleach-kanji-font: "Yu Mincho", "YuMincho", "Noto Serif JP", "MS Mincho", serif;
+}
+
+/* Главная библиотеки — вертикально в правом нижнем углу (libraryhome_LibraryHome) */
+html:root body.DesktopUI ._3Sb2o_mQ30IDRh0C72QUUu::after {
+    content: "卍\A解";
+    position: fixed;
+    right: 28px;
+    bottom: 16px;
+    font-family: var(--bleach-kanji-font);
+    font-size: 150px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--bleach-kanji-color);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Левая колонка — внизу, под списком игр (library_LeftListSizableContainer) */
+html:root body.DesktopUI ._9sPoVBFyE_vE87mnZJ5aB::after {
+    content: "死神";
+    position: absolute;
+    left: 50%;
+    bottom: 10px;
+    translate: -50% 0;
+    font-family: var(--bleach-kanji-font);
+    font-size: 64px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: var(--bleach-kanji-color);
+    pointer-events: none;
+}
+
+/* Страница игры — за панелью статистики, справа (appdetails_ScrollContainer) */
+html:root body.DesktopUI ._2l416KfEtI4CL0mCUEmOBw::before {
+    content: "斬\A魄\A刀";
+    position: fixed;
+    right: 24px;
+    bottom: 20px;
+    font-family: var(--bleach-kanji-font);
+    font-size: 96px;
+    font-weight: 700;
+    color: var(--bleach-kanji-color);
+    pointer-events: none;
+    z-index: 0;
+}

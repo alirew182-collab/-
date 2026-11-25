@@ -1,0 +1,20 @@
+/*
+  Bleach · мазки японской туши: линия у заголовков полок на главной и
+  разделители меню становятся абстрактным штрихом кисти (SVG-маска, без
+  текста и символов; цвет — белый с прозрачностью).
+*/
+html:root {
+    --bleach-ink: color-mix(in srgb, white 70%, transparent);
+    --bleach-ink-stroke: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 14' preserveAspectRatio='none'%3E%3Cpath fill-rule='evenodd' d='M4 8C40 3 120 2 220 4S420 5 520 6C560 6.5 585 7 597 6C586 9 560 9.5 520 9C420 10 320 11 220 10S50 12 4 8ZM70 5.6C170 4.4 270 5 370 5.8L370 6.4C270 5.7 170 5.2 70 6.2ZM250 8.2C330 8.6 400 8.4 470 7.9L470 8.4C400 8.9 330 9.1 250 8.8Z'/%3E%3Ccircle cx='589' cy='2.6' r='1.3'/%3E%3Ccircle cx='572' cy='12' r='0.9'/%3E%3Ccircle cx='598' cy='10.5' r='0.6'/%3E%3C/svg%3E");
+}
+
+/* libraryhomeshowcases_Rule · разделители контекстных меню */
+html:root body.DesktopUI ._1PhK8scyztOxjJwWUpkiLJ,
+html:root .WUOrULWKkGLl3ZUQdDXg8,
+html:root .IjIBR_wDDi2N77Oz4KAT4 {
+    height: 7px !important;
+    border: 0 !important;
+    background: var(--bleach-ink) !important;
+    -webkit-mask: var(--bleach-ink-stroke) no-repeat center / 100% 100%;
+    mask: var(--bleach-ink-stroke) no-repeat center / 100% 100%;
+}
